@@ -3,77 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Motor de Rotas - Foco Interativo</title>
+    <title>Motor de Rotas - Premium Blue</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
         :root {
-            --bg-principal: #121212;
-            --bg-card: #1e1e1e;
-            --bg-input: #2a2a2a;
-            --verde-neon: #00ff66;
-            --texto-principal: #ffffff;
-            --texto-secundario: #a0a0a0;
-            --borda: #333333;
+            /* Nova Paleta Blue/Slate Dark Mode */
+            --bg-principal: #0f172a; /* Slate 900 */
+            --bg-card: #1e293b; /* Slate 800 */
+            --bg-input: #334155; /* Slate 700 */
+            --cor-primaria: #38bdf8; /* Sky 400 - Azul vibrante */
+            --cor-primaria-hover: #0ea5e9; /* Sky 500 */
+            --texto-principal: #f8fafc;
+            --texto-secundario: #94a3b8;
+            --borda: #334155;
+            --sombra-card: rgba(0, 0, 0, 0.2);
         }
 
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background-color: var(--bg-principal); color: var(--texto-principal); overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background-color: var(--bg-principal); color: var(--texto-principal); overflow: hidden; }
         
         @media (max-width: 768px) { body { flex-direction: column-reverse; } #sidebar { width: 100% !important; height: 50vh; border-right: none; border-top: 1px solid var(--borda); } #map { height: 50vh; } }
         
-        #sidebar { width: 400px; background: var(--bg-principal); border-right: 1px solid var(--borda); display: flex; flex-direction: column; z-index: 1000; box-shadow: 5px 0 15px rgba(0,0,0,0.5); position: relative; }
-        .header { padding: 20px; background: var(--bg-card); border-bottom: 1px solid var(--borda); }
-        .header h3 { margin: 0 0 6px 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
-        .header p { margin: 0; font-size: 11px; color: var(--verde-neon); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
-        .badge-otimizado { background: var(--verde-neon); color: var(--bg-principal); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        #sidebar { width: 420px; background: var(--bg-principal); border-right: 1px solid var(--borda); display: flex; flex-direction: column; z-index: 1000; box-shadow: 4px 0 20px rgba(0,0,0,0.4); position: relative; }
+        .header { padding: 24px 20px; background: var(--bg-card); border-bottom: 1px solid var(--borda); }
+        .header h3 { margin: 0 0 6px 0; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; letter-spacing: -0.5px; }
+        .header p { margin: 0; font-size: 11px; color: var(--texto-secundario); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Badge refinado */
+        .badge-otimizado { background: rgba(56, 189, 248, 0.15); color: var(--cor-primaria); font-size: 10px; padding: 4px 8px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.3); }
 
         .conteudo-aba { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .aba-escondida { display: none !important; }
         
-        .filtros, .busca-container { padding: 12px 16px; background: var(--bg-principal); display: flex; gap: 8px; border-bottom: 1px solid var(--borda); }
-        .filtros select, .busca-container input { flex: 1; padding: 10px; border-radius: 6px; background: var(--bg-input); border: 1px solid var(--borda); color: var(--texto-principal); font-size: 13px; outline: none; -webkit-appearance: none; appearance: none; }
-        .filtros select:focus, .busca-container input:focus { border-color: var(--verde-neon); }
+        .filtros, .busca-container { padding: 16px 20px; background: var(--bg-principal); display: flex; gap: 10px; border-bottom: 1px solid var(--borda); }
+        .filtros select, .busca-container input { flex: 1; padding: 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; -webkit-appearance: none; appearance: none; transition: all 0.2s ease; cursor: pointer; }
+        .filtros select:focus, .busca-container input:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
         
-        .lista-scroll { padding: 16px; overflow-y: auto; flex: 1; background: var(--bg-principal); padding-bottom: 30px; }
+        .lista-scroll { padding: 20px; overflow-y: auto; flex: 1; background: var(--bg-principal); padding-bottom: 30px; }
         .lista-scroll::-webkit-scrollbar { width: 6px; }
         .lista-scroll::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 3px; }
         
-        .card-item { background: var(--bg-card); border-left: 4px solid var(--verde-neon); padding: 14px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
-        .card-item:hover { transform: translateY(-2px); background: #252525; }
-        .card-item h4 { margin: 0 0 6px 0; color: var(--texto-principal); font-size: 14px; }
-        .card-item p { margin: 4px 0; font-size: 11px; color: var(--texto-secundario); line-height: 1.4; }
-        .btn-gps { display: inline-block; margin-top: 10px; padding: 6px 12px; background: transparent; color: inherit; border: 1px solid currentColor; text-decoration: none; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        /* Cards Premium */
+        .card-item { background: var(--bg-card); border-left: 5px solid var(--cor-primaria); padding: 16px; margin-bottom: 14px; border-radius: 12px; box-shadow: 0 4px 12px var(--sombra-card); cursor: pointer; transition: all 0.2s ease; }
+        .card-item:hover { transform: translateY(-3px); box-shadow: 0 8px 16px var(--sombra-card); background: #233147; }
+        .card-item h4 { margin: 0 0 8px 0; color: var(--texto-principal); font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+        .card-item p { margin: 4px 0; font-size: 12px; color: var(--texto-secundario); line-height: 1.5; }
         
-        .form-exclusivo { padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; background: var(--bg-principal); }
+        .btn-gps { display: inline-flex; align-items: center; justify-content: center; margin-top: 12px; padding: 8px 16px; background: rgba(56, 189, 248, 0.1); color: var(--cor-primaria); border: 1px solid var(--cor-primaria); text-decoration: none; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; transition: all 0.2s ease; letter-spacing: 0.5px; }
+        .btn-gps:hover { background: var(--cor-primaria); color: #000; }
+        
+        .form-exclusivo { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; background: var(--bg-principal); }
         #painelEdicao { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-principal); z-index: 2000; display: flex; flex-direction: column; }
-        .form-exclusivo label { font-size: 11px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: -4px; font-weight: 600; }
-        .form-exclusivo input, .form-exclusivo select { padding: 11px; background: var(--bg-input); border: 1px solid var(--borda); border-radius: 6px; color: var(--texto-principal); font-size: 13px; outline: none; }
+        .form-exclusivo label { font-size: 11px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: -6px; font-weight: 700; letter-spacing: 0.5px; }
+        .form-exclusivo input, .form-exclusivo select { padding: 12px; background: var(--bg-input); border: 1px solid transparent; border-radius: 8px; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s ease; }
+        .form-exclusivo input:focus, .form-exclusivo select:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
         
-        .btn-salvar { background: var(--verde-neon); color: var(--bg-principal); border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; text-transform: uppercase; margin-top: 10px; }
-        .btn-voltar { background: transparent; color: var(--texto-secundario); border: 1px solid var(--borda); padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-top: 5px; text-align: center; }
+        .btn-salvar { background: var(--cor-primaria); color: #0f172a; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; text-transform: uppercase; margin-top: 12px; letter-spacing: 0.5px; transition: background 0.2s ease; }
+        .btn-salvar:hover { background: var(--cor-primaria-hover); }
+        .btn-voltar { background: transparent; color: var(--texto-secundario); border: 1px solid var(--borda); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-top: 8px; text-align: center; transition: all 0.2s ease; }
+        .btn-voltar:hover { background: var(--bg-card); color: var(--texto-principal); }
         
-        #loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18,18,18,0.9); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
-        .spinner { border: 4px solid var(--borda); border-top: 4px solid var(--verde-neon); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin-bottom: 12px; }
+        /* Novo Loading com Design Azul */
+        #loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; text-align: center; backdrop-filter: blur(4px); }
+        .spinner { border: 4px solid var(--borda); border-top: 4px solid var(--cor-primaria); border-radius: 50%; width: 36px; height: 36px; animation: spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite; margin-bottom: 16px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .barra-inferior { height: 60px; background: var(--bg-card); border-top: 1px solid var(--borda); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
-        .btn-tab { flex: 1; height: 100%; background: transparent; border: none; color: var(--texto-secundario); font-size: 10px; font-weight: 600; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; }
-        .btn-tab.ativo { color: var(--verde-neon); background: rgba(0,255,102,0.05); }
+        /* Barra Inferior Premium */
+        .barra-inferior { height: 65px; background: var(--bg-card); border-top: 1px solid var(--borda); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 10px rgba(0,0,0,0.2); }
+        .btn-tab { flex: 1; height: 100%; background: transparent; border: none; color: var(--texto-secundario); font-size: 11px; font-weight: 600; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; transition: all 0.2s ease; font-family: 'Inter', sans-serif; letter-spacing: 0.5px; }
+        .btn-tab.ativo { color: var(--cor-primaria); background: rgba(56, 189, 248, 0.08); }
+        .btn-tab.ativo span:first-child { transform: scale(1.1); transition: transform 0.2s ease; }
+        
         #map { flex: 1; height: 100%; background: #e5e3df; z-index: 1; }
+
+        /* Popups do Mapa (Leaflet CSS Override para combinar com tema) */
+        .leaflet-popup-content-wrapper { background: var(--bg-card) !important; color: var(--texto-principal) !important; border-radius: 12px !important; border: 1px solid var(--borda); box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
+        .leaflet-popup-tip { background: var(--bg-card) !important; }
+        .leaflet-container a.leaflet-popup-close-button { color: var(--texto-secundario) !important; padding: 4px !important; }
     </style>
 </head>
 <body>
 
     <div id="sidebar">
         <div class="header">
-            <h3>Rotas da Operação <span class="badge-otimizado" id="badgeOtimizado" style="display:none;">IA OTIMIZADA</span></h3>
+            <h3>Visão Operacional <span class="badge-otimizado" id="badgeOtimizado" style="display:none;">IA OTIMIZADA</span></h3>
             <p id="status">Iniciando sistemas...</p>
         </div>
 
         <div id="loading-overlay">
             <div class="spinner"></div>
-            <span id="loading-text" style="font-size: 13px; color: var(--verde-neon); font-weight: 600;">Processando...</span>
+            <span id="loading-text" style="font-size: 13px; color: var(--cor-primaria); font-weight: 600;">Processando...</span>
         </div>
 
         <div id="conteudoAgenda" class="conteudo-aba">
@@ -92,39 +116,39 @@
 
         <div id="conteudoClientes" class="conteudo-aba aba-escondida">
             <div class="busca-container">
-                <input type="text" id="campoBusca" placeholder="🔍 Buscar cliente..." oninput="filtrarListaGeral()">
+                <input type="text" id="campoBusca" placeholder="Pesquisar cliente ou código..." oninput="filtrarListaGeral()">
             </div>
             <div class="lista-scroll" id="listaClientesGeral"></div>
 
             <div id="painelEdicao" class="aba-escondida">
                 <div class="form-exclusivo">
-                    <b style="color: var(--verde-neon); font-size: 16px;">Editar Cadastro</b>
+                    <b style="color: var(--cor-primaria); font-size: 18px; margin-bottom: 5px;">Editar Cliente</b>
                     <label>Código do Cliente</label><input type="text" id="editCodigo" readonly style="opacity: 0.5;">
-                    <label>Nome</label><input type="text" id="editNome">
-                    <label>Endereço</label><input type="text" id="editEndereco">
+                    <label>Nome / Razão Social</label><input type="text" id="editNome">
+                    <label>Endereço Completo</label><input type="text" id="editEndereco">
                     <label>Complemento</label><input type="text" id="editComplemento">
                     <label>Bairro</label><input type="text" id="editBairro">
                     <label>Cidade</label><select id="editCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
-                    <label>Semana</label><select id="editSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
-                    <label>Dia</label><select id="editDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
-                    <button class="btn-salvar" onclick="salvarEdicaoNoDrive()">Atualizar no Drive</button>
-                    <button class="btn-voltar" onclick="fecharPainelEdicao()">← Voltar</button>
+                    <label>Semana Designada</label><select id="editSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
+                    <label>Dia Designado</label><select id="editDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
+                    <button class="btn-salvar" onclick="salvarEdicaoNoDrive()">Atualizar Cadastro</button>
+                    <button class="btn-voltar" onclick="fecharPainelEdicao()">Voltar</button>
                 </div>
             </div>
         </div>
 
         <div id="conteudoAdicionar" class="conteudo-aba aba-escondida">
             <div class="form-exclusivo">
-                <b style="color: var(--verde-neon); font-size: 16px;">Novo Cadastro</b>
-                <label>Código</label><input type="text" id="addCodigo" placeholder="Ex: 42150">
-                <label>Nome</label><input type="text" id="addNome">
-                <label>Endereço</label><input type="text" id="addEndereco">
+                <b style="color: var(--cor-primaria); font-size: 18px; margin-bottom: 5px;">Novo Cliente</b>
+                <label>Código Identificador</label><input type="text" id="addCodigo" placeholder="Ex: 42150">
+                <label>Nome / Razão Social</label><input type="text" id="addNome">
+                <label>Endereço Completo</label><input type="text" id="addEndereco">
                 <label>Complemento</label><input type="text" id="addComplemento">
                 <label>Bairro</label><input type="text" id="addBairro">
                 <label>Cidade</label><select id="addCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
-                <label>Semana</label><select id="addSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
-                <label>Dia</label><select id="addDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
-                <button class="btn-salvar" onclick="salvarNovoNoDrive()">Salvar no Drive</button>
+                <label>Semana Designada</label><select id="addSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
+                <label>Dia Designado</label><select id="addDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
+                <button class="btn-salvar" onclick="salvarNovoNoDrive()">Salvar Novo Cliente</button>
             </div>
         </div>
 
@@ -139,9 +163,11 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // ⚠️ COLOQUE A SUA URL DO GOOGLE APPS SCRIPT AQUI DENTRO:
         const URL_API_DRIVE = "https://script.google.com/macros/s/AKfycbxBa4uGgSfeRFTZVdourZNzsCyygRNgKNJMzNOZsDdrG9OqSNwkFuk7CA8soKqv91I8/exec";
 
-        const map = L.map('map').setView([-26.9166, -49.0661], 12);
+        const map = L.map('map', { zoomControl: false }).setView([-26.9166, -49.0661], 12);
+        L.control.zoom({ position: 'topright' }).addTo(map); // Move o controle de zoom para a direita
         
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri'
@@ -152,9 +178,10 @@
         let bancoDeDadosClientes = [];
         let clienteSelecionadoAtualmente = null;
         let minhaPosicaoGPS = null; 
-        let marcadoresAtivosMap = []; // Guarda referência dos marcadores físicos para abrir via clique no card
+        let marcadoresAtivosMap = [];
 
-        const paletaCores = ['#00ff66', '#00ccff', '#ff00ff', '#ffcc00', '#ff3333', '#b84dff', '#ff8c1a', '#00ffcc'];
+        // Nova Paleta de Cores Premium (Moderna, combina com o Azul)
+        const paletaCores = ['#38bdf8', '#8b5cf6', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#ec4899'];
 
         function mudarAba(aba) {
             fecharPainelEdicao();
@@ -175,12 +202,12 @@
                     navigator.geolocation.getCurrentPosition(
                         pos => {
                             let loc = [pos.coords.latitude, pos.coords.longitude];
-                            document.getElementById('status').innerText = "📍 GPS Ativo";
+                            document.getElementById('status').innerText = "📍 GPS Conectado";
                             map.setView(loc, 14);
                             resolve(loc);
                         },
                         err => {
-                            document.getElementById('status').innerText = "⚠️ Sem permissão de GPS";
+                            document.getElementById('status').innerText = "⚠️ GPS Não Autorizado";
                             resolve(null);
                         },
                         { enableHighAccuracy: true, timeout: 5000 }
@@ -196,7 +223,7 @@
                 bancoDeDadosClientes = await res.json();
                 filtrarERenderizar();
                 renderizarListaGeralClientes();
-            } catch (err) { document.getElementById('status').innerText = "Erro ao baixar planilha."; }
+            } catch (err) { document.getElementById('status').innerText = "Erro ao sincronizar."; }
         }
 
         async function descobrirCoordenadaReal(endereco, city) {
@@ -222,13 +249,10 @@
             return defs[city] || [-26.9166, -49.0661];
         }
 
-        // FUNÇÃO PARA FOCAR NO MAPA VIA CLIQUE NO CARD DO CLIENTE
         function focarNoClienteDoMapa(lat, lng, codigo) {
             map.setView([lat, lng], 16);
             let alvo = marcadoresAtivosMap.find(m => m.codigo.toString().trim() === codigo.toString().trim());
-            if (alvo) {
-                alvo.marker.openPopup();
-            }
+            if (alvo) { alvo.marker.openPopup(); }
         }
 
         async function filtrarERenderizar() {
@@ -238,13 +262,13 @@
 
             grupoMarcadores.clearLayers();
             grupoRota.clearLayers();
-            marcadoresAtivosMap = []; // Limpa o banco de referências de cliques
+            marcadoresAtivosMap = [];
             document.getElementById('badgeOtimizado').style.display = 'none';
             const container = document.getElementById('listaAgenda');
             container.innerHTML = '';
 
             if (clientesDoDia.length === 0) {
-                container.innerHTML = '<p style="text-align:center; padding-top:30px; color:var(--texto-secundario);">Nenhuma visita agendada.</p>';
+                container.innerHTML = '<p style="text-align:center; padding-top:40px; color:var(--texto-secundario); font-size: 14px;">Tudo limpo! Nenhuma visita para hoje. 🎉</p>';
                 return;
             }
 
@@ -260,14 +284,14 @@
                 usandoGPSLocal = true;
             }
 
-            txtLoading.innerText = "Mapeando ruas cravadas no asfalto...";
+            txtLoading.innerText = "A validar ruas no mapa...";
             for (let i = 0; i < clientesDoDia.length; i++) {
                 let [lat, lng] = await descobrirCoordenadaReal(clientesDoDia[i].endereco, clientesDoDia[i].cidade);
                 coordsOriginais.push([lat, lng]);
                 await new Promise(r => setTimeout(r, 1200)); 
             }
 
-            txtLoading.innerText = "IA Otimizando a Ordem das Paragens...";
+            txtLoading.innerText = "A Inteligência está a planear a Rota...";
             let rotaOrdenadaIndices = [];
 
             if (coordsOriginais.length > 1) {
@@ -290,7 +314,7 @@
                 } catch(e) { rotaOrdenadaIndices = coordsOriginais.map((_, i) => i); }
             } else { rotaOrdenadaIndices = [0]; }
 
-            txtLoading.innerText = "Desenhando a Rota Final...";
+            txtLoading.innerText = "Desenhando os trechos finais...";
             let coordsCaminho = [];
             
             rotaOrdenadaIndices.forEach((idxOrigem, ordemAtual) => {
@@ -298,8 +322,8 @@
                 coordsCaminho.push(coord);
 
                 if (usandoGPSLocal && idxOrigem === 0) {
-                    L.circleMarker(coord, { color: '#00ff66', fillColor: '#121212', fillOpacity: 1, radius: 8, weight: 3 })
-                     .bindPopup('<b style="color:#00ff66;">📍 Partida (O Meu Local)</b>').addTo(grupoMarcadores);
+                    L.circleMarker(coord, { color: '#38bdf8', fillColor: '#121212', fillOpacity: 1, radius: 8, weight: 3 })
+                     .bindPopup('<b style="color:#38bdf8; font-family: Inter;">📍 Partida (O Meu Local)</b>').addTo(grupoMarcadores);
                 } else {
                     let clienteIndex = usandoGPSLocal ? idxOrigem - 1 : idxOrigem;
                     let c = clientesDoDia[clienteIndex];
@@ -307,33 +331,30 @@
                     let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
                     let corDoCard = paletaCores[iReal % paletaCores.length];
 
-                    // BALÃO DO ENDEREÇO TOTALMENTE DETALHADO E ESTILIZADO EM DARK MODE NEON
+                    // POPUP PREMIUM COM O NOVO DESIGN AZUL
                     let popupDesign = `
-                        <div style="font-family: 'Segoe UI', sans-serif; min-width: 220px; background: #1e1e1e; color: #fff; padding: 4px;">
-                            <b style="color: ${corDoCard}; font-size: 14px; display: block; margin-bottom: 4px;">Parada ${iReal + 1}: ${c.nome}</b>
-                            <div style="border-top: 1px solid #333; margin: 6px 0;"></div>
-                            <p style="margin: 4px 0; font-size: 12px; line-height: 1.4;"><b>📍 Rua:</b> ${c.endereco}</p>
-                            ${c.complemento ? `<p style="margin: 4px 0; font-size: 12px; color: #00ff66;"><b>🏢 Complemento:</b> ${c.complemento}</p>` : ''}
-                            <p style="margin: 4px 0; font-size: 11px; color: #aaa;"><b>🏘️ Região:</b> ${c.bairro} | ${c.cidade}</p>
+                        <div style="font-family: 'Inter', sans-serif; min-width: 200px; padding: 2px;">
+                            <b style="color: ${corDoCard}; font-size: 15px; display: block; margin-bottom: 6px; letter-spacing: -0.3px;">Paragem ${iReal + 1}: ${c.nome}</b>
+                            <div style="border-top: 1px solid var(--borda); margin: 8px 0;"></div>
+                            <p style="margin: 4px 0; font-size: 12px; color: var(--texto-secundario);"><b>📍 Endereço:</b> <span style="color: var(--texto-principal)">${c.endereco}</span></p>
+                            ${c.complemento ? `<p style="margin: 4px 0; font-size: 12px; color: ${corDoCard};"><b>🏢 Comp:</b> ${c.complemento}</p>` : ''}
+                            <p style="margin: 6px 0 0 0; font-size: 11px; color: #64748b;">${c.bairro} | ${c.cidade}</p>
                         </div>
                     `;
 
                     let marker = L.marker(coord).bindPopup(popupDesign);
                     grupoMarcadores.addLayer(marker);
-
-                    // Salva a referência física do marcador vinculado ao código para permitir o foco por clique
                     marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
 
                     const urlMaps = `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
                     
-                    // Adicionado o onclick="focarNoClienteDoMapa(...)" no bloco de card lateral
                     container.innerHTML += `
                         <div class="card-item" style="border-left-color: ${corDoCard};" onclick="focarNoClienteDoMapa(${coord[0]}, ${coord[1]}, '${c.codigo}')">
-                            <h4>${iReal + 1}. ${c.nome}</h4>
+                            <h4 style="color: ${corDoCard};">${iReal + 1}. <span style="color: var(--texto-principal);">${c.nome}</span></h4>
                             <p><b>Bairro:</b> ${c.bairro}</p>
                             <p><b>Endereço:</b> ${c.endereco}</p>
-                            ${c.complemento ? `<p style="color:${corDoCard}; font-size:11px;">${c.complemento}</p>` : ''}
-                            <a href="${urlMaps}" target="_blank" class="btn-gps" style="color:${corDoCard}; border-color:${corDoCard};" onclick="event.stopPropagation();">Navegar</a>
+                            ${c.complemento ? `<p style="color:${corDoCard}; font-size:11px; font-weight:500;">${c.complemento}</p>` : ''}
+                            <a href="${urlMaps}" target="_blank" class="btn-gps" style="color:${corDoCard}; border-color:${corDoCard};" onclick="event.stopPropagation();">Navegar Rota</a>
                         </div>
                     `;
                 }
@@ -354,7 +375,7 @@
                         const dados = await res.json();
                         if (dados.code === 'Ok' && dados.routes && dados.routes.length > 0) {
                             const pontosRua = dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]);
-                            let linhaReal = L.polyline(pontosRua, {color: corLinha, weight: 6, opacity: 0.85});
+                            let linhaReal = L.polyline(pontosRua, {color: corLinha, weight: 6, opacity: 0.9});
                             grupoRota.addLayer(linhaReal);
                             limitesMapa.extend(linhaReal.getBounds());
                         } else { throw new Error("OSRM Falhou"); }
@@ -365,7 +386,7 @@
                     }
                     await new Promise(r => setTimeout(r, 600)); 
                 }
-                if (limitesMapa.isValid()) map.fitBounds(limitesMapa, {padding: [30, 30]});
+                if (limitesMapa.isValid()) map.fitBounds(limitesMapa, {padding: [40, 40]});
             } else if (coordsCaminho.length === 1) {
                 map.setView(coordsCaminho[0], 15);
             }
@@ -377,7 +398,7 @@
             const container = document.getElementById('listaClientesGeral');
             container.innerHTML = '';
             bancoDeDadosClientes.forEach(c => {
-                container.innerHTML += `<div class="card-item" onclick="abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p><b>Região:</b> ${c.semana} (${c.diaSemana})</p><p><b>Endereço:</b> ${c.endereco} - ${c.bairro}, ${c.cidade}</p></div>`;
+                container.innerHTML += `<div class="card-item" style="border-left-color: var(--borda);" onclick="abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p><b>Região:</b> ${c.semana} (${c.diaSemana})</p><p style="color:var(--texto-principal);"><b>📍</b> ${c.endereco}</p><p>${c.bairro}, ${c.cidade}</p></div>`;
             });
         }
 
@@ -399,7 +420,7 @@
 
         async function salvarEdicaoNoDrive() {
             if (!clienteSelecionadoAtualmente) return;
-            document.getElementById('status').innerText = "Atualizando no Drive...";
+            document.getElementById('status').innerText = "Enviando dados ao Drive...";
             const pct = { semana: document.getElementById('editSemana').value, diaSemana: document.getElementById('editDia').value, cidade: document.getElementById('editCidade').value, bairro: document.getElementById('editBairro').value, codigo: document.getElementById('editCodigo').value, nome: document.getElementById('editNome').value, endereco: document.getElementById('editEndereco').value, complemento: document.getElementById('editComplemento').value };
             try { await enviarParaODrive(pct); fecharPainelEdicao(); } catch(e){ alert("Erro ao salvar."); }
         }
