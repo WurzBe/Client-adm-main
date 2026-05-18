@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Motor de Rotas - GPS Inteligente</title>
+    <title>Motor de Rotas - Precisão Total</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
@@ -32,7 +32,7 @@
         .aba-escondida { display: none !important; }
         
         .filtros, .busca-container { padding: 12px 16px; background: var(--bg-principal); display: flex; gap: 8px; border-bottom: 1px solid var(--borda); }
-        .filtros select, .busca-container input { flex: 1; padding: 10px; border-radius: 6px; background: var(--bg-input); border: 1px solid var(--borda); color: var(--texto-principal); font-size: 13px; outline: none; appearance: none; }
+        .filtros select, .busca-container input { flex: 1; padding: 10px; border-radius: 6px; background: var(--bg-input); border: 1px solid var(--borda); color: var(--texto-principal); font-size: 13px; outline: none; -webkit-appearance: none; appearance: none; }
         .filtros select:focus, .busca-container input:focus { border-color: var(--verde-neon); }
         
         .lista-scroll { padding: 16px; overflow-y: auto; flex: 1; background: var(--bg-principal); padding-bottom: 30px; }
@@ -139,10 +139,8 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ⚠️ COLOQUE A SUA URL DO GOOGLE APPS SCRIPT AQUI DENTRO:
         const URL_API_DRIVE = "https://script.google.com/macros/s/AKfycbxBa4uGgSfeRFTZVdourZNzsCyygRNgKNJMzNOZsDdrG9OqSNwkFuk7CA8soKqv91I8/exec";
 
-        // Inicialização padrão neutra
         const map = L.map('map').setView([-26.9166, -49.0661], 12);
         
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
@@ -167,7 +165,6 @@
             });
         }
 
-        // MOTOR DE GPS NATIVO REESTRUTURADO (CHAMA IMEDIATAMENTE)
         async function inicializarGPS() {
             return new Promise((resolve) => {
                 if (!navigator.geolocation) {
@@ -177,14 +174,12 @@
                     navigator.geolocation.getCurrentPosition(
                         pos => {
                             let loc = [pos.coords.latitude, pos.coords.longitude];
-                            document.getElementById('status').innerText = "📍 GPS Ativo e Vinculado";
-                            // MOVE O MAPA NA MESMA HORA PARA A PESSOA
+                            document.getElementById('status').innerText = "📍 GPS Ativo";
                             map.setView(loc, 14);
                             resolve(loc);
                         },
                         err => {
-                            // Alerta visual de bloqueio de protocolo HTTP/Segurança
-                            document.getElementById('status').innerText = "⚠️ GPS Bloqueado/Sem HTTPS";
+                            document.getElementById('status').innerText = "⚠️ Sem permissão de GPS/HTTPS";
                             resolve(null);
                         },
                         { enableHighAccuracy: true, timeout: 5000 }
@@ -194,32 +189,27 @@
         }
 
         async function puxarDadosDoDrive() {
-            // 1. Tenta pegar a localização do usuário no primeiro segundo de app aberto
             minhaPosicaoGPS = await inicializarGPS();
-            
-            // 2. Depois puxa a planilha
             try {
                 const res = await fetch(URL_API_DRIVE);
                 bancoDeDadosClientes = await res.json();
-                if(!minhaPosicaoGPS) {
-                    document.getElementById('status').innerText = "Sincronizado (Sem GPS)";
-                } else {
-                    document.getElementById('status').innerText = "Sincronizado com o Drive";
-                }
                 filtrarERenderizar();
                 renderizarListaGeralClientes();
             } catch (err) { document.getElementById('status').innerText = "Erro ao baixar planilha."; }
         }
 
+        // CORREÇÃO CRÍTICA: Busca o endereço exato com o NÚMERO sem cortar a string
         async function descobrirCoordenadaReal(endereco, city) {
-            let rua = endereco.split(',')[0].trim();
-            let busca = encodeURIComponent(`${rua}, ${city}, SC, Brasil`);
+            let enderecoLimpo = endereco.replace(/"/g, '').trim(); 
+            let busca = encodeURIComponent(`${enderecoLimpo}, ${city}, SC, Brasil`);
             let url = `https://nominatim.openstreetmap.org/search?format=json&q=${busca}&limit=1&email=contato@rotasapp.com`;
             try {
                 const r = await fetch(url);
                 const d = await r.json();
                 if (d && d.length > 0) return [parseFloat(d[0].lat), parseFloat(d[0].lon)];
             } catch(e){}
+            
+            // Fallback inteligente por cidade caso o número seja inválido
             const defs = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112], "Indaial": [-26.8978, -49.2400], "Pomerode": [-26.7410, -49.1762], "Gaspar": [-26.9325, -48.9560], "Botuverá": [-27.1997, -49.0750] };
             return defs[city] || [-26.9166, -49.0661];
         }
@@ -247,13 +237,12 @@
             let coordsOriginais = [];
             let usandoGPSLocal = false;
 
-            // Se o GPS foi pego com sucesso na inicialização, finca ele como ponto 0
             if (minhaPosicaoGPS) {
                 coordsOriginais.push(minhaPosicaoGPS);
                 usandoGPSLocal = true;
             }
 
-            txtLoading.innerText = "A mapear endereços no satélite...";
+            txtLoading.innerText = "Localizando endereços exatos...";
             for (let i = 0; i < clientesDoDia.length; i++) {
                 let [lat, lng] = await descobrirCoordenadaReal(clientesDoDia[i].endereco, clientesDoDia[i].cidade);
                 coordsOriginais.push([lat, lng]);
@@ -300,7 +289,7 @@
                     let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
                     let corDoCard = paletaCores[iReal % paletaCores.length];
 
-                    let marker = L.marker(coord).bindPopup(`<b>Paragem ${iReal + 1}: ${c.nome}</b>`);
+                    let marker = L.marker(coord).bindPopup(`<b>Paragem ${iReal + 1}: ${c.nome}</b><br>${c.endereco}`);
                     grupoMarcadores.addLayer(marker);
 
                     const urlMaps = `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
@@ -310,7 +299,7 @@
                             <p><b>Bairro:</b> ${c.bairro}</p>
                             <p><b>Endereço:</b> ${c.endereco}</p>
                             ${c.complemento ? `<p style="color:${corDoCard}; font-size:11px;">${c.complemento}</p>` : ''}
-                            <a href="${urlMaps}" target="_blank" class="btn-gps" style="color:${corDoCard}; border-color:${corDoCard};">Navegar (Otimizado)</a>
+                            <a href="${urlMaps}" target="_blank" class="btn-gps" style="color:${corDoCard}; border-color:${corDoCard};">Navegar</a>
                         </div>
                     `;
                 }
@@ -376,9 +365,7 @@
         async function salvarEdicaoNoDrive() {
             if (!clienteSelecionadoAtualmente) return;
             document.getElementById('status').innerText = "Atualizando no Drive...";
-            const pct = { semana: document.getElementById('editSemana').value, diaSemana: document.getElementById('editDia').value, cidade: document.getElementById('editCidade').value, bairro: document.getElementById('editBairro').value, codigo: document.getElementById('editCodigo').value, nome: document.getElementById('editNome').value, address: document.getElementById('editEndereco').value, complemento: document.getElementById('editComplemento').value };
-            // Adaptação de consistência de campos para o POST do Sheets
-            pct.endereco = pct.address;
+            const pct = { semana: document.getElementById('editSemana').value, diaSemana: document.getElementById('editDia').value, cidade: document.getElementById('editCidade').value, bairro: document.getElementById('editBairro').value, codigo: document.getElementById('editCodigo').value, nome: document.getElementById('editNome').value, endereco: document.getElementById('editEndereco').value, complemento: document.getElementById('editComplemento').value };
             try { await enviarParaODrive(pct); fecharPainelEdicao(); } catch(e){ alert("Erro ao salvar."); }
         }
 
