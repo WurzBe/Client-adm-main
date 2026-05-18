@@ -271,9 +271,39 @@
         }
 
         window.vincularESincronizarPlanilha = async () => {
-            let url = document.getElementById('urlScriptDrive').value.trim();
-            if(!url) return alert("Insira uma URL válida de implantação.");
-            
+    let url = document.getElementById('urlScriptDrive').value.trim();
+    if(!url) return alert("Insira uma URL válida de implantação.");
+    
+    document.getElementById('status').innerText = "Conectando ao Drive...";
+    try {
+        await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url });
+        scriptUrlVinculado = url;
+
+        // Limpa os dados locais antigos do Firebase antes de receber o espelho limpo
+        const batch = db.batch();
+        const snapshotAntigo = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
+        snapshotAntigo.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+
+        // Usamos um proxy de redirecionamento público para evitar o erro de CORS do navegador
+        const urlComProxy = "https://cors-anywhere.herokuapp.com/" + url;
+        
+        document.getElementById('status').innerText = "Baixando linhas...";
+        const res = await fetch(url);
+        const dadosPlanilha = await res.json();
+
+        for(let c of dadosPlanilha) {
+            c.userId = usuarioAtual.uid;
+            await db.collection("clientes").add(c);
+        }
+        alert("Sincronização realizada com sucesso! Sua planilha e o App estão integrados.");
+        puxarDadosLocaisFirebase();
+    } catch(e) {
+        console.error(e);
+        alert("Ainda houve um bloqueio de resposta. Certifique-se de que a planilha possui dados abaixo da primeira linha de cabeçalho.");
+        document.getElementById('status').innerText = "Erro na sincronização";
+    }
+};
             document.getElementById('status').innerText = "Baixando do Drive...";
             try {
                 await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url });
@@ -298,7 +328,7 @@
             } catch(e) {
                 alert("Falha na ponte com o Apps Script. Verifique se ele foi implantado como 'Qualquer pessoa'.");
             }
-        };
+        
 
         // SALVAMENTO DUPLO: CRIA NO FIREBASE E ENVIA COMANDO AO DRIVE
         window.salvarDuploNovo = async () => {
