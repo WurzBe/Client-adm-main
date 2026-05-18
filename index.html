@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Motor de Rotas - GPS Inteligente</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root {
+            --bg-principal: #121212;
+            --bg-card: #1e1e1e;
+            --bg-input: #2a2a2a;
+            --verde-neon: #00ff66;
+            --texto-principal: #ffffff;
+            --texto-secundario: #a0a0a0;
+            --borda: #333333;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background-color: var(--bg-principal); color: var(--texto-principal); overflow: hidden; }
+        
+        @media (max-width: 768px) { body { flex-direction: column-reverse; } #sidebar { width: 100% !important; height: 50vh; border-right: none; border-top: 1px solid var(--borda); } #map { height: 50vh; } }
+        
+        #sidebar { width: 400px; background: var(--bg-principal); border-right: 1px solid var(--borda); display: flex; flex-direction: column; z-index: 1000; box-shadow: 5px 0 15px rgba(0,0,0,0.5); position: relative; }
+        .header { padding: 20px; background: var(--bg-card); border-bottom: 1px solid var(--borda); }
+        .header h3 { margin: 0 0 6px 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+        .header p { margin: 0; font-size: 11px; color: var(--verde-neon); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-otimizado { background: var(--verde-neon); color: var(--bg-principal); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+
+        .conteudo-aba { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .aba-escondida { display: none !important; }
+        
+        .filtros, .busca-container { padding: 12px 16px; background: var(--bg-principal); display: flex; gap: 8px; border-bottom: 1px solid var(--borda); }
+        .filtros select, .busca-container input { flex: 1; padding: 10px; border-radius: 6px; background: var(--bg-input); border: 1px solid var(--borda); color: var(--texto-principal); font-size: 13px; outline: none; appearance: none; }
+        .filtros select:focus, .busca-container input:focus { border-color: var(--verde-neon); }
+        
+        .lista-scroll { padding: 16px; overflow-y: auto; flex: 1; background: var(--bg-principal); padding-bottom: 30px; }
+        .lista-scroll::-webkit-scrollbar { width: 6px; }
+        .lista-scroll::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 3px; }
+        
+        .card-item { background: var(--bg-card); border-left: 4px solid var(--verde-neon); padding: 14px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s; }
+        .card-item:hover { transform: translateY(-2px); }
+        .card-item h4 { margin: 0 0 6px 0; color: var(--texto-principal); font-size: 14px; }
+        .card-item p { margin: 4px 0; font-size: 11px; color: var(--texto-secundario); line-height: 1.4; }
+        .btn-gps { display: inline-block; margin-top: 10px; padding: 6px 12px; background: transparent; color: inherit; border: 1px solid currentColor; text-decoration: none; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        
+        .form-exclusivo { padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; background: var(--bg-principal); }
+        #painelEdicao { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-principal); z-index: 2000; display: flex; flex-direction: column; }
+        .form-exclusivo label { font-size: 11px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: -4px; font-weight: 600; }
+        .form-exclusivo input, .form-exclusivo select { padding: 11px; background: var(--bg-input); border: 1px solid var(--borda); border-radius: 6px; color: var(--texto-principal); font-size: 13px; outline: none; }
+        
+        .btn-salvar { background: var(--verde-neon); color: var(--bg-principal); border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; text-transform: uppercase; margin-top: 10px; }
+        .btn-voltar { background: transparent; color: var(--texto-secundario); border: 1px solid var(--borda); padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-top: 5px; text-align: center; }
+        
+        #loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18,18,18,0.9); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
+        .spinner { border: 4px solid var(--borda); border-top: 4px solid var(--verde-neon); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin-bottom: 12px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .barra-inferior { height: 60px; background: var(--bg-card); border-top: 1px solid var(--borda); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
+        .btn-tab { flex: 1; height: 100%; background: transparent; border: none; color: var(--texto-secundario); font-size: 10px; font-weight: 600; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; }
+        .btn-tab.ativo { color: var(--verde-neon); background: rgba(0,255,102,0.05); }
+        #map { flex: 1; height: 100%; background: #e5e3df; z-index: 1; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div class="header">
+            <h3>Rotas da Operação <span class="badge-otimizado" id="badgeOtimizado" style="display:none;">IA OTIMIZADA</span></h3>
+            <p id="status">Iniciando sistemas...</p>
+        </div>
+
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+            <span id="loading-text" style="font-size: 13px; color: var(--verde-neon); font-weight: 600;">Processando...</span>
+        </div>
+
+        <div id="conteudoAgenda" class="conteudo-aba">
+            <div class="filtros">
+                <select id="filtroSemana">
+                    <option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option>
+                    <option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option>
+                </select>
+                <select id="filtroDia">
+                    <option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option>
+                    <option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option>
+                </select>
+            </div>
+            <div class="lista-scroll" id="listaAgenda"></div>
+        </div>
+
+        <div id="conteudoClientes" class="conteudo-aba aba-escondida">
+            <div class="busca-container">
+                <input type="text" id="campoBusca" placeholder="🔍 Buscar cliente..." oninput="filtrarListaGeral()">
+            </div>
+            <div class="lista-scroll" id="listaClientesGeral"></div>
+
+            <div id="painelEdicao" class="aba-escondida">
+                <div class="form-exclusivo">
+                    <b style="color: var(--verde-neon); font-size: 16px;">Editar Cadastro</b>
+                    <label>Código do Cliente</label><input type="text" id="editCodigo" readonly style="opacity: 0.5;">
+                    <label>Nome</label><input type="text" id="editNome">
+                    <label>Endereço</label><input type="text" id="editEndereco">
+                    <label>Complemento</label><input type="text" id="editComplemento">
+                    <label>Bairro</label><input type="text" id="editBairro">
+                    <label>Cidade</label><select id="editCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
+                    <label>Semana</label><select id="editSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
+                    <label>Dia</label><select id="editDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
+                    <button class="btn-salvar" onclick="salvarEdicaoNoDrive()">Atualizar no Drive</button>
+                    <button class="btn-voltar" onclick="fecharPainelEdicao()">← Voltar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="conteudoAdicionar" class="conteudo-aba aba-escondida">
+            <div class="form-exclusivo">
+                <b style="color: var(--verde-neon); font-size: 16px;">Novo Cadastro</b>
+                <label>Código</label><input type="text" id="addCodigo" placeholder="Ex: 42150">
+                <label>Nome</label><input type="text" id="addNome">
+                <label>Endereço</label><input type="text" id="addEndereco">
+                <label>Complemento</label><input type="text" id="addComplemento">
+                <label>Bairro</label><input type="text" id="addBairro">
+                <label>Cidade</label><select id="addCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
+                <label>Semana</label><select id="addSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
+                <label>Dia</label><select id="addDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
+                <button class="btn-salvar" onclick="salvarNovoNoDrive()">Salvar no Drive</button>
+            </div>
+        </div>
+
+        <div class="barra-inferior">
+            <button id="btnTabAgenda" class="btn-tab ativo" onclick="mudarAba('agenda')"><span style="font-size: 20px;">🗺️</span><span>Rotas</span></button>
+            <button id="btnTabClientes" class="btn-tab" onclick="mudarAba('clientes')"><span style="font-size: 20px;">👥</span><span>Base</span></button>
+            <button id="btnTabAdicionar" class="btn-tab" onclick="mudarAba('adicionar')"><span style="font-size: 20px;">➕</span><span>Novo</span></button>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ⚠️ COLOQUE A SUA URL DO GOOGLE APPS SCRIPT AQUI DENTRO:
+        const URL_API_DRIVE = "https://script.google.com/macros/s/AKfycbxBa4uGgSfeRFTZVdourZNzsCyygRNgKNJMzNOZsDdrG9OqSNwkFuk7CA8soKqv91I8/exec";
+
+        // Inicialização padrão neutra
+        const map = L.map('map').setView([-26.9166, -49.0661], 12);
+        
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri'
+        }).addTo(map);
+
+        let grupoMarcadores = L.layerGroup().addTo(map);
+        let grupoRota = L.layerGroup().addTo(map);
+        let bancoDeDadosClientes = [];
+        let clienteSelecionadoAtualmente = null;
+        let minhaPosicaoGPS = null; 
+
+        const paletaCores = ['#00ff66', '#00ccff', '#ff00ff', '#ffcc00', '#ff3333', '#b84dff', '#ff8c1a', '#00ffcc'];
+
+        function mudarAba(aba) {
+            fecharPainelEdicao();
+            const t = { agenda: { btn: 'btnTabAgenda', cont: 'conteudoAgenda' }, clientes: { btn: 'btnTabClientes', cont: 'conteudoClientes' }, adicionar: { btn: 'btnTabAdicionar', cont: 'conteudoAdicionar' } };
+            Object.keys(t).forEach(k => {
+                const b = document.getElementById(t[k].btn), c = document.getElementById(t[k].cont);
+                if (k === aba) { b.classList.add('ativo'); c.classList.remove('aba-escondida'); }
+                else { b.classList.remove('ativo'); c.classList.add('aba-escondida'); }
+            });
+        }
+
+        // MOTOR DE GPS NATIVO REESTRUTURADO (CHAMA IMEDIATAMENTE)
+        async function inicializarGPS() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    document.getElementById('status').innerText = "⚠️ Sem suporte a GPS";
+                    resolve(null);
+                } else {
+                    navigator.geolocation.getCurrentPosition(
+                        pos => {
+                            let loc = [pos.coords.latitude, pos.coords.longitude];
+                            document.getElementById('status').innerText = "📍 GPS Ativo e Vinculado";
+                            // MOVE O MAPA NA MESMA HORA PARA A PESSOA
+                            map.setView(loc, 14);
+                            resolve(loc);
+                        },
+                        err => {
+                            // Alerta visual de bloqueio de protocolo HTTP/Segurança
+                            document.getElementById('status').innerText = "⚠️ GPS Bloqueado/Sem HTTPS";
+                            resolve(null);
+                        },
+                        { enableHighAccuracy: true, timeout: 5000 }
+                    );
+                }
+            });
+        }
+
+        async function puxarDadosDoDrive() {
+            // 1. Tenta pegar a localização do usuário no primeiro segundo de app aberto
+            minhaPosicaoGPS = await inicializarGPS();
+            
+            // 2. Depois puxa a planilha
+            try {
+                const res = await fetch(URL_API_DRIVE);
+                bancoDeDadosClientes = await res.json();
+                if(!minhaPosicaoGPS) {
+                    document.getElementById('status').innerText = "Sincronizado (Sem GPS)";
+                } else {
+                    document.getElementById('status').innerText = "Sincronizado com o Drive";
+                }
+                filtrarERenderizar();
+                renderizarListaGeralClientes();
+            } catch (err) { document.getElementById('status').innerText = "Erro ao baixar planilha."; }
+        }
+
+        async function descobrirCoordenadaReal(endereco, city) {
+            let rua = endereco.split(',')[0].trim();
+            let busca = encodeURIComponent(`${rua}, ${city}, SC, Brasil`);
+            let url = `https://nominatim.openstreetmap.org/search?format=json&q=${busca}&limit=1&email=contato@rotasapp.com`;
+            try {
+                const r = await fetch(url);
+                const d = await r.json();
+                if (d && d.length > 0) return [parseFloat(d[0].lat), parseFloat(d[0].lon)];
+            } catch(e){}
+            const defs = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112], "Indaial": [-26.8978, -49.2400], "Pomerode": [-26.7410, -49.1762], "Gaspar": [-26.9325, -48.9560], "Botuverá": [-27.1997, -49.0750] };
+            return defs[city] || [-26.9166, -49.0661];
+        }
+
+        async function filtrarERenderizar() {
+            const semSel = document.getElementById('filtroSemana').value;
+            const diaSel = document.getElementById('filtroDia').value;
+            const clientesDoDia = bancoDeDadosClientes.filter(c => c.semana === semSel && c.diaSemana === diaSel);
+
+            grupoMarcadores.clearLayers();
+            grupoRota.clearLayers();
+            document.getElementById('badgeOtimizado').style.display = 'none';
+            const container = document.getElementById('listaAgenda');
+            container.innerHTML = '';
+
+            if (clientesDoDia.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding-top:30px; color:var(--texto-secundario);">Nenhuma visita agendada.</p>';
+                return;
+            }
+
+            const overlay = document.getElementById('loading-overlay');
+            const txtLoading = document.getElementById('loading-text');
+            overlay.style.display = 'flex';
+            
+            let coordsOriginais = [];
+            let usandoGPSLocal = false;
+
+            // Se o GPS foi pego com sucesso na inicialização, finca ele como ponto 0
+            if (minhaPosicaoGPS) {
+                coordsOriginais.push(minhaPosicaoGPS);
+                usandoGPSLocal = true;
+            }
+
+            txtLoading.innerText = "A mapear endereços no satélite...";
+            for (let i = 0; i < clientesDoDia.length; i++) {
+                let [lat, lng] = await descobrirCoordenadaReal(clientesDoDia[i].endereco, clientesDoDia[i].cidade);
+                coordsOriginais.push([lat, lng]);
+                await new Promise(r => setTimeout(r, 1200)); 
+            }
+
+            txtLoading.innerText = "IA Calculando a Ordem Perfeita...";
+            let rotaOrdenadaIndices = [];
+
+            if (coordsOriginais.length > 1) {
+                let stringOSRM = coordsOriginais.map(c => `${c[1]},${c[0]}`).join(';');
+                let urlTrip = `https://router.project-osrm.org/trip/v1/driving/${stringOSRM}?roundtrip=false&source=first&geometries=geojson`;
+
+                try {
+                    const res = await fetch(urlTrip);
+                    const dadosTrip = await res.json();
+
+                    if (dadosTrip.waypoints && dadosTrip.waypoints.length > 0) {
+                        document.getElementById('badgeOtimizado').style.display = 'inline-block';
+                        let waypointsOrdenados = dadosTrip.waypoints.map((wp, idx) => ({
+                            originalIndex: idx,
+                            optimizedIndex: wp.waypoint_index
+                        })).sort((a, b) => a.optimizedIndex - b.optimizedIndex);
+
+                        rotaOrdenadaIndices = waypointsOrdenados.map(wp => wp.originalIndex);
+                    } else { rotaOrdenadaIndices = coordsOriginais.map((_, i) => i); }
+                } catch(e) { rotaOrdenadaIndices = coordsOriginais.map((_, i) => i); }
+            } else { rotaOrdenadaIndices = [0]; }
+
+            txtLoading.innerText = "Desenhando a Rota Colorida...";
+            let coordsCaminho = [];
+            
+            rotaOrdenadaIndices.forEach((idxOrigem, ordemAtual) => {
+                let coord = coordsOriginais[idxOrigem];
+                coordsCaminho.push(coord);
+
+                if (usandoGPSLocal && idxOrigem === 0) {
+                    L.circleMarker(coord, { color: '#00ff66', fillColor: '#121212', fillOpacity: 1, radius: 8, weight: 3 })
+                     .bindPopup('<b>📍 Partida (O Meu Local Atual)</b>').addTo(grupoMarcadores);
+                } else {
+                    let clienteIndex = usandoGPSLocal ? idxOrigem - 1 : idxOrigem;
+                    let c = clientesDoDia[clienteIndex];
+                    
+                    let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
+                    let corDoCard = paletaCores[iReal % paletaCores.length];
+
+                    let marker = L.marker(coord).bindPopup(`<b>Paragem ${iReal + 1}: ${c.nome}</b>`);
+                    grupoMarcadores.addLayer(marker);
+
+                    const urlMaps = `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
+                    container.innerHTML += `
+                        <div class="card-item" style="border-left-color: ${corDoCard};">
+                            <h4>${iReal + 1}. ${c.nome}</h4>
+                            <p><b>Bairro:</b> ${c.bairro}</p>
+                            <p><b>Endereço:</b> ${c.endereco}</p>
+                            ${c.complemento ? `<p style="color:${corDoCard}; font-size:11px;">${c.complemento}</p>` : ''}
+                            <a href="${urlMaps}" target="_blank" class="btn-gps" style="color:${corDoCard}; border-color:${corDoCard};">Navegar (Otimizado)</a>
+                        </div>
+                    `;
+                }
+            });
+
+            if (coordsCaminho.length > 1) {
+                let limitesMapa = L.latLngBounds();
+
+                for (let i = 0; i < coordsCaminho.length - 1; i++) {
+                    let pOriginal = coordsCaminho[i];
+                    let pDestino = coordsCaminho[i+1];
+                    let corLinha = paletaCores[i % paletaCores.length];
+
+                    let urlOSRM = `https://router.project-osrm.org/route/v1/driving/${pOriginal[1]},${pOriginal[0]};${pDestino[1]},${pDestino[0]}?overview=full&geometries=geojson`;
+                    
+                    try {
+                        const res = await fetch(urlOSRM);
+                        const dados = await res.json();
+                        if (dados.routes && dados.routes.length > 0) {
+                            const pontosRua = dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]);
+                            let linhaReal = L.polyline(pontosRua, {color: corLinha, weight: 6, opacity: 0.85});
+                            grupoRota.addLayer(linhaReal);
+                            limitesMapa.extend(linhaReal.getBounds());
+                        }
+                    } catch(e) {
+                        let linhaReta = L.polyline([pOriginal, pDestino], {color: corLinha, weight: 4, dashArray: '5, 10'});
+                        grupoRota.addLayer(linhaReta);
+                        limitesMapa.extend(linhaReta.getBounds());
+                    }
+                }
+                if (limitesMapa.isValid()) map.fitBounds(limitesMapa, {padding: [30, 30]});
+            } else if (coordsCaminho.length === 1) {
+                map.setView(coordsCaminho[0], 15);
+            }
+
+            overlay.style.display = 'none';
+        }
+
+        function renderizarListaGeralClientes() {
+            const container = document.getElementById('listaClientesGeral');
+            container.innerHTML = '';
+            bancoDeDadosClientes.forEach(c => {
+                container.innerHTML += `<div class="card-item" onclick="abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p><b>Região:</b> ${c.semana} (${c.diaSemana})</p><p><b>Endereço:</b> ${c.endereco} - ${c.bairro}, ${c.cidade}</p></div>`;
+            });
+        }
+
+        function filtrarListaGeral() {
+            const busca = document.getElementById('campoBusca').value.toLowerCase();
+            const cards = document.getElementById('listaClientesGeral').getElementsByClassName('card-item');
+            for (let card of cards) card.style.display = card.innerText.toLowerCase().includes(busca) ? 'block' : 'none';
+        }
+
+        function abrirPainelEdicao(codigo) {
+            const c = bancoDeDadosClientes.find(item => item.codigo.toString().trim() === codigo.toString().trim());
+            if (!c) return;
+            clienteSelecionadoAtualmente = c;
+            ['Codigo', 'Nome', 'Endereco', 'Complemento', 'Bairro', 'Cidade', 'Semana', 'Dia'].forEach(k => document.getElementById(`edit${k}`).value = c[k.toLowerCase()] || c[k === 'Dia' ? 'diaSemana' : '']);
+            document.getElementById('painelEdicao').classList.remove('aba-escondida');
+        }
+
+        function fecharPainelEdicao() { document.getElementById('painelEdicao').classList.add('aba-escondida'); clienteSelecionadoAtualmente = null; }
+
+        async function salvarEdicaoNoDrive() {
+            if (!clienteSelecionadoAtualmente) return;
+            document.getElementById('status').innerText = "Atualizando no Drive...";
+            const pct = { semana: document.getElementById('editSemana').value, diaSemana: document.getElementById('editDia').value, cidade: document.getElementById('editCidade').value, bairro: document.getElementById('editBairro').value, codigo: document.getElementById('editCodigo').value, nome: document.getElementById('editNome').value, address: document.getElementById('editEndereco').value, complemento: document.getElementById('editComplemento').value };
+            // Adaptação de consistência de campos para o POST do Sheets
+            pct.endereco = pct.address;
+            try { await enviarParaODrive(pct); fecharPainelEdicao(); } catch(e){ alert("Erro ao salvar."); }
+        }
+
+        async function salvarNovoNoDrive() {
+            const pct = { semana: document.getElementById('addSemana').value, diaSemana: document.getElementById('addDia').value, cidade: document.getElementById('addCidade').value, bairro: document.getElementById('addBairro').value, codigo: document.getElementById('addCodigo').value, nome: document.getElementById('addNome').value, endereco: document.getElementById('addEndereco').value, complemento: document.getElementById('addComplemento').value };
+            if(!pct.codigo || !pct.nome) { alert("Preencha Código e Nome."); return; }
+            document.getElementById('status').innerText = "Cadastrando no Drive...";
+            try { await enviarParaODrive(pct); mudarAba('agenda'); } catch(e) { alert("Erro ao salvar."); }
+        }
+
+        async function enviarParaODrive(objeto) {
+            await fetch(URL_API_DRIVE, { method: 'POST', mode: 'no-cors', cache: 'no-cache', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(objeto) });
+            setTimeout(() => { puxarDadosDoDrive(); }, 1500);
+        }
+
+        document.getElementById('filtroSemana').addEventListener('change', filtrarERenderizar);
+        document.getElementById('filtroDia').addEventListener('change', filtrarERenderizar);
+
+        puxarDadosDoDrive();
+    </script>
+</body>
+</html>
