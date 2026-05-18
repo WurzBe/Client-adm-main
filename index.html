@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Motor de Rotas - Navegação Precisa</title>
+    <title>Motor de Rotas - Foco Interativo</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
@@ -39,8 +39,8 @@
         .lista-scroll::-webkit-scrollbar { width: 6px; }
         .lista-scroll::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 3px; }
         
-        .card-item { background: var(--bg-card); border-left: 4px solid var(--verde-neon); padding: 14px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s; }
-        .card-item:hover { transform: translateY(-2px); }
+        .card-item { background: var(--bg-card); border-left: 4px solid var(--verde-neon); padding: 14px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+        .card-item:hover { transform: translateY(-2px); background: #252525; }
         .card-item h4 { margin: 0 0 6px 0; color: var(--texto-principal); font-size: 14px; }
         .card-item p { margin: 4px 0; font-size: 11px; color: var(--texto-secundario); line-height: 1.4; }
         .btn-gps { display: inline-block; margin-top: 10px; padding: 6px 12px; background: transparent; color: inherit; border: 1px solid currentColor; text-decoration: none; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
@@ -139,7 +139,6 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ⚠️ COLOQUE A SUA URL DO GOOGLE APPS SCRIPT AQUI DENTRO:
         const URL_API_DRIVE = "https://script.google.com/macros/s/AKfycbxBa4uGgSfeRFTZVdourZNzsCyygRNgKNJMzNOZsDdrG9OqSNwkFuk7CA8soKqv91I8/exec";
 
         const map = L.map('map').setView([-26.9166, -49.0661], 12);
@@ -153,6 +152,7 @@
         let bancoDeDadosClientes = [];
         let clienteSelecionadoAtualmente = null;
         let minhaPosicaoGPS = null; 
+        let marcadoresAtivosMap = []; // Guarda referência dos marcadores físicos para abrir via clique no card
 
         const paletaCores = ['#00ff66', '#00ccff', '#ff00ff', '#ffcc00', '#ff3333', '#b84dff', '#ff8c1a', '#00ffcc'];
 
@@ -199,11 +199,8 @@
             } catch (err) { document.getElementById('status').innerText = "Erro ao baixar planilha."; }
         }
 
-        // MOTOR DE BUSCA DUPLA (FIM DAS CURVAS MALUCAS E LAÇOS)
         async function descobrirCoordenadaReal(endereco, city) {
             let enderecoLimpo = endereco.replace(/"/g, '').trim(); 
-            
-            // TENTATIVA 1: Busca o endereço exato com o NÚMERO
             let buscaCompleta = encodeURIComponent(`${enderecoLimpo}, ${city}, SC, Brasil`);
             let url1 = `https://nominatim.openstreetmap.org/search?format=json&q=${buscaCompleta}&limit=1&email=contato@rotasapp.com`;
             try {
@@ -212,7 +209,6 @@
                 if (d1 && d1.length > 0) return [parseFloat(d1[0].lat), parseFloat(d1[0].lon)];
             } catch(e){}
 
-            // TENTATIVA 2: Se o número falhar ou cair num telhado isolado, busca APENAS O NOME DA RUA para cravar no asfalto
             let ruaSemNumero = enderecoLimpo.split(',')[0].trim();
             let buscaRua = encodeURIComponent(`${ruaSemNumero}, ${city}, SC, Brasil`);
             let url2 = `https://nominatim.openstreetmap.org/search?format=json&q=${buscaRua}&limit=1&email=contato@rotasapp.com`;
@@ -222,9 +218,17 @@
                 if (d2 && d2.length > 0) return [parseFloat(d2[0].lat), parseFloat(d2[0].lon)];
             } catch(e){}
             
-            // Fallback de segurança da cidade
             const defs = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112], "Indaial": [-26.8978, -49.2400], "Pomerode": [-26.7410, -49.1762], "Gaspar": [-26.9325, -48.9560], "Botuverá": [-27.1997, -49.0750] };
             return defs[city] || [-26.9166, -49.0661];
+        }
+
+        // FUNÇÃO PARA FOCAR NO MAPA VIA CLIQUE NO CARD DO CLIENTE
+        function focarNoClienteDoMapa(lat, lng, codigo) {
+            map.setView([lat, lng], 16);
+            let alvo = marcadoresAtivosMap.find(m => m.codigo.toString().trim() === codigo.toString().trim());
+            if (alvo) {
+                alvo.marker.openPopup();
+            }
         }
 
         async function filtrarERenderizar() {
@@ -234,6 +238,7 @@
 
             grupoMarcadores.clearLayers();
             grupoRota.clearLayers();
+            marcadoresAtivosMap = []; // Limpa o banco de referências de cliques
             document.getElementById('badgeOtimizado').style.display = 'none';
             const container = document.getElementById('listaAgenda');
             container.innerHTML = '';
@@ -285,7 +290,7 @@
                 } catch(e) { rotaOrdenadaIndices = coordsOriginais.map((_, i) => i); }
             } else { rotaOrdenadaIndices = [0]; }
 
-            txtLoading.innerText = "Traçando a Rota Final...";
+            txtLoading.innerText = "Desenhando a Rota Final...";
             let coordsCaminho = [];
             
             rotaOrdenadaIndices.forEach((idxOrigem, ordemAtual) => {
@@ -294,7 +299,7 @@
 
                 if (usandoGPSLocal && idxOrigem === 0) {
                     L.circleMarker(coord, { color: '#00ff66', fillColor: '#121212', fillOpacity: 1, radius: 8, weight: 3 })
-                     .bindPopup('<b>📍 Partida (O Meu Local)</b>').addTo(grupoMarcadores);
+                     .bindPopup('<b style="color:#00ff66;">📍 Partida (O Meu Local)</b>').addTo(grupoMarcadores);
                 } else {
                     let clienteIndex = usandoGPSLocal ? idxOrigem - 1 : idxOrigem;
                     let c = clientesDoDia[clienteIndex];
@@ -302,23 +307,38 @@
                     let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
                     let corDoCard = paletaCores[iReal % paletaCores.length];
 
-                    let marker = L.marker(coord).bindPopup(`<b>Paragem ${iReal + 1}: ${c.nome}</b><br>${c.endereco}`);
+                    // BALÃO DO ENDEREÇO TOTALMENTE DETALHADO E ESTILIZADO EM DARK MODE NEON
+                    let popupDesign = `
+                        <div style="font-family: 'Segoe UI', sans-serif; min-width: 220px; background: #1e1e1e; color: #fff; padding: 4px;">
+                            <b style="color: ${corDoCard}; font-size: 14px; display: block; margin-bottom: 4px;">Parada ${iReal + 1}: ${c.nome}</b>
+                            <div style="border-top: 1px solid #333; margin: 6px 0;"></div>
+                            <p style="margin: 4px 0; font-size: 12px; line-height: 1.4;"><b>📍 Rua:</b> ${c.endereco}</p>
+                            ${c.complemento ? `<p style="margin: 4px 0; font-size: 12px; color: #00ff66;"><b>🏢 Complemento:</b> ${c.complemento}</p>` : ''}
+                            <p style="margin: 4px 0; font-size: 11px; color: #aaa;"><b>🏘️ Região:</b> ${c.bairro} | ${c.cidade}</p>
+                        </div>
+                    `;
+
+                    let marker = L.marker(coord).bindPopup(popupDesign);
                     grupoMarcadores.addLayer(marker);
 
+                    // Salva a referência física do marcador vinculado ao código para permitir o foco por clique
+                    marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
+
                     const urlMaps = `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
+                    
+                    // Adicionado o onclick="focarNoClienteDoMapa(...)" no bloco de card lateral
                     container.innerHTML += `
-                        <div class="card-item" style="border-left-color: ${corDoCard};">
+                        <div class="card-item" style="border-left-color: ${corDoCard};" onclick="focarNoClienteDoMapa(${coord[0]}, ${coord[1]}, '${c.codigo}')">
                             <h4>${iReal + 1}. ${c.nome}</h4>
                             <p><b>Bairro:</b> ${c.bairro}</p>
                             <p><b>Endereço:</b> ${c.endereco}</p>
                             ${c.complemento ? `<p style="color:${corDoCard}; font-size:11px;">${c.complemento}</p>` : ''}
-                            <a href="${urlMaps}" target="_blank" class="btn-gps" style="color:${corDoCard}; border-color:${corDoCard};">Navegar</a>
+                            <a href="${urlMaps}" target="_blank" class="btn-gps" style="color:${corDoCard}; border-color:${corDoCard};" onclick="event.stopPropagation();">Navegar</a>
                         </div>
                     `;
                 }
             });
 
-            // PROTEÇÃO ANTI-LINHA-RETA (Delay maior entre chamadas de rota)
             if (coordsCaminho.length > 1) {
                 let limitesMapa = L.latLngBounds();
 
@@ -339,12 +359,10 @@
                             limitesMapa.extend(linhaReal.getBounds());
                         } else { throw new Error("OSRM Falhou"); }
                     } catch(e) {
-                        // Linha reta tracejada visual para indicar que não conseguiu pegar as ruas daquele trechinho específico
                         let linhaReta = L.polyline([pOriginal, pDestino], {color: corLinha, weight: 4, dashArray: '8, 8', opacity: 0.6});
                         grupoRota.addLayer(linhaReta);
                         limitesMapa.extend(linhaReta.getBounds());
                     }
-                    // O Segredo para não bloquear o servidor de rotas (Esperar meio segundo)
                     await new Promise(r => setTimeout(r, 600)); 
                 }
                 if (limitesMapa.isValid()) map.fitBounds(limitesMapa, {padding: [30, 30]});
@@ -355,7 +373,6 @@
             overlay.style.display = 'none';
         }
 
-        // FUNÇÕES DO BANCO DE DADOS (ABA 2 E 3)
         function renderizarListaGeralClientes() {
             const container = document.getElementById('listaClientesGeral');
             container.innerHTML = '';
