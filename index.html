@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Motor de Rotas - Multi Account</title>
+    <title>Motor de Rotas - Pro Edition (SaaS)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,15 +12,10 @@
     
     <style>
         :root {
-            --bg-principal: #0f172a;
-            --bg-card: #1e293b;
-            --bg-input: #334155;
-            --cor-primaria: #38bdf8;
-            --cor-primaria-hover: #0ea5e9;
-            --texto-principal: #f8fafc;
-            --texto-secundario: #94a3b8;
-            --borda: #334155;
-            --sombra-card: rgba(0, 0, 0, 0.2);
+            --bg-principal: #0f172a; --bg-card: #1e293b; --bg-input: #334155;
+            --cor-primaria: #38bdf8; --cor-primaria-hover: #0ea5e9;
+            --texto-principal: #f8fafc; --texto-secundario: #94a3b8;
+            --borda: #334155; --sombra-card: rgba(0, 0, 0, 0.2);
         }
 
         body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background-color: var(--bg-principal); color: var(--texto-principal); overflow: hidden; }
@@ -28,17 +23,17 @@
         @media (max-width: 768px) { body { flex-direction: column-reverse; } #sidebar { width: 100% !important; height: 50vh; border-right: none; border-top: 1px solid var(--borda); } #map { height: 50vh; } }
         
         #sidebar { width: 420px; background: var(--bg-principal); border-right: 1px solid var(--borda); display: flex; flex-direction: column; z-index: 1000; box-shadow: 4px 0 20px rgba(0,0,0,0.4); position: relative; }
-        .header { padding: 24px 20px; background: var(--bg-card); border-bottom: 1px solid var(--borda); }
-        .header h3 { margin: 0 0 6px 0; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; letter-spacing: -0.5px; }
+        .header { padding: 20px 20px; background: var(--bg-card); border-bottom: 1px solid var(--borda); display: flex; justify-content: space-between; align-items: center; }
+        .header h3 { margin: 0 0 4px 0; font-size: 19px; font-weight: 700; letter-spacing: -0.5px; }
         .header p { margin: 0; font-size: 11px; color: var(--texto-secundario); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
         
-        .badge-otimizado { background: rgba(56, 189, 248, 0.15); color: var(--cor-primaria); font-size: 10px; padding: 4px 8px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-otimizado { background: rgba(56, 189, 248, 0.15); color: var(--cor-primaria); font-size: 10px; padding: 4px 8px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.3); vertical-align: middle; margin-left: 8px;}
 
         .conteudo-aba { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .aba-escondida { display: none !important; }
         
-        .filtros, .busca-container { padding: 16px 20px; background: var(--bg-principal); display: flex; gap: 10px; border-bottom: 1px solid var(--borda); }
-        .filtros select, .busca-container input { flex: 1; padding: 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; -webkit-appearance: none; appearance: none; transition: all 0.2s ease; cursor: pointer; }
+        .filtros, .busca-container { padding: 16px 20px; background: var(--bg-principal); display: flex; gap: 10px; border-bottom: 1px solid var(--borda); flex-wrap: wrap; }
+        .filtros select, .busca-container input { flex: 1; min-width: 120px; padding: 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; }
         .filtros select:focus, .busca-container input:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
         
         .lista-scroll { padding: 20px; overflow-y: auto; flex: 1; background: var(--bg-principal); padding-bottom: 30px; }
@@ -46,71 +41,71 @@
         .lista-scroll::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 3px; }
         
         .card-item { background: var(--bg-card); border-left: 5px solid var(--cor-primaria); padding: 16px; margin-bottom: 14px; border-radius: 12px; box-shadow: 0 4px 12px var(--sombra-card); cursor: pointer; transition: all 0.2s ease; }
-        .card-item:hover { transform: translateY(-3px); box-shadow: 0 8px 16px var(--sombra-card); background: #233147; }
+        .card-item:hover { transform: translateY(-3px); background: #233147; }
         .card-item h4 { margin: 0 0 8px 0; color: var(--texto-principal); font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
         .card-item p { margin: 4px 0; font-size: 12px; color: var(--texto-secundario); line-height: 1.5; }
         
-        .btn-gps { display: inline-flex; align-items: center; justify-content: center; margin-top: 12px; padding: 8px 16px; background: rgba(56, 189, 248, 0.1); color: var(--cor-primaria); border: 1px solid var(--cor-primaria); text-decoration: none; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; transition: all 0.2s ease; letter-spacing: 0.5px; }
-        .btn-gps:hover { background: var(--cor-primaria); color: #000; }
+        .btn-acao { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; background: var(--cor-primaria); color: #0f172a; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.2s ease; width: 100%; box-sizing: border-box; }
+        .btn-acao:hover { background: var(--cor-primaria-hover); }
+        .btn-secundario { background: rgba(56, 189, 248, 0.1); color: var(--cor-primaria); border: 1px solid var(--cor-primaria); margin-top: 10px;}
+        .btn-secundario:hover { background: var(--cor-primaria); color: #0f172a; }
         
         .form-exclusivo { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; background: var(--bg-principal); }
         #painelEdicao { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-principal); z-index: 2000; display: flex; flex-direction: column; }
-        .form-exclusivo label { font-size: 11px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: -6px; font-weight: 700; letter-spacing: 0.5px; }
-        .form-exclusivo input, .form-exclusivo select { padding: 12px; background: var(--bg-input); border: 1px solid transparent; border-radius: 8px; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s ease; }
-        .form-exclusivo input:focus, .form-exclusivo select:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
-        
-        .btn-salvar { background: var(--cor-primaria); color: #0f172a; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; text-transform: uppercase; margin-top: 12px; letter-spacing: 0.5px; transition: background 0.2s ease; }
-        .btn-salvar:hover { background: var(--cor-primaria-hover); }
-        .btn-voltar { background: transparent; color: var(--texto-secundario); border: 1px solid var(--borda); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px; text-transform: uppercase; margin-top: 8px; text-align: center; transition: all 0.2s ease; }
-        .btn-voltar:hover { background: var(--bg-card); color: var(--texto-principal); }
+        .form-exclusivo label { font-size: 11px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: -6px; font-weight: 700; }
+        .form-exclusivo input, .form-exclusivo select { padding: 12px; background: var(--bg-input); border: 1px solid transparent; border-radius: 8px; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; }
         
         #loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; text-align: center; backdrop-filter: blur(4px); }
         .spinner { border: 4px solid var(--borda); border-top: 4px solid var(--cor-primaria); border-radius: 50%; width: 36px; height: 36px; animation: spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite; margin-bottom: 16px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .barra-inferior { height: 65px; background: var(--bg-card); border-top: 1px solid var(--borda); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 10px rgba(0,0,0,0.2); }
-        .btn-tab { flex: 1; height: 100%; background: transparent; border: none; color: var(--texto-secundario); font-size: 11px; font-weight: 600; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; transition: all 0.2s ease; font-family: 'Inter', sans-serif; letter-spacing: 0.5px; }
+        .btn-tab { flex: 1; height: 100%; background: transparent; border: none; color: var(--texto-secundario); font-size: 11px; font-weight: 600; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
         .btn-tab.ativo { color: var(--cor-primaria); background: rgba(56, 189, 248, 0.08); }
-        .btn-tab.ativo span:first-child { transform: scale(1.1); transition: transform 0.2s ease; }
         
         #map { flex: 1; height: 100%; background: #e5e3df; z-index: 1; }
-
         .leaflet-popup-content-wrapper { background: var(--bg-card) !important; color: var(--texto-principal) !important; border-radius: 12px !important; border: 1px solid var(--borda); box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
         .leaflet-popup-tip { background: var(--bg-card) !important; }
-        .leaflet-container a.leaflet-popup-close-button { color: var(--texto-secundario) !important; padding: 4px !important; }
+        .leaflet-container a.leaflet-popup-close-button { color: var(--texto-secundario) !important; }
 
-        /* TELA DE LOGIN (SISTEMA DE CONTAS) */
+        /* TELA DE LOGIN FIREBASE */
         #tela-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-principal); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
         .login-card { background: var(--bg-card); padding: 40px 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid var(--borda); max-width: 400px; width: 100%; text-align: center; }
-        .login-card h2 { margin: 0 0 10px 0; color: var(--cor-primaria); font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .login-card h2 { margin: 0 0 10px 0; color: var(--cor-primaria); font-size: 24px; font-weight: 700; }
         .login-card p { color: var(--texto-secundario); font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
-        .login-card input { width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-size: 14px; margin-bottom: 20px; box-sizing: border-box; outline: none; text-align: center; }
-        .login-card input:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
-        .login-card button { width: 100%; background: var(--cor-primaria); color: #0f172a; border: none; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 14px; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
-        .login-card button:hover { background: var(--cor-primaria-hover); transform: translateY(-2px); }
-
-        .btn-sair { background: transparent; border: 1px solid var(--texto-secundario); color: var(--texto-secundario); font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .login-card input { width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-size: 14px; margin-bottom: 16px; box-sizing: border-box; outline: none; }
+        .login-card input:focus { border-color: var(--cor-primaria); }
+        .btn-link { background: none; border: none; color: var(--texto-secundario); font-size: 12px; margin-top: 15px; cursor: pointer; text-decoration: underline; font-family: 'Inter'; }
+        
+        .btn-sair { background: transparent; border: 1px solid var(--texto-secundario); color: var(--texto-secundario); font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .btn-sair:hover { border-color: #f43f5e; color: #f43f5e; }
+        
+        input[type="file"] { display: none; }
+        .custom-file-upload { display: inline-block; padding: 10px 16px; cursor: pointer; border: 1px dashed var(--texto-secundario); border-radius: 8px; font-size: 12px; color: var(--texto-secundario); text-align: center; width: 100%; box-sizing: border-box; margin-bottom: 10px;}
+        .custom-file-upload:hover { border-color: var(--cor-primaria); color: var(--cor-primaria); }
     </style>
 </head>
 <body>
 
     <div id="tela-login">
         <div class="login-card">
-            <h2>Bem-vindo ao Sistema</h2>
-            <p>Insira a sua <b>Chave de Integração</b> (URL do Google Apps Script) para aceder ao seu banco de dados exclusivo.</p>
-            <input type="url" id="inputChave" placeholder="https://script.google.com/macros/s/..." autocomplete="off">
-            <button onclick="conectarConta()">Conectar Conta</button>
+            <h2>Rota Pro SaaS</h2>
+            <p>Faça login ou crie a sua conta para acessar o seu banco de dados na nuvem.</p>
+            <input type="email" id="email" placeholder="Seu E-mail">
+            <input type="password" id="senha" placeholder="Sua Senha">
+            <button class="btn-acao" onclick="fazerLogin()">Entrar no Sistema</button>
+            <button class="btn-link" onclick="criarConta()">Não tem conta? Criar Nova Conta</button>
+            <p id="msg-login" style="color: #f43f5e; font-size: 12px; margin-top: 10px;"></p>
         </div>
     </div>
 
     <div id="sidebar">
         <div class="header">
             <div>
-                <h3>Visão Operacional <span class="badge-otimizado" id="badgeOtimizado" style="display:none;">IA OTIMIZADA</span></h3>
-                <p id="status">Aguardando Conexão...</p>
+                <h3>Visão Operacional <span class="badge-otimizado" id="badgeOtimizado" style="display:none;">IA</span></h3>
+                <p id="status">Sincronizando com a Nuvem...</p>
             </div>
-            <button class="btn-sair" onclick="desconectarConta()">Sair</button>
+            <button class="btn-sair" onclick="sairDaConta()">Sair</button>
         </div>
 
         <div id="loading-overlay">
@@ -128,13 +123,18 @@
                     <option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option>
                     <option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option>
                 </select>
+                <button class="btn-acao" style="background-color: #10b981; color: white;" onclick="exportarRelatorio()">📥 Baixar Planilha da Rota</button>
             </div>
             <div class="lista-scroll" id="listaAgenda"></div>
         </div>
 
         <div id="conteudoClientes" class="conteudo-aba aba-escondida">
-            <div class="busca-container">
+            <div class="busca-container" style="flex-direction: column;">
                 <input type="text" id="campoBusca" placeholder="Pesquisar cliente ou código..." oninput="filtrarListaGeral()">
+                <label class="custom-file-upload">
+                    <input type="file" id="arquivoCSV" accept=".csv" onchange="importarCSV(event)"/>
+                    📤 Importar Arquivo CSV de Clientes
+                </label>
             </div>
             <div class="lista-scroll" id="listaClientesGeral"></div>
 
@@ -149,8 +149,9 @@
                     <label>Cidade</label><select id="editCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
                     <label>Semana Designada</label><select id="editSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
                     <label>Dia Designado</label><select id="editDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
-                    <button class="btn-salvar" onclick="salvarEdicaoNoDrive()">Atualizar Cadastro</button>
-                    <button class="btn-voltar" onclick="fecharPainelEdicao()">Voltar</button>
+                    <button class="btn-acao" onclick="salvarEdicaoFirebase()">Atualizar no Banco</button>
+                    <button class="btn-acao btn-secundario" style="border-color: #f43f5e; color: #f43f5e;" onclick="excluirClienteFirebase()">🗑️ Excluir Cliente</button>
+                    <button class="btn-acao btn-secundario" onclick="fecharPainelEdicao()">Voltar</button>
                 </div>
             </div>
         </div>
@@ -166,7 +167,7 @@
                 <label>Cidade</label><select id="addCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
                 <label>Semana Designada</label><select id="addSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
                 <label>Dia Designado</label><select id="addDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
-                <button class="btn-salvar" onclick="salvarNovoNoDrive()">Salvar Novo Cliente</button>
+                <button class="btn-acao" onclick="salvarNovoFirebase()">Salvar na Nuvem</button>
             </div>
         </div>
 
@@ -180,16 +181,30 @@
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // A CHAVE DINÂMICA (SUBSTITUI A URL FIXA)
-        let URL_API_DRIVE = "";
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // CHAVES DO SEU PROJETO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyAh0OpiVBN_tAmziVvvZS8ONHjfvrKZnqU",
+            authDomain: "rota-comercial.firebaseapp.com",
+            projectId: "rota-comercial",
+            storageBucket: "rota-comercial.firebasestorage.app",
+            messagingSenderId: "828175392312",
+            appId: "1:828175392312:web:f3bc6f4fe373b995ad90cd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // VARIÁVEIS GLOBAIS
         const map = L.map('map', { zoomControl: false }).setView([-26.9166, -49.0661], 12);
         L.control.zoom({ position: 'topright' }).addTo(map);
-        
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-            attribution: 'Tiles &copy; Esri'
-        }).addTo(map);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' }).addTo(map);
 
         let grupoMarcadores = L.layerGroup().addTo(map);
         let grupoRota = L.layerGroup().addTo(map);
@@ -197,40 +212,45 @@
         let clienteSelecionadoAtualmente = null;
         let minhaPosicaoGPS = null; 
         let marcadoresAtivosMap = [];
+        let relatorioAtual = []; // Guarda a rota otimizada do dia para download
+        let usuarioAtual = null;
 
         const paletaCores = ['#38bdf8', '#8b5cf6', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#ec4899'];
 
-        // SISTEMA DE LOGIN (LOCAL STORAGE)
-        window.onload = () => {
-            const chaveSalva = localStorage.getItem("rota_api_chave");
-            if (chaveSalva) {
-                URL_API_DRIVE = chaveSalva;
+        // --- SISTEMA DE AUTENTICAÇÃO ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                usuarioAtual = user;
                 document.getElementById('tela-login').style.display = 'none';
-                iniciarAplicativo();
+                puxarDadosDoFirebase();
+            } else {
+                usuarioAtual = null;
+                document.getElementById('tela-login').style.display = 'flex';
             }
+        });
+
+        window.fazerLogin = () => {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            signInWithEmailAndPassword(auth, email, senha).catch(err => {
+                document.getElementById('msg-login').innerText = "Erro: E-mail ou senha incorretos.";
+            });
         };
 
-        function conectarConta() {
-            const input = document.getElementById('inputChave').value.trim();
-            if (!input.includes('script.google.com/macros/')) {
-                alert("Por favor, insira uma Chave de Integração válida do Google Apps Script.");
-                return;
-            }
-            localStorage.setItem("rota_api_chave", input);
-            URL_API_DRIVE = input;
-            document.getElementById('tela-login').style.display = 'none';
-            iniciarAplicativo();
-        }
+        window.criarConta = () => {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            if(senha.length < 6) { document.getElementById('msg-login').innerText = "A senha deve ter 6+ caracteres."; return; }
+            createUserWithEmailAndPassword(auth, email, senha).catch(err => {
+                document.getElementById('msg-login').innerText = "Erro ao criar conta. Tente outro e-mail.";
+            });
+        };
 
-        function desconectarConta() {
-            if(confirm("Tem certeza que deseja sair desta conta?")) {
-                localStorage.removeItem("rota_api_chave");
-                location.reload();
-            }
-        }
+        window.sairDaConta = () => { signOut(auth); };
 
-        function mudarAba(aba) {
-            fecharPainelEdicao();
+        // --- NAVEGAÇÃO UI ---
+        window.mudarAba = (aba) => {
+            window.fecharPainelEdicao();
             const t = { agenda: { btn: 'btnTabAgenda', cont: 'conteudoAgenda' }, clientes: { btn: 'btnTabClientes', cont: 'conteudoClientes' }, adicionar: { btn: 'btnTabAdicionar', cont: 'conteudoAdicionar' } };
             Object.keys(t).forEach(k => {
                 const b = document.getElementById(t[k].btn), c = document.getElementById(t[k].cont);
@@ -239,71 +259,163 @@
             });
         }
 
+        // --- BANCO DE DADOS (FIRESTORE) ---
+        async function puxarDadosDoFirebase() {
+            document.getElementById('status').innerText = "Baixando da Nuvem...";
+            try {
+                const q = query(collection(db, "clientes"), where("userId", "==", usuarioAtual.uid));
+                const snapshot = await getDocs(q);
+                bancoDeDadosClientes = [];
+                snapshot.forEach((doc) => {
+                    let c = doc.data();
+                    c.idFirebase = doc.id; // Guarda a ID para poder editar/excluir
+                    bancoDeDadosClientes.push(c);
+                });
+                
+                minhaPosicaoGPS = await inicializarGPS();
+                document.getElementById('status').innerText = "📍 Banco Local Sincronizado";
+                
+                filtrarERenderizar();
+                renderizarListaGeralClientes();
+            } catch (err) { document.getElementById('status').innerText = "Erro de conexão."; }
+        }
+
+        window.salvarNovoFirebase = async () => {
+            const pct = { 
+                userId: usuarioAtual.uid,
+                semana: document.getElementById('addSemana').value, diaSemana: document.getElementById('addDia').value, 
+                cidade: document.getElementById('addCidade').value, bairro: document.getElementById('addBairro').value, 
+                codigo: document.getElementById('addCodigo').value, nome: document.getElementById('addNome').value, 
+                endereco: document.getElementById('addEndereco').value, complemento: document.getElementById('addComplemento').value 
+            };
+            if(!pct.codigo || !pct.nome) { alert("Preencha Código e Nome."); return; }
+            
+            document.getElementById('status').innerText = "Salvando...";
+            try {
+                await addDoc(collection(db, "clientes"), pct);
+                window.mudarAba('agenda');
+                puxarDadosDoFirebase();
+            } catch(e) { alert("Erro ao salvar."); }
+        };
+
+        window.salvarEdicaoFirebase = async () => {
+            if (!clienteSelecionadoAtualmente) return;
+            const pct = { 
+                semana: document.getElementById('editSemana').value, diaSemana: document.getElementById('editDia').value, 
+                cidade: document.getElementById('editCidade').value, bairro: document.getElementById('editBairro').value, 
+                codigo: document.getElementById('editCodigo').value, nome: document.getElementById('editNome').value, 
+                endereco: document.getElementById('editEndereco').value, complemento: document.getElementById('editComplemento').value 
+            };
+            try { 
+                const docRef = doc(db, "clientes", clienteSelecionadoAtualmente.idFirebase);
+                await updateDoc(docRef, pct);
+                window.fecharPainelEdicao();
+                puxarDadosDoFirebase(); 
+            } catch(e){ alert("Erro ao editar."); }
+        };
+
+        window.excluirClienteFirebase = async () => {
+            if(!clienteSelecionadoAtualmente || !confirm("Tem certeza que deseja apagar este cliente do banco de dados?")) return;
+            try {
+                await deleteDoc(doc(db, "clientes", clienteSelecionadoAtualmente.idFirebase));
+                window.fecharPainelEdicao();
+                puxarDadosDoFirebase();
+            } catch(e) { alert("Erro ao excluir."); }
+        };
+
+        // --- IMPORTAÇÃO DE PLANILHA CSV ---
+        window.importarCSV = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('status').innerText = "Importando Clientes...";
+            
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const texto = e.target.result;
+                const linhas = texto.split('\n');
+                
+                // Pula a primeira linha (cabeçalho) e insere um por um
+                for(let i = 1; i < linhas.length; i++) {
+                    const colunas = linhas[i].split(',');
+                    if(colunas.length >= 8 && colunas[0].trim() !== '') {
+                        const cliente = {
+                            userId: usuarioAtual.uid,
+                            codigo: colunas[0].trim(), nome: colunas[1].trim(), endereco: colunas[2].trim(),
+                            complemento: colunas[3].trim(), bairro: colunas[4].trim(), cidade: colunas[5].trim(),
+                            semana: colunas[6].trim(), diaSemana: colunas[7].trim()
+                        };
+                        try { await addDoc(collection(db, "clientes"), cliente); } catch(err){}
+                    }
+                }
+                alert("Planilha importada com sucesso!");
+                puxarDadosDoFirebase();
+            };
+            reader.readAsText(file);
+        };
+
+        // --- EXPORTAR RELATÓRIO OTIMIZADO ---
+        window.exportarRelatorio = () => {
+            if(relatorioAtual.length === 0) { alert("Nenhuma rota processada hoje para exportar."); return; }
+            
+            let csvContent = "\uFEFF"; // Garante os acentos no Excel
+            csvContent += "Ordem de Visita,Codigo,Nome do Cliente,Endereco Completo,Bairro,Cidade\n";
+            
+            relatorioAtual.forEach((c, idx) => {
+                let end = `"${c.endereco}${c.complemento ? ' - ' + c.complemento : ''}"`;
+                csvContent += `${idx + 1},${c.codigo},"${c.nome}",${end},"${c.bairro}","${c.cidade}"\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Rota_Diaria_Otimizada.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        // --- MAPA E LÓGICA DE ROTAS ---
         async function inicializarGPS() {
             return new Promise((resolve) => {
-                if (!navigator.geolocation) {
-                    document.getElementById('status').innerText = "⚠️ Sem suporte a GPS";
-                    resolve(null);
-                } else {
+                if (!navigator.geolocation) { resolve(null); } 
+                else {
                     navigator.geolocation.getCurrentPosition(
-                        pos => {
-                            let loc = [pos.coords.latitude, pos.coords.longitude];
-                            document.getElementById('status').innerText = "📍 Sincronizado";
-                            map.setView(loc, 14);
-                            resolve(loc);
-                        },
-                        err => {
-                            document.getElementById('status').innerText = "⚠️ Sincronizado (Sem GPS)";
-                            resolve(null);
-                        },
+                        pos => { resolve([pos.coords.latitude, pos.coords.longitude]); },
+                        err => { resolve(null); },
                         { enableHighAccuracy: true, timeout: 5000 }
                     );
                 }
             });
         }
 
-        async function iniciarAplicativo() {
-            document.getElementById('status').innerText = "Conectando ao banco...";
-            minhaPosicaoGPS = await inicializarGPS();
-            try {
-                const res = await fetch(URL_API_DRIVE);
-                bancoDeDadosClientes = await res.json();
-                filtrarERenderizar();
-                renderizarListaGeralClientes();
-            } catch (err) { 
-                document.getElementById('status').innerText = "Erro: Chave Inválida."; 
-                desconectarConta();
-            }
-        }
-
         async function descobrirCoordenadaReal(endereco, city) {
             let enderecoLimpo = endereco.replace(/"/g, '').trim(); 
             let buscaCompleta = encodeURIComponent(`${enderecoLimpo}, ${city}, SC, Brasil`);
-            let url1 = `https://nominatim.openstreetmap.org/search?format=json&q=${buscaCompleta}&limit=1&email=contato@rotasapp.com`;
             try {
-                const r1 = await fetch(url1);
+                const r1 = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${buscaCompleta}&limit=1&email=contato@rotasapp.com`);
                 const d1 = await r1.json();
                 if (d1 && d1.length > 0) return [parseFloat(d1[0].lat), parseFloat(d1[0].lon)];
             } catch(e){}
 
             let ruaSemNumero = enderecoLimpo.split(',')[0].trim();
             let buscaRua = encodeURIComponent(`${ruaSemNumero}, ${city}, SC, Brasil`);
-            let url2 = `https://nominatim.openstreetmap.org/search?format=json&q=${buscaRua}&limit=1&email=contato@rotasapp.com`;
             try {
-                const r2 = await fetch(url2);
+                const r2 = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${buscaRua}&limit=1&email=contato@rotasapp.com`);
                 const d2 = await r2.json();
                 if (d2 && d2.length > 0) return [parseFloat(d2[0].lat), parseFloat(d2[0].lon)];
             } catch(e){}
             
-            const defs = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112], "Indaial": [-26.8978, -49.2400], "Pomerode": [-26.7410, -49.1762], "Gaspar": [-26.9325, -48.9560], "Botuverá": [-27.1997, -49.0750] };
+            const defs = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112] };
             return defs[city] || [-26.9166, -49.0661];
         }
 
-        function focarNoClienteDoMapa(lat, lng, codigo) {
+        window.focarNoClienteDoMapa = (lat, lng, codigo) => {
             map.setView([lat, lng], 16);
             let alvo = marcadoresAtivosMap.find(m => m.codigo.toString().trim() === codigo.toString().trim());
             if (alvo) { alvo.marker.openPopup(); }
-        }
+        };
 
         async function filtrarERenderizar() {
             const semSel = document.getElementById('filtroSemana').value;
@@ -313,6 +425,7 @@
             grupoMarcadores.clearLayers();
             grupoRota.clearLayers();
             marcadoresAtivosMap = [];
+            relatorioAtual = []; // Reseta o relatório
             document.getElementById('badgeOtimizado').style.display = 'none';
             const container = document.getElementById('listaAgenda');
             container.innerHTML = '';
@@ -334,7 +447,7 @@
                 usandoGPSLocal = true;
             }
 
-            txtLoading.innerText = "A validar ruas no mapa...";
+            txtLoading.innerText = "Localizando no satélite...";
             for (let i = 0; i < clientesDoDia.length; i++) {
                 let [lat, lng] = await descobrirCoordenadaReal(clientesDoDia[i].endereco, clientesDoDia[i].cidade);
                 coordsOriginais.push([lat, lng]);
@@ -364,7 +477,7 @@
                 } catch(e) { rotaOrdenadaIndices = coordsOriginais.map((_, i) => i); }
             } else { rotaOrdenadaIndices = [0]; }
 
-            txtLoading.innerText = "Desenhando os trechos finais...";
+            txtLoading.innerText = "Desenhando a Rota Colorida...";
             let coordsCaminho = [];
             
             rotaOrdenadaIndices.forEach((idxOrigem, ordemAtual) => {
@@ -377,6 +490,7 @@
                 } else {
                     let clienteIndex = usandoGPSLocal ? idxOrigem - 1 : idxOrigem;
                     let c = clientesDoDia[clienteIndex];
+                    relatorioAtual.push(c); // Adiciona na ordem certa para o Excel
                     
                     let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
                     let corDoCard = paletaCores[iReal % paletaCores.length];
@@ -385,20 +499,17 @@
                         <div style="font-family: 'Inter', sans-serif; min-width: 200px; padding: 2px;">
                             <b style="color: ${corDoCard}; font-size: 15px; display: block; margin-bottom: 6px; letter-spacing: -0.3px;">Paragem ${iReal + 1}: ${c.nome}</b>
                             <div style="border-top: 1px solid var(--borda); margin: 8px 0;"></div>
-                            <p style="margin: 4px 0; font-size: 12px; color: var(--texto-secundario);"><b>📍 Endereço:</b> <span style="color: var(--texto-principal)">${c.endereco}</span></p>
-                            ${c.complemento ? `<p style="margin: 4px 0; font-size: 12px; color: ${corDoCard};"><b>🏢 Comp:</b> ${c.complemento}</p>` : ''}
-                            <p style="margin: 6px 0 0 0; font-size: 11px; color: #64748b;">${c.bairro} | ${c.cidade}</p>
+                            <p style="margin: 4px 0; font-size: 12px; color: var(--texto-secundario);"><b>📍</b> <span style="color: var(--texto-principal)">${c.endereco}</span></p>
                         </div>
                     `;
 
                     let marker = L.marker(coord).bindPopup(popupDesign);
                     grupoMarcadores.addLayer(marker);
                     marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
-
-                    const urlMaps = `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
                     
+                    const urlMaps = `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
                     container.innerHTML += `
-                        <div class="card-item" style="border-left-color: ${corDoCard};" onclick="focarNoClienteDoMapa(${coord[0]}, ${coord[1]}, '${c.codigo}')">
+                        <div class="card-item" style="border-left-color: ${corDoCard};" onclick="window.focarNoClienteDoMapa(${coord[0]}, ${coord[1]}, '${c.codigo}')">
                             <h4 style="color: ${corDoCard};">${iReal + 1}. <span style="color: var(--texto-principal);">${c.nome}</span></h4>
                             <p><b>Bairro:</b> ${c.bairro}</p>
                             <p><b>Endereço:</b> ${c.endereco}</p>
@@ -417,12 +528,10 @@
                     let pDestino = coordsCaminho[i+1];
                     let corLinha = paletaCores[i % paletaCores.length];
 
-                    let urlOSRM = `https://router.project-osrm.org/route/v1/driving/${pOriginal[1]},${pOriginal[0]};${pDestino[1]},${pDestino[0]}?overview=full&geometries=geojson`;
-                    
                     try {
-                        const res = await fetch(urlOSRM);
+                        const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${pOriginal[1]},${pOriginal[0]};${pDestino[1]},${pDestino[0]}?overview=full&geometries=geojson`);
                         const dados = await res.json();
-                        if (dados.code === 'Ok' && dados.routes && dados.routes.length > 0) {
+                        if (dados.code === 'Ok' && dados.routes.length > 0) {
                             const pontosRua = dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]);
                             let linhaReal = L.polyline(pontosRua, {color: corLinha, weight: 6, opacity: 0.85});
                             grupoRota.addLayer(linhaReal);
@@ -439,53 +548,34 @@
             } else if (coordsCaminho.length === 1) {
                 map.setView(coordsCaminho[0], 15);
             }
-
             overlay.style.display = 'none';
         }
 
-        function renderizarListaGeralClientes() {
+        window.renderizarListaGeralClientes = () => {
             const container = document.getElementById('listaClientesGeral');
             container.innerHTML = '';
             bancoDeDadosClientes.forEach(c => {
-                container.innerHTML += `<div class="card-item" style="border-left-color: var(--borda);" onclick="abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p><b>Região:</b> ${c.semana} (${c.diaSemana})</p><p style="color:var(--texto-principal);"><b>📍</b> ${c.endereco}</p><p>${c.bairro}, ${c.cidade}</p></div>`;
+                container.innerHTML += `<div class="card-item" style="border-left-color: var(--borda);" onclick="window.abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p><b>Região:</b> ${c.semana} (${c.diaSemana})</p><p style="color:var(--texto-principal);"><b>📍</b> ${c.endereco}</p></div>`;
             });
-        }
+        };
 
-        function filtrarListaGeral() {
+        window.filtrarListaGeral = () => {
             const busca = document.getElementById('campoBusca').value.toLowerCase();
             const cards = document.getElementById('listaClientesGeral').getElementsByClassName('card-item');
             for (let card of cards) card.style.display = card.innerText.toLowerCase().includes(busca) ? 'block' : 'none';
-        }
+        };
 
-        function abrirPainelEdicao(codigo) {
+        window.abrirPainelEdicao = (codigo) => {
             const c = bancoDeDadosClientes.find(item => item.codigo.toString().trim() === codigo.toString().trim());
             if (!c) return;
             clienteSelecionadoAtualmente = c;
             ['Codigo', 'Nome', 'Endereco', 'Complemento', 'Bairro', 'Cidade', 'Semana', 'Dia'].forEach(k => document.getElementById(`edit${k}`).value = c[k.toLowerCase()] || c[k === 'Dia' ? 'diaSemana' : '']);
             document.getElementById('painelEdicao').classList.remove('aba-escondida');
-        }
+        };
 
-        function fecharPainelEdicao() { document.getElementById('painelEdicao').classList.add('aba-escondida'); clienteSelecionadoAtualmente = null; }
+        window.fecharPainelEdicao = () => { document.getElementById('painelEdicao').classList.add('aba-escondida'); clienteSelecionadoAtualmente = null; };
 
-        async function salvarEdicaoNoDrive() {
-            if (!clienteSelecionadoAtualmente) return;
-            document.getElementById('status').innerText = "Enviando ao banco...";
-            const pct = { semana: document.getElementById('editSemana').value, diaSemana: document.getElementById('editDia').value, cidade: document.getElementById('editCidade').value, bairro: document.getElementById('editBairro').value, codigo: document.getElementById('editCodigo').value, nome: document.getElementById('editNome').value, endereco: document.getElementById('editEndereco').value, complemento: document.getElementById('editComplemento').value };
-            try { await enviarParaODrive(pct); fecharPainelEdicao(); } catch(e){ alert("Erro ao salvar."); }
-        }
-
-        async function salvarNovoNoDrive() {
-            const pct = { semana: document.getElementById('addSemana').value, diaSemana: document.getElementById('addDia').value, cidade: document.getElementById('addCidade').value, bairro: document.getElementById('addBairro').value, codigo: document.getElementById('addCodigo').value, nome: document.getElementById('addNome').value, endereco: document.getElementById('addEndereco').value, complemento: document.getElementById('addComplemento').value };
-            if(!pct.codigo || !pct.nome) { alert("Preencha Código e Nome."); return; }
-            document.getElementById('status').innerText = "Cadastrando...";
-            try { await enviarParaODrive(pct); mudarAba('agenda'); } catch(e) { alert("Erro ao salvar."); }
-        }
-
-        async function enviarParaODrive(objeto) {
-            await fetch(URL_API_DRIVE, { method: 'POST', mode: 'no-cors', cache: 'no-cache', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(objeto) });
-            setTimeout(() => { iniciarAplicativo(); }, 1500);
-        }
-
+        // Listeners dos filtros
         document.getElementById('filtroSemana').addEventListener('change', filtrarERenderizar);
         document.getElementById('filtroDia').addEventListener('change', filtrarERenderizar);
     </script>
