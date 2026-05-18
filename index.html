@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Motor de Rotas - Pro Edition SaaS</title>
-      <link rel="manifest" href="manifest.json">
-         <meta name="theme-color" content="#0f172a">
-        <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,17 +22,51 @@
             --borda: #334155; --sombra-card: rgba(0, 0, 0, 0.2);
         }
 
-        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background-color: var(--bg-principal); color: var(--texto-principal); overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: row; height: 100vh; background-color: var(--bg-principal); color: var(--texto-principal); overflow: hidden; position: relative; }
         
-        @media (max-width: 768px) { body { flex-direction: column-reverse; } #sidebar { width: 100% !important; height: 50vh; border-right: none; border-top: 1px solid var(--borda); } #map { height: 50vh; } }
+        #sidebar { width: 420px; background: var(--bg-principal); border-right: 1px solid var(--borda); display: flex; flex-direction: column; z-index: 2000; box-shadow: 4px 0 20px rgba(0,0,0,0.4); order: 1; }
+        #map { flex: 1; height: 100%; background: #e5e3df; z-index: 1; order: 2; }
         
-        #sidebar { width: 420px; background: var(--bg-principal); border-right: 1px solid var(--borda); display: flex; flex-direction: column; z-index: 1000; box-shadow: 4px 0 20px rgba(0,0,0,0.4); position: relative; }
-        .header { padding: 20px 20px; background: var(--bg-card); border-bottom: 1px solid var(--borda); display: flex; justify-content: space-between; align-items: center; }
+        #drawer-handle-container { display: none; width: 100%; padding: 12px 0 4px 0; background: var(--bg-card); cursor: grab; text-align: center; border-radius: 24px 24px 0 0; }
+        .drawer-handle { width: 50px; height: 5px; background: #475569; border-radius: 10px; margin: 0 auto; }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            body { flex-direction: column; }
+            #map { width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; order: unset; }
+            #sidebar { width: 100% !important; height: 45vh; position: absolute; bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); order: unset; }
+            #sidebar.dragging { transition: none; }
+            #drawer-handle-container { display: block; }
+            .header { padding-top: 5px; background: var(--bg-card); }
+        }
+
+        @media (max-width: 932px) and (orientation: landscape) {
+            body { flex-direction: row; }
+            #sidebar { width: 300px !important; }
+        }
+
+        .header { padding: 15px 20px; background: var(--bg-card); border-bottom: 1px solid var(--borda); display: flex; justify-content: space-between; align-items: center; }
         .header h3 { margin: 0 0 4px 0; font-size: 19px; font-weight: 700; letter-spacing: -0.5px; }
         .header p { margin: 0; font-size: 11px; color: var(--texto-secundario); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
         
-        .badge-otimizado { background: rgba(56, 189, 248, 0.15); color: var(--cor-primaria); font-size: 10px; padding: 4px 8px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.3); vertical-align: middle; margin-left: 8px;}
+        /* SISTEMA DE AVATAR E MENU SUSPENSO */
+        .user-menu-container { position: relative; }
+        .avatar-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--cor-primaria); color: #0f172a; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 16px; cursor: pointer; border: 2px solid #0f172a; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s; }
+        .avatar-btn:active { transform: scale(0.9); }
+        .dropdown-menu { position: absolute; right: 0; top: 45px; background: var(--bg-card); border: 1px solid var(--borda); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); width: 220px; display: none; flex-direction: column; z-index: 3000; overflow: hidden; transform-origin: top right; }
+        .dropdown-menu.active { display: flex; animation: slideDown 0.2s ease forwards; }
+        @keyframes slideDown { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        .dropdown-header { padding: 16px; border-bottom: 1px solid var(--borda); font-size: 12px; color: var(--texto-secundario); background: #182235; word-break: break-all; }
+        .dropdown-header strong { display: block; color: var(--texto-principal); font-size: 14px; margin-bottom: 2px; }
+        .dropdown-item { padding: 14px 16px; font-size: 13px; font-weight: 500; color: var(--texto-principal); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; border-bottom: 1px solid var(--borda); }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: var(--bg-input); padding-left: 20px; }
 
+        /* MODAL DE SINCRONIZAÇÃO */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--bg-card); padding: 24px; border-radius: 16px; width: 100%; max-width: 380px; border: 1px solid var(--borda); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+
+        .badge-otimizado { background: rgba(56, 189, 248, 0.15); color: var(--cor-primaria); font-size: 10px; padding: 4px 8px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.3); vertical-align: middle; margin-left: 8px;}
         #aviso-pos-login { background: rgba(16, 185, 129, 0.12); border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 20px; font-size: 12px; color: #10b981; font-weight: 500; line-height: 1.4; display: flex; align-items: center; gap: 10px; }
         #aviso-pos-login button { background: transparent; border: none; color: var(--texto-secundario); cursor: pointer; font-weight: bold; margin-left: auto; }
 
@@ -69,7 +105,6 @@
         .btn-tab { flex: 1; height: 100%; background: transparent; border: none; color: var(--texto-secundario); font-size: 11px; font-weight: 600; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
         .btn-tab.ativo { color: var(--cor-primaria); background: rgba(56, 189, 248, 0.08); }
         
-        #map { flex: 1; height: 100%; background: #e5e3df; z-index: 1; }
         .leaflet-popup-content-wrapper { background: var(--bg-card) !important; color: var(--texto-principal) !important; border-radius: 12px !important; border: 1px solid var(--borda); box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
         .leaflet-popup-tip { background: var(--bg-card) !important; }
 
@@ -79,7 +114,6 @@
         .login-card p { color: var(--texto-secundario); font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
         .login-card input { width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-size: 14px; margin-bottom: 16px; box-sizing: border-box; outline: none; }
         .msg-erro-auth { color: #f43f5e; font-size: 13px; margin-top: 12px; font-weight: 600; }
-        .btn-sair { background: transparent; border: 1px solid var(--texto-secundario); color: var(--texto-secundario); font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -96,13 +130,46 @@
         </div>
     </div>
 
+    <div id="modalSync" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin: 0 0 8px 0; color: var(--cor-primaria); font-size: 18px;">Conectar Google Drive</h3>
+            <p style="font-size: 12px; color: var(--texto-secundario); line-height: 1.5; margin-bottom: 20px;">
+                Cole abaixo a URL de implantação do Apps Script. Isso irá baixar a sua planilha atual e integrá-la ao mapa.
+            </p>
+            <label style="font-size: 11px; color: var(--texto-secundario); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; display: block;">🔗 URL do Script</label>
+            <input type="text" id="urlScriptDrive" placeholder="https://script.google.com/macros/..." style="width: 100%; padding: 14px; box-sizing: border-box; background: var(--bg-input); color: white; border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 20px; font-size: 13px; outline: none;">
+            
+            <button class="btn-acao" style="background: #10b981; color: white; margin-bottom: 10px;" onclick="vincularESincronizarPlanilha()">Baixar e Sincronizar</button>
+            <button class="btn-acao" style="background: transparent; border: 1px solid var(--borda); color: var(--texto-secundario);" onclick="fecharModalSync()">Cancelar</button>
+        </div>
+    </div>
+
     <div id="sidebar">
+        <div id="drawer-handle-container">
+            <div class="drawer-handle"></div>
+        </div>
+
         <div class="header">
             <div>
                 <h3>Visão Operacional <span class="badge-otimizado" id="badgeOtimizado" style="display:none;">IA</span></h3>
-                <p id="status">Sincronizando...</p>
+                <p id="status">Verificando dados...</p>
             </div>
-            <button class="btn-sair" onclick="auth.signOut()">Sair</button>
+            
+            <div class="user-menu-container">
+                <div class="avatar-btn" id="avatarBtn" onclick="toggleUserMenu(event)">?</div>
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-header">
+                        <strong>Logado como</strong>
+                        <span id="userEmailDisplay">carregando...</span>
+                    </div>
+                    <div class="dropdown-item" onclick="abrirModalSync()">
+                        <span style="font-size: 16px;">🔄</span> Sincronizar Planilha
+                    </div>
+                    <div class="dropdown-item" style="color: #f43f5e;" onclick="auth.signOut()">
+                        <span style="font-size: 16px;">🚪</span> Sair do Sistema
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="aviso-pos-login" style="display: none;">
@@ -131,14 +198,8 @@
         </div>
 
         <div id="conteudoClientes" class="conteudo-aba aba-escondida">
-            <div class="busca-container" style="flex-direction: column; gap: 10px;">
-                <input type="text" id="campoBusca" placeholder="Filtrar base de dados..." oninput="filtrarListaGeral()">
-                
-                <div style="background: var(--bg-card); padding: 12px; border-radius: 8px; border: 1px solid var(--borda);">
-                    <label style="font-size: 10px; color: var(--texto-secundario); font-weight: bold; text-transform: uppercase;">🔗 URL do Script do Google Drive</label>
-                    <input type="text" id="urlScriptDrive" placeholder="Cole a URL da Implantação do Apps Script" style="margin-top:6px; font-size:12px; padding:8px; width:100%; box-sizing:border-box;">
-                    <button class="btn-acao" style="font-size:11px; padding:6px; margin-top:8px; background:#ea580c; color:white;" onclick="vincularESincronizarPlanilha()">Sincronizar com o Drive</button>
-                </div>
+            <div class="busca-container">
+                <input type="text" id="campoBusca" placeholder="🔍 Buscar cliente, código ou cidade..." oninput="filtrarListaGeral()">
             </div>
             <div class="lista-scroll" id="listaClientesGeral"></div>
 
@@ -187,7 +248,7 @@
             <button id="btnTabAdicionar" class="btn-tab" onclick="mudarAba('adicionar')"><span style="font-size:18px;">➕</span><span>Novo</span></button>
         </div>
     </div>
-
+    
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -196,6 +257,75 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
     <script>
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(err => console.log('SW', err)); }
+
+        // --- SISTEMA DO MENU SUSPENSO E MODAL ---
+        window.toggleUserMenu = (e) => {
+            e.stopPropagation();
+            document.getElementById('userDropdown').classList.toggle('active');
+        };
+
+        // Fecha o menu se clicar fora dele
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown.classList.contains('active') && !e.target.closest('.user-menu-container')) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        window.abrirModalSync = () => {
+            document.getElementById('userDropdown').classList.remove('active');
+            document.getElementById('modalSync').style.display = 'flex';
+        };
+
+        window.fecharModalSync = () => {
+            document.getElementById('modalSync').style.display = 'none';
+        };
+        // ----------------------------------------
+
+        // --- SISTEMA DE ARRASTE DA GAVETA MOBILE ---
+        const sidebar = document.getElementById('sidebar');
+        const handle = document.getElementById('drawer-handle-container');
+        let startY = 0, startHeight = 0, isDragging = false;
+
+        handle.addEventListener('touchstart', (e) => {
+            if(window.innerWidth > 768 || window.innerWidth > window.innerHeight) return; 
+            isDragging = true;
+            startY = e.touches[0].clientY;
+            startHeight = sidebar.getBoundingClientRect().height;
+            sidebar.classList.add('dragging');
+        }, {passive: true});
+
+        document.addEventListener('touchmove', (e) => {
+            if(!isDragging) return;
+            const delta = startY - e.touches[0].clientY;
+            let newHeight = startHeight + delta;
+            
+            const minH = window.innerHeight * 0.15;
+            const maxH = window.innerHeight * 0.90;
+            
+            if(newHeight < minH) newHeight = minH;
+            if(newHeight > maxH) newHeight = maxH;
+            
+            sidebar.style.height = newHeight + 'px';
+        }, {passive: true});
+
+        document.addEventListener('touchend', () => {
+            if(!isDragging) return;
+            isDragging = false;
+            sidebar.classList.remove('dragging');
+            
+            const currentHeight = sidebar.getBoundingClientRect().height;
+            const h = window.innerHeight;
+            
+            if (currentHeight > h * 0.65) sidebar.style.height = '85vh'; 
+            else if (currentHeight < h * 0.35) sidebar.style.height = '15vh'; 
+            else sidebar.style.height = '45vh'; 
+            
+            setTimeout(() => map.invalidateSize(), 300);
+        });
+        // ------------------------------------------
+
         const firebaseConfig = {
             apiKey: "AIzaSyAh0OpiVBN_tAmziVvvZS8ONHjfvrKZnqU",
             authDomain: "rota-comercial.firebaseapp.com",
@@ -225,84 +355,49 @@
 
         const paletaCores = ['#38bdf8', '#8b5cf6', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#ec4899'];
 
-        // RECURSO 1: DATA AUTOMÁTICA NA INICIALIZAÇÃO
+        const criarIconeNumerado = (cor, numero) => {
+            return L.divIcon({
+                className: 'custom-pin',
+                html: `<div style="background-color:${cor}; width:26px; height:26px; border-radius:50%; border:3px solid #0f172a; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">${numero}</div>`,
+                iconSize: [26, 26],
+                iconAnchor: [13, 13]
+            });
+        };
+
         function definirDataAtualAutomatica() {
             const dataHoje = new Date();
-            
             const diaIndex = dataHoje.getDay();
             const mapaDias = { 1: "Segunda-Feira", 2: "Terça-Feira", 3: "Quarta-Feira", 4: "Quinta-Feira" };
-            // Finais de semana puxam para Segunda por padrão
-            const diaCalculado = mapaDias[diaIndex] || "Segunda-Feira";
-            document.getElementById('filtroDia').value = diaCalculado;
+            document.getElementById('filtroDia').value = mapaDias[diaIndex] || "Segunda-Feira";
 
             const diaDoMes = dataHoje.getDate();
-            let semanaCalculada = "Semana 1";
-            if (diaDoMes > 7 && diaDoMes <= 14) semanaCalculada = "Semana 2";
-            else if (diaDoMes > 14 && diaDoMes <= 21) semanaCalculada = "Semana 3";
-            else if (diaDoMes > 21) semanaCalculada = "Semana 4";
-            
-            document.getElementById('filtroSemana').value = semanaCalculada;
+            let sem = "Semana 1";
+            if (diaDoMes > 7 && diaDoMes <= 14) sem = "Semana 2";
+            else if (diaDoMes > 14 && diaDoMes <= 21) sem = "Semana 3";
+            else if (diaDoMes > 21) sem = "Semana 4";
+            document.getElementById('filtroSemana').value = sem;
         }
 
-        // RECURSO 2: INTELIGÊNCIA GEOGRÁFICA DE VIZINHANÇA PARA AUTO-PREENCHIMENTO
         window.sugerirRotaInteligente = (prefixo) => {
             const bairroInput = document.getElementById(prefixo + 'Bairro').value.trim().toLowerCase();
             const cidadeInput = document.getElementById(prefixo + 'Cidade').value;
-            
-            if(!bairroInput) {
-                alert("Por favor, digite o Bairro primeiro para a inteligência mapear a região.");
-                return;
-            }
-
+            if(!bairroInput) return alert("Digite o Bairro primeiro para mapear a região.");
             document.getElementById('status').innerText = "Analisando vizinhança...";
-            
-            // Filtra os clientes que já existem no mesmo bairro e cidade
-            let vizinhos = bancoDeDadosClientes.filter(c => 
-                c.cidade === cidadeInput && 
-                c.bairro.toLowerCase().includes(bairroInput)
-            );
-            
+            let vizinhos = bancoDeDadosClientes.filter(c => c.cidade === cidadeInput && c.bairro.toLowerCase().includes(bairroInput));
             if(vizinhos.length === 0) {
-                alert("Nenhum cliente cadastrado neste bairro ainda. Escolha o dia e semana manualmente para ser o pioneiro na região.");
+                alert("Nenhum cliente cadastrado neste bairro. Escolha manualmente.");
                 document.getElementById('status').innerText = "Região nova mapeada.";
                 return;
             }
-
-            // Conta os votos para ver qual o dia mais frequentado na região
-            let contagemRotas = {};
-            vizinhos.forEach(v => {
-                let chave = `${v.semana}|${v.diaSemana}`;
-                contagemRotas[chave] = (contagemRotas[chave] || 0) + 1;
-            });
-
-            let melhorRota = "";
-            let maxVotos = 0;
-            for(let r in contagemRotas) {
-                if(contagemRotas[r] > maxVotos) {
-                    maxVotos = contagemRotas[r];
-                    melhorRota = r;
-                }
-            }
-
-            if(melhorRota) {
-                const [semanaSugerida, diaSugerido] = melhorRota.split('|');
-                
-                const selectSemana = document.getElementById(prefixo + 'Semana');
-                const selectDia = document.getElementById(prefixo + 'Dia');
-                
-                selectSemana.value = semanaSugerida;
-                selectDia.value = diaSugerido;
-                
-                // Pisca a borda de verde para mostrar que foi automático
-                selectSemana.style.boxShadow = "0 0 10px #10b981";
-                selectDia.style.boxShadow = "0 0 10px #10b981";
-                
-                setTimeout(() => {
-                    selectSemana.style.boxShadow = "none";
-                    selectDia.style.boxShadow = "none";
-                }, 1500);
-                
-                document.getElementById('status').innerText = `Sugestão: ${maxVotos} vizinhos neste trajeto.`;
+            let contagem = {};
+            vizinhos.forEach(v => { let k = `${v.semana}|${v.diaSemana}`; contagem[k] = (contagem[k] || 0) + 1; });
+            let max = 0, melhor = "";
+            for(let r in contagem) { if(contagem[r] > max) { max = contagem[r]; melhor = r; } }
+            if(melhor) {
+                const [s, d] = melhor.split('|');
+                document.getElementById(prefixo + 'Semana').value = s;
+                document.getElementById(prefixo + 'Dia').value = d;
+                document.getElementById('status').innerText = `Sugestão: ${max} vizinhos neste trajeto.`;
             }
         };
 
@@ -311,13 +406,16 @@
                 usuarioAtual = user;
                 document.getElementById('tela-login').style.display = 'none';
                 
+                // Configura o Avatar com a primeira letra e o E-mail
+                document.getElementById('userEmailDisplay').innerText = user.email;
+                document.getElementById('avatarBtn').innerText = user.email.charAt(0).toUpperCase();
+
                 const docConfig = await db.collection("configuracoes").doc(user.uid).get();
                 if(docConfig.exists && docConfig.data().scriptUrl) {
                     scriptUrlVinculado = docConfig.data().scriptUrl;
                     document.getElementById('urlScriptDrive').value = scriptUrlVinculado;
                     document.getElementById('aviso-pos-login').style.display = 'flex';
                 }
-                
                 definirDataAtualAutomatica();
                 puxarDadosLocaisFirebase();
             } else {
@@ -327,17 +425,11 @@
             }
         });
 
-        window.fazerLogin = () => {
-            const e = document.getElementById('login-email').value;
-            const s = document.getElementById('login-senha').value;
-            auth.signInWithEmailAndPassword(e, s).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message);
-        };
-
+        window.fazerLogin = () => auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-senha').value).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message);
         window.criarConta = () => {
-            const e = document.getElementById('login-email').value;
             const s = document.getElementById('login-senha').value;
-            if(s.length < 6) { document.getElementById('msg-login').innerText = "Senha deve ter 6+ caracteres."; return; }
-            auth.createUserWithEmailAndPassword(e, s).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message);
+            if(s.length < 6) return document.getElementById('msg-login').innerText = "Senha deve ter 6+ caracteres.";
+            auth.createUserWithEmailAndPassword(document.getElementById('login-email').value, s).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message);
         };
 
         window.mudarAba = (aba) => {
@@ -357,7 +449,7 @@
             bancoDeDadosClientes = [];
             snapshot.forEach(doc => { let c = doc.data(); c.idFirebase = doc.id; bancoDeDadosClientes.push(c); });
             if(!minhaPosicaoGPS) { minhaPosicaoGPS = await inicializarGPS(); }
-            document.getElementById('status').innerText = "📍 Online: " + usuarioAtual.email;
+            document.getElementById('status').innerText = "Base carregada e pronta.";
             filtrarERenderizar();
             renderizarListaGeralClientes();
         }
@@ -365,98 +457,51 @@
         window.vincularESincronizarPlanilha = async () => {
             let url = document.getElementById('urlScriptDrive').value.trim();
             if(!url) return alert("Insira uma URL válida de implantação.");
-            
             document.getElementById('status').innerText = "Limpando duplicados antigos...";
             try {
                 await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url });
                 scriptUrlVinculado = url;
-
                 const snapshotAntigo = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
-                if (!snapshotAntigo.empty) {
-                    const batch = db.batch();
-                    snapshotAntigo.forEach(doc => batch.delete(doc.ref));
-                    await batch.commit();
-                }
-
+                if (!snapshotAntigo.empty) { const batch = db.batch(); snapshotAntigo.forEach(doc => batch.delete(doc.ref)); await batch.commit(); }
                 document.getElementById('status').innerText = "Puxando novas linhas...";
                 const res = await fetch(url, { method: "GET", redirect: "follow", headers: { "Accept": "application/json" } });
                 const dadosPlanilha = await res.json();
-
-                for(let c of dadosPlanilha) {
-                    c.userId = usuarioAtual.uid;
-                    await db.collection("clientes").add(c);
-                }
-                alert("Perfeito! Sua planilha do Drive foi clonada e limpa sem registros duplicados.");
+                for(let c of dadosPlanilha) { c.userId = usuarioAtual.uid; await db.collection("clientes").add(c); }
+                
+                fecharModalSync(); // Fecha o modal após concluir
+                alert("Perfeito! Sua planilha do Drive foi clonada.");
                 puxarDadosLocaisFirebase();
-            } catch(e) {
-                console.error(e);
-                alert("Erro de sincronização. Verifique os passos de implantação da planilha.");
-                document.getElementById('status').innerText = "Erro na sincronização";
-            }
+            } catch(e) { alert("Erro de sincronização."); document.getElementById('status').innerText = "Erro na sincronização"; }
         };
 
         window.salvarDuploNovo = async () => {
-            const pct = {
-                userId: usuarioAtual.uid,
-                codigo: document.getElementById('addCodigo').value.trim(),
-                nome: document.getElementById('addNome').value.trim(),
-                endereco: document.getElementById('addEndereco').value.trim(),
-                complemento: document.getElementById('addComplemento').value.trim(),
-                bairro: document.getElementById('addBairro').value.trim(),
-                cidade: document.getElementById('addCidade').value,
-                semana: document.getElementById('addSemana').value,
-                diaSemana: document.getElementById('addDia').value
-            };
+            const pct = { userId: usuarioAtual.uid, codigo: document.getElementById('addCodigo').value.trim(), nome: document.getElementById('addNome').value.trim(), endereco: document.getElementById('addEndereco').value.trim(), complemento: document.getElementById('addComplemento').value.trim(), bairro: document.getElementById('addBairro').value.trim(), cidade: document.getElementById('addCidade').value, semana: document.getElementById('addSemana').value, diaSemana: document.getElementById('addDia').value };
             if(!pct.codigo || !pct.nome) return alert("Preencha o Código e a Razão Social.");
-
-            document.getElementById('status').innerText = "Salvando duplo...";
+            document.getElementById('status').innerText = "Salvando...";
             try {
                 await db.collection("clientes").add(pct);
-                if(scriptUrlVinculado) {
-                    pct.acao = "salvar";
-                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pct) });
-                }
-                window.mudarAba('agenda');
-                puxarDadosLocaisFirebase();
+                if(scriptUrlVinculado) { pct.acao = "salvar"; fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); }
+                window.mudarAba('agenda'); puxarDadosLocaisFirebase();
             } catch(e) { alert("Erro ao salvar."); }
         };
 
         window.salvarDuploEdicao = async () => {
             if(!clienteSelecionadoAtualmente) return;
-            const pct = {
-                codigo: document.getElementById('editCodigo').value,
-                nome: document.getElementById('editNome').value.trim(),
-                endereco: document.getElementById('editEndereco').value.trim(),
-                complemento: document.getElementById('editComplemento').value.trim(),
-                bairro: document.getElementById('editBairro').value.trim(),
-                cidade: document.getElementById('editCidade').value,
-                semana: document.getElementById('editSemana').value,
-                diaSemana: document.getElementById('editDia').value
-            };
-
+            const pct = { codigo: document.getElementById('editCodigo').value, nome: document.getElementById('editNome').value.trim(), endereco: document.getElementById('editEndereco').value.trim(), complemento: document.getElementById('editComplemento').value.trim(), bairro: document.getElementById('editBairro').value.trim(), cidade: document.getElementById('editCidade').value, semana: document.getElementById('editSemana').value, diaSemana: document.getElementById('editDia').value };
             document.getElementById('status').innerText = "Espelhando edições...";
             try {
                 await db.collection("clientes").doc(clienteSelecionadoAtualmente.idFirebase).update(pct);
-                if(scriptUrlVinculado) {
-                    pct.acao = "editar";
-                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pct) });
-                }
-                window.fecharPainelEdicao();
-                puxarDadosLocaisFirebase();
+                if(scriptUrlVinculado) { pct.acao = "editar"; fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); }
+                window.fecharPainelEdicao(); puxarDadosLocaisFirebase();
             } catch(e) { alert("Erro ao editar."); }
         };
 
         window.excluirDuplo = async () => {
-            if(!clienteSelecionadoAtualmente || !confirm("Quer deletar este cliente do App e da Planilha do Drive?")) return;
-            document.getElementById('status').innerText = "Removendo em ambos...";
+            if(!clienteSelecionadoAtualmente || !confirm("Deletar?")) return;
             try {
                 await db.collection("clientes").doc(clienteSelecionadoAtualmente.idFirebase).delete();
-                if(scriptUrlVinculado) {
-                    const dadosEnvio = { codigo: clienteSelecionadoAtualmente.codigo, acao: "excluir" };
-                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dadosEnvio) });
-                }
-                window.fecharPainelEdicao();
-                puxarDadosLocaisFirebase();
+                if(scriptUrlVinculado) { fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ codigo: clienteSelecionadoAtualmente.codigo, acao: "excluir" }) }); }
+                window.fecharPainelEdicao(); puxarDadosLocaisFirebase();
             } catch(e) { alert("Erro ao deletar."); }
         };
 
@@ -464,11 +509,7 @@
             if(relatorioAtual.length === 0) return alert("Nenhuma rota carregada.");
             let csv = "\uFEFFOrdem,Codigo,Nome,Endereco,Bairro,Cidade\n";
             relatorioAtual.forEach((c, i) => csv += `${i+1},${c.codigo},"${c.nome}","${c.endereco}","${c.bairro}","${c.cidade}"\n`);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `Rota_${document.getElementById('filtroDia').value}.csv`);
-            link.click();
+            const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); a.setAttribute("download", `Rota_${document.getElementById('filtroDia').value}.csv`); a.click();
         };
 
         async function inicializarGPS() {
@@ -479,9 +520,9 @@
         }
 
         async function descobrirCoordenadaReal(endereco, city) {
-            let buscaCompleta = encodeURIComponent(`${endereco.replace(/"/g, '')}, ${city}, SC, Brasil`);
+            let b = encodeURIComponent(`${endereco.replace(/"/g, '')}, ${city}, SC, Brasil`);
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${buscaCompleta}&limit=1`);
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${b}&limit=1`);
                 const dados = await res.json();
                 if (dados && dados.length > 0) return [parseFloat(dados[0].lat), parseFloat(dados[0].lon)];
             } catch(e){}
@@ -500,84 +541,57 @@
             const diaSel = document.getElementById('filtroDia').value;
             const clientesDoDia = bancoDeDadosClientes.filter(c => c.semana === semSel && c.diaSemana === diaSel);
 
-            grupoMarcadores.clearLayers(); 
-            grupoRota.clearLayers();
-            marcadoresAtivosMap = [];
-            relatorioAtual = [];
+            grupoMarcadores.clearLayers(); grupoRota.clearLayers(); marcadoresAtivosMap = []; relatorioAtual = [];
             document.getElementById('badgeOtimizado').style.display = 'none';
-            
-            const container = document.getElementById('listaAgenda');
-            container.innerHTML = ''; 
+            const container = document.getElementById('listaAgenda'); container.innerHTML = ''; 
 
             if (clientesDoDia.length === 0) {
-                container.innerHTML = '<p style="text-align:center; padding-top:30px; color:var(--texto-secundario); font-size:13px;">Nenhuma rota registrada para hoje. 🎉</p>';
-                return;
+                container.innerHTML = '<p style="text-align:center; padding-top:30px; color:var(--texto-secundario); font-size:13px;">Nenhuma rota para hoje. 🎉</p>'; return;
             }
 
             document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "Processando coordenadas reais...";
+            document.getElementById('loading-text').innerText = "Processando coordenadas...";
             
-            let coordsOriginais = [];
-            let usandoGPSLocal = false;
-
+            let coordsOriginais = []; let usandoGPSLocal = false;
             if (minhaPosicaoGPS) { coordsOriginais.push(minhaPosicaoGPS); usandoGPSLocal = true; }
 
             for (let c of clientesDoDia) {
                 let coord = await descobrirCoordenadaReal(c.endereco, c.cidade);
-                coordsOriginais.push(coord);
-                await new Promise(r => setTimeout(r, 1300)); 
+                coordsOriginais.push(coord); await new Promise(r => setTimeout(r, 1300)); 
             }
 
             let rotaOrdenadaIndices = coordsOriginais.map((_, i) => i);
-            let dadosTripGlobal = null;
 
             if (coordsOriginais.length > 1) {
                 try {
-                    document.getElementById('loading-text').innerText = "Traçando inteligência das ruas...";
-                    let stringOSRM = coordsOriginais.map(c => `${c[1]},${c[0]}`).join(';');
-                    
-                    const res = await fetch(`https://router.project-osrm.org/trip/v1/driving/${stringOSRM}?roundtrip=false&source=first&geometries=geojson&overview=full`);
+                    document.getElementById('loading-text').innerText = "Otimizando trajeto...";
+                    let str = coordsOriginais.map(c => `${c[1]},${c[0]}`).join(';');
+                    const res = await fetch(`https://router.project-osrm.org/trip/v1/driving/${str}?roundtrip=false&source=first&geometries=geojson`);
                     const dadosTrip = await res.json();
-                    
-                    if (dadosTrip.waypoints && dadosTrip.trips && dadosTrip.trips.length > 0) {
+                    if (dadosTrip.waypoints) {
                         document.getElementById('badgeOtimizado').style.display = 'inline-block';
-                        dadosTripGlobal = dadosTrip.trips[0];
-                        
-                        rotaOrdenadaIndices = dadosTrip.waypoints
-                            .map((wp, idx) => ({ o: idx, idxOpt: wp.waypoint_index }))
-                            .sort((a,b) => a.idxOpt - b.idxOpt)
-                            .map(wp => wp.o);
+                        rotaOrdenadaIndices = dadosTrip.waypoints.map((wp, idx) => ({ o: idx, idxOpt: wp.waypoint_index })).sort((a,b) => a.idxOpt - b.idxOpt).map(wp => wp.o);
                     }
-                } catch(e){ console.error(e); }
+                } catch(e){}
             }
 
+            let coordsCaminho = [];
             rotaOrdenadaIndices.forEach((idxOrigem, ordemAtual) => {
                 let coord = coordsOriginais[idxOrigem];
+                coordsCaminho.push(coord);
 
                 if (usandoGPSLocal && idxOrigem === 0) {
-                    L.circleMarker(coord, { color: '#38bdf8', fillColor: '#0f172a', fillOpacity: 1, radius: 8, weight: 3 })
-                     .bindPopup('<b style="color:#38bdf8; font-family: Inter;">📍 Início da Rota</b>').addTo(grupoMarcadores);
+                    L.circleMarker(coord, { color: '#38bdf8', fillColor: '#0f172a', fillOpacity: 1, radius: 8, weight: 3 }).bindPopup('<b style="color:#38bdf8;">📍 Início da Rota</b>').addTo(grupoMarcadores);
                 } else {
-                    let clienteIndex = usandoGPSLocal ? idxOrigem - 1 : idxOrigem;
-                    let c = clientesDoDia[clienteIndex];
+                    let c = clientesDoDia[usandoGPSLocal ? idxOrigem - 1 : idxOrigem];
                     relatorioAtual.push(c);
-                    
                     let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
                     let corCard = paletaCores[iReal % paletaCores.length];
 
-                    let popupDesign = `
-                        <div style="font-family: 'Inter', sans-serif; min-width: 200px; padding: 2px;">
-                            <b style="color: ${corCard}; font-size: 14px; display: block; margin-bottom: 6px;">Visita ${iReal + 1}: ${c.nome}</b>
-                            <p style="margin: 4px 0; font-size: 11px; color: var(--texto-secundario);">📍 ${c.endereco}</p>
-                        </div>
-                    `;
-
-                    let marker = L.marker(coord).bindPopup(popupDesign);
-                    grupoMarcadores.addLayer(marker);
-                    marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
+                    let marker = L.marker(coord, { icon: criarIconeNumerado(corCard, iReal + 1) }).bindPopup(`<div><b style="color:${corCard};">Visita ${iReal + 1}: ${c.nome}</b><p style="margin:4px 0;font-size:11px;">📍 ${c.endereco}</p></div>`);
+                    grupoMarcadores.addLayer(marker); marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
                     
                     const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
-                    
                     container.innerHTML += `
                         <div class="card-item" style="border-left-color:${corCard};" onclick="window.focarNoClienteDoMapa(${coord[0]}, ${coord[1]}, '${c.codigo}')">
                             <h4 style="color:${corCard};">${iReal+1}. <span style="color:var(--texto-principal);">${c.nome}</span></h4>
@@ -590,57 +604,40 @@
                 }
             });
 
-            if (dadosTripGlobal && dadosTripGlobal.geometry && dadosTripGlobal.geometry.coordinates) {
-                const pontosReaisDasRuas = dadosTripGlobal.geometry.coordinates.map(p => [p[1], p[0]]);
-                let linhaPerfeita = L.polyline(pontosReaisDasRuas, {color: '#38bdf8', weight: 6, opacity: 0.85});
-                grupoRota.addLayer(linhaPerfeita);
-                map.fitBounds(linhaPerfeita.getBounds(), {padding:[40,40]});
-            } else if (coordsOriginais.length > 1) {
-                let limitesReserva = L.latLngBounds();
-                for (let i = 0; i < coordsOriginais.length - 1; i++) {
-                    let linhaReta = L.polyline([coordsOriginais[i], coordsOriginais[i+1]], {color: paletaCores[i % paletaCores.length], weight: 4, dashArray: '6, 6', opacity: 0.7});
-                    grupoRota.addLayer(linhaReta);
-                    limitesReserva.extend(linhaReta.getBounds());
+            if (coordsCaminho.length > 1) {
+                let limites = L.latLngBounds();
+                for (let i = 0; i < coordsCaminho.length - 1; i++) {
+                    let pOrg = coordsCaminho[i]; let pDest = coordsCaminho[i+1];
+                    let corLinha = paletaCores[i % paletaCores.length];
+
+                    try {
+                        document.getElementById('loading-text').innerText = `Colorindo trecho ${i+1}...`;
+                        const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${pOrg[1]},${pOrg[0]};${pDest[1]},${pDest[0]}?overview=full&geometries=geojson`);
+                        const dados = await res.json();
+                        if (dados.code === 'Ok' && dados.routes.length > 0) {
+                            let linhaColor = L.polyline(dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]), {color: corLinha, weight: 6, opacity: 0.85});
+                            grupoRota.addLayer(linhaColor); limites.extend(linhaColor.getBounds());
+                        } else throw new Error();
+                    } catch(e) {
+                        let linhaReta = L.polyline([pOrg, pDest], {color: corLinha, weight: 4, dashArray: '6, 6', opacity: 0.7});
+                        grupoRota.addLayer(linhaReta); limites.extend(linhaReta.getBounds());
+                    }
+                    await new Promise(r => setTimeout(r, 600)); 
                 }
-                map.fitBounds(limitesReserva, {padding:[40,40]});
-            } else if (coordsOriginais.length === 1) {
-                map.setView(coordsOriginais[0], 15);
-            }
+                if (limites.isValid()) map.fitBounds(limites, {padding:[40,40]});
+            } else if (coordsCaminho.length === 1) map.setView(coordsCaminho[0], 15);
+
             document.getElementById('loading-overlay').style.display = 'none';
         }
 
         window.renderizarListaGeralClientes = () => {
-            const container = document.getElementById('listaClientesGeral');
-            container.innerHTML = '';
-            bancoDeDadosClientes.forEach(c => {
-                container.innerHTML += `<div class="card-item" style="border-left-color: var(--borda);" onclick="window.abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p>Código: ${c.codigo} | <b>${c.semana} (${c.diaSemana})</b></p></div>`;
-            });
+            const container = document.getElementById('listaClientesGeral'); container.innerHTML = '';
+            bancoDeDadosClientes.forEach(c => { container.innerHTML += `<div class="card-item" style="border-left-color: var(--borda);" onclick="window.abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p>Código: ${c.codigo} | <b>${c.semana} (${c.diaSemana})</b></p></div>`; });
         };
-
-        window.filtrarListaGeral = () => {
-            const busca = document.getElementById('campoBusca').value.toLowerCase();
-            const cards = document.getElementById('listaClientesGeral').getElementsByClassName('card-item');
-            for (let card of cards) card.style.display = card.innerText.toLowerCase().includes(busca) ? 'block' : 'none';
-        };
-
-        window.abrirPainelEdicao = (codigo) => {
-            const c = bancoDeDadosClientes.find(item => item.codigo.toString() === codigo.toString());
-            if (!c) return;
-            clienteSelecionadoAtualmente = c;
-            ['Codigo', 'Nome', 'Endereco', 'Complemento', 'Bairro', 'Cidade', 'Semana', 'Dia'].forEach(k => document.getElementById(`edit${k}`).value = c[k.toLowerCase()] || c[k === 'Dia' ? 'diaSemana' : '']);
-            document.getElementById('painelEdicao').classList.remove('aba-escondida');
-        };
-
+        window.filtrarListaGeral = () => { const b = document.getElementById('campoBusca').value.toLowerCase(); Array.from(document.getElementById('listaClientesGeral').getElementsByClassName('card-item')).forEach(c => c.style.display = c.innerText.toLowerCase().includes(b) ? 'block' : 'none'); };
+        window.abrirPainelEdicao = (codigo) => { const c = bancoDeDadosClientes.find(item => item.codigo.toString() === codigo.toString()); if (!c) return; clienteSelecionadoAtualmente = c; ['Codigo', 'Nome', 'Endereco', 'Complemento', 'Bairro', 'Cidade', 'Semana', 'Dia'].forEach(k => document.getElementById(`edit${k}`).value = c[k.toLowerCase()] || c[k === 'Dia' ? 'diaSemana' : '']); document.getElementById('painelEdicao').classList.remove('aba-escondida'); };
         window.fecharPainelEdicao = () => { document.getElementById('painelEdicao').classList.add('aba-escondida'); clienteSelecionadoAtualmente = null; };
-
-        document.getElementById('filtroSemana').addEventListener('change', filtrarERenderizar);
-        document.getElementById('filtroDia').addEventListener('change', filtrarERenderizar);
+        document.getElementById('filtroSemana').addEventListener('change', filtrarERenderizar); document.getElementById('filtroDia').addEventListener('change', filtrarERenderizar);
     </script>
-    <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-            .then(() => console.log('Service Worker Registrado!'));
-    }
-</script>
 </body>
 </html>
