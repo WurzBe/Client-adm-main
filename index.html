@@ -274,18 +274,20 @@
             let url = document.getElementById('urlScriptDrive').value.trim();
             if(!url) return alert("Insira uma URL válida de implantação.");
             
-            document.getElementById('status').innerText = "Conectando ao Drive...";
+            document.getElementById('status').innerText = "Limpando duplicados antigos...";
             try {
                 await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url });
                 scriptUrlVinculado = url;
 
-                const batch = db.batch();
+                // CORREÇÃO DOS DUPLICADOS: Limpa os registros do Firebase de forma síncrona real
                 const snapshotAntigo = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
-                snapshotAntigo.forEach(doc => batch.delete(doc.ref));
-                await batch.commit();
+                if (!snapshotAntigo.empty) {
+                    const batch = db.batch();
+                    snapshotAntigo.forEach(doc => batch.delete(doc.ref));
+                    await batch.commit();
+                }
 
-                document.getElementById('status').innerText = "Puxando linhas...";
-                
+                document.getElementById('status').innerText = "Puxando novas linhas...";
                 const res = await fetch(url, { method: "GET", redirect: "follow", headers: { "Accept": "application/json" } });
                 const dadosPlanilha = await res.json();
 
@@ -293,7 +295,7 @@
                     c.userId = usuarioAtual.uid;
                     await db.collection("clientes").add(c);
                 }
-                alert("Perfeito! Sua planilha do Drive e o App estão integrados com sucesso.");
+                alert("Perfeito! Sua planilha do Drive foi clonada e limpa sem registros duplicados.");
                 puxarDadosLocaisFirebase();
             } catch(e) {
                 console.error(e);
@@ -405,11 +407,8 @@
         async function filtrarERenderizar() {
             const semSel = document.getElementById('filtroSemana').value;
             const diaSel = document.getElementById('filtroDia').value;
-            
-            // FILTRAGEM RETORNADA: Garante que só os registros exatos daquele dia apareçam (sem acumular ou misturar)
             const clientesDoDia = bancoDeDadosClientes.filter(c => c.semana === semSel && c.diaSemana === diaSel);
 
-            // CORREÇÃO DOS ACÚMULOS: Limpa absolutamente tudo antes de começar a desenhar as listas e marcadores
             grupoMarcadores.clearLayers(); 
             grupoRota.clearLayers();
             marcadoresAtivosMap = [];
@@ -417,7 +416,7 @@
             document.getElementById('badgeOtimizado').style.display = 'none';
             
             const container = document.getElementById('listaAgenda');
-            container.innerHTML = ''; // Zera a lista visual do menu lateral
+            container.innerHTML = ''; 
 
             if (clientesDoDia.length === 0) {
                 container.innerHTML = '<p style="text-align:center; padding-top:30px; color:var(--texto-secundario); font-size:13px;">Nenhuma rota registrada para hoje. 🎉</p>';
@@ -425,7 +424,7 @@
             }
 
             document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "Calculando Rota Inteligente...";
+            document.getElementById('loading-text').innerText = "Processando coordenadas reais...";
             
             let coordsOriginais = [];
             let usandoGPSLocal = false;
@@ -435,26 +434,36 @@
             for (let c of clientesDoDia) {
                 let coord = await descobrirCoordenadaReal(c.endereco, c.cidade);
                 coordsOriginais.push(coord);
-                await new Promise(r => setTimeout(r, 1200)); // Delay seguro de 1.2s contra bloqueios
+                await new Promise(r => setTimeout(r, 1300)); // Delay estendido de 1.3s para estabilizar conexões do servidor de mapas
             }
 
             let rotaOrdenadaIndices = coordsOriginais.map((_, i) => i);
+            let dadosTripGlobal = null;
+
+            // MOTOR INTEGRADO OSRM TRIP: Otimiza e desenha o trajeto pelas ruas de uma vez só
             if (coordsOriginais.length > 1) {
                 try {
+                    document.getElementById('loading-text').innerText = "Traçando inteligência das ruas...";
                     let stringOSRM = coordsOriginais.map(c => `${c[1]},${c[0]}`).join(';');
-                    const res = await fetch(`https://router.project-osrm.org/trip/v1/driving/${stringOSRM}?roundtrip=false&source=first&geometries=geojson`);
+                    
+                    // Pedimos geometries=geojson e overview=full para receber o mapa completo das ruas
+                    const res = await fetch(`https://router.project-osrm.org/trip/v1/driving/${stringOSRM}?roundtrip=false&source=first&geometries=geojson&overview=full`);
                     const dadosTrip = await res.json();
-                    if (dadosTrip.waypoints) {
+                    
+                    if (dadosTrip.waypoints && dadosTrip.trips && dadosTrip.trips.length > 0) {
                         document.getElementById('badgeOtimizado').style.display = 'inline-block';
-                        rotaOrdenadaIndices = dadosTrip.waypoints.map((wp, idx) => ({ o: idx, idxOpt: wp.waypoint_index })).sort((a,b) => a.idxOpt - b.idxOpt).map(wp => wp.o);
+                        dadosTripGlobal = dadosTrip.trips[0]; // Guarda o desenho perfeito das ruas
+                        
+                        rotaOrdenadaIndices = dadosTrip.waypoints
+                            .map((wp, idx) => ({ o: idx, idxOpt: wp.waypoint_index }))
+                            .sort((a,b) => a.idxOpt - b.idxOpt)
+                            .map(wp => wp.o);
                     }
-                } catch(e){}
+                } catch(e){ console.error("Falha no OSRM Trip, usando rota linear reserva", e); }
             }
 
-            let coordsCaminho = [];
             rotaOrdenadaIndices.forEach((idxOrigem, ordemAtual) => {
                 let coord = coordsOriginais[idxOrigem];
-                coordsCaminho.push(coord);
 
                 if (usandoGPSLocal && idxOrigem === 0) {
                     L.circleMarker(coord, { color: '#38bdf8', fillColor: '#0f172a', fillOpacity: 1, radius: 8, weight: 3 })
@@ -467,7 +476,6 @@
                     let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
                     let corCard = paletaCores[iReal % paletaCores.length];
 
-                    // POPUP INTERATIVO DO MAPA RESTAURADO
                     let popupDesign = `
                         <div style="font-family: 'Inter', sans-serif; min-width: 200px; padding: 2px;">
                             <b style="color: ${corCard}; font-size: 14px; display: block; margin-bottom: 6px;">Visita ${iReal + 1}: ${c.nome}</b>
@@ -479,10 +487,8 @@
                     grupoMarcadores.addLayer(marker);
                     marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
                     
-                    // URL DO MAPS RESTAURADA E CORRIGIDA (Sem o zero intruzo)
                     const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
                     
-                    // CARDS COMPLETOS RESTAURADOS NO MENU LATERAL
                     container.innerHTML += `
                         <div class="card-item" style="border-left-color:${corCard};" onclick="window.focarNoClienteDoMapa(${coord[0]}, ${coord[1]}, '${c.codigo}')">
                             <h4 style="color:${corCard};">${iReal+1}. <span style="color:var(--texto-principal);">${c.nome}</span></h4>
@@ -495,35 +501,23 @@
                 }
             });
 
-            // MOTOR DE ROTAS REAIS POR RUAS (RESTALRADO 100% SEM RETA)
-            if (coordsCaminho.length > 1) {
-                let limites = L.latLngBounds();
-                for (let i = 0; i < coordsCaminho.length - 1; i++) {
-                    let pOriginal = coordsCaminho[i];
-                    let pDestino = coordsCaminho[i+1];
-                    let corLinha = paletaCores[i % paletaCores.length];
-
-                    try {
-                        // Faz a chamada de rota real seguindo as ruas da cidade
-                        const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${pOriginal[1]},${pOriginal[0]};${pDestino[1]},${pDestino[0]}?overview=full&geometries=geojson`);
-                        const dados = await res.json();
-                        if (dados.code === 'Ok' && dados.routes.length > 0) {
-                            const pontosRua = dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]);
-                            let linhaReal = L.polyline(pontosRua, {color: corLinha, weight: 6, opacity: 0.85});
-                            grupoRota.addLayer(linhaReal);
-                            limites.extend(linhaReal.getBounds());
-                        } else { throw new Error(); }
-                    } catch(e) {
-                        // Linha reta reserva caso os servidores de mapas caiam momentaneamente
-                        let linhaReta = L.polyline([pOriginal, pDestino], {color: corLinha, weight: 4, dashArray: '8, 8', opacity: 0.6});
-                        grupoRota.addLayer(linhaReta);
-                        limites.extend(linhaReta.getBounds());
-                    }
-                    await new Promise(r => setTimeout(r, 600)); // Delay para não travar requisições sequenciais do trajeto
+            // REDESENHO TRAVADO NAS RUAS: Se o motor Trip retornou o trajeto completo, desenha ele direto sem picotar
+            if (dadosTripGlobal && dadosTripGlobal.geometry && dadosTripGlobal.geometry.coordinates) {
+                const pontosReaisDasRuas = dadosTripGlobal.geometry.coordinates.map(p => [p[1], p[0]]);
+                let linhaPerfeita = L.polyline(pontosReaisDasRuas, {color: '#38bdf8', weight: 6, opacity: 0.85});
+                grupoRota.addLayer(linhaPerfeita);
+                map.fitBounds(linhaPerfeita.getBounds(), {padding:[40,40]});
+            } else if (coordsOriginais.length > 1) {
+                // Linha reserva em degradê caso o servidor global falhe
+                let limitesReserva = L.latLngBounds();
+                for (let i = 0; i < coordsOriginais.length - 1; i++) {
+                    let linhaReta = L.polyline([coordsOriginais[i], coordsOriginais[i+1]], {color: paletaCores[i % paletaCores.length], weight: 4, dashArray: '6, 6', opacity: 0.7});
+                    grupoRota.addLayer(linhaReta);
+                    limitesReserva.extend(linhaReta.getBounds());
                 }
-                if (limites.isValid()) map.fitBounds(limites, {padding:[40,40]});
-            } else if (coordsCaminho.length === 1) {
-                map.setView(coordsCaminho[0], 15);
+                map.fitBounds(limitesReserva, {padding:[40,40]});
+            } else if (coordsOriginais.length === 1) {
+                map.setView(coordsOriginais[0], 15);
             }
             document.getElementById('loading-overlay').style.display = 'none';
         }
