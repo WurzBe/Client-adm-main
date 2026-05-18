@@ -262,6 +262,1040 @@
             <div class="acoes-base">
                 <div class="btn-bloco" id="btnAbreBusca" onclick="toggleBuscaBase()">🔍 Busca</div>
                 <div class="btn-bloco" id="btnAbreFiltro" onclick="toggleFiltroBase()">⚙️ Filtro</div>
+                <div class="btn-bloco" style="background-color: #8b5cf6; color: white; border: none;" onclick="reorganizarBaseGlobal()">🪄 Reorganizar</div>
+            </div>
+
+            <div id="barraBuscaAvancada" class="painel-avancado">
+                <input type="text" id="campoBuscaAvancada" placeholder="Busque por nome, código, bairro ou cidade..." oninput="aplicarFiltrosNaBase()">
+            </div>
+
+            <div id="painelFiltrosBase" class="painel-avancado">
+                <select id="filtroBaseCidade" onchange="aplicarFiltrosNaBase()"><option value="">Todas as Cidades</option></select>
+                <select id="filtroBaseBairro" onchange="aplicarFiltrosNaBase()"><option value="">Todos os Bairros</option></select>
+                <div style="display:flex; gap:10px;">
+                    <select id="filtroBaseSemana" onchange="aplicarFiltrosNaBase()"><option value="">Todas as Semanas</option></select>
+                    <select id="filtroBaseDia" onchange="aplicarFiltrosNaBase()"><option value="">Todos os Dias</option></select>
+                </div>
+            </div>
+
+            <div class="lista-scroll" id="listaClientesGeral" style="padding-top: 10px;"></div>
+
+            <div id="painelEdicao" class="aba-escondida">
+                <div class="form-exclusivo">
+                    <b style="color: var(--cor-primaria); font-size: 17px;">Editar Cadastro</b>
+                    <label>Código Único</label><input type="text" id="editCodigo" readonly style="opacity:0.6;">
+                    <label>Razão Social</label><input type="text" id="editNome">
+                    <label>Endereço</label><input type="text" id="editEndereco">
+                    <label>Complemento</label><input type="text" id="editComplemento">
+                    <label>Bairro</label><input type="text" id="editBairro">
+                    <label>Cidade</label>
+                    <select id="editCidade">
+                        <option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option>
+                        <option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option>
+                        <option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option>
+                    </select>
+                    <button type="button" class="btn-acao" style="background-color: #8b5cf6; color: white; margin: 4px 0;" onclick="sugerirRotaInteligente('edit')">🪄 Auto-Completar Rota Ideal</button>
+                    <label>Semana</label>
+                    <select id="editSemana">
+                        <option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option>
+                        <option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option>
+                    </select>
+                    <label>Dia da Rota</label>
+                    <select id="editDia">
+                        <option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option>
+                        <option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option>
+                    </select>
+                    <button class="btn-acao" onclick="salvarDuploEdicao()">Salvar em Ambos</button>
+                    <button class="btn-acao btn-secundario" style="border-color:#f43f5e; color:#f43f5e;" onclick="excluirDuplo()">🗑️ Remover Cliente</button>
+                    <button class="btn-acao btn-secundario" onclick="fecharPainelEdicao()">Voltar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="conteudoAdicionar" class="conteudo-aba aba-escondida">
+            <div class="form-exclusivo">
+                <b style="color: var(--cor-primaria); font-size: 17px;">Novo Registro</b>
+                <label>Código Identificador</label><input type="text" id="addCodigo" placeholder="Ex: 1045">
+                <label>Razão Social</label><input type="text" id="addNome">
+                <label>Endereço Completo</label><input type="text" id="addEndereco">
+                <label>Complemento</label><input type="text" id="addComplemento">
+                <label>Bairro</label><input type="text" id="addBairro">
+                <label>Cidade</label>
+                <select id="addCidade">
+                    <option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option>
+                    <option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option>
+                    <option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option>
+                </select>
+                <button type="button" class="btn-acao" style="background-color: #8b5cf6; color: white; margin: 4px 0;" onclick="sugerirRotaInteligente('add')">🪄 Auto-Completar Rota Ideal</button>
+                <label>Semana</label>
+                <select id="addSemana">
+                    <option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option>
+                    <option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option>
+                </select>
+                <label>Dia da Rota</label>
+                <select id="addDia">
+                    <option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option>
+                    <option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option>
+                </select>
+                <button class="btn-acao" onclick="salvarDuploNovo()">Cadastrar e Sincronizar</button>
+            </div>
+        </div>
+
+        <div class="barra-inferior">
+            <button id="btnTabAgenda" class="btn-tab ativo" onclick="mudarAba('agenda')"><span style="font-size:18px;">🗺️</span><span>Rotas</span></button>
+            <button id="btnTabClientes" class="btn-tab" onclick="mudarAba('clientes')"><span style="font-size:18px;">👥</span><span>Base</span></button>
+            <button id="btnTabAdicionar" class="btn-tab" onclick="mudarAba('adicionar')"><span style="font-size:18px;">➕</span><span>Novo</span></button>
+        </div>
+    </div>
+    
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) { 
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW', err)); 
+        }
+
+        window.toggleUserMenu = (e) => { 
+            e.stopPropagation(); 
+            document.getElementById('userDropdown').classList.toggle('active'); 
+        };
+
+        document.addEventListener('click', (e) => { 
+            const drop = document.getElementById('userDropdown'); 
+            if (drop.classList.contains('active') && !e.target.closest('.user-menu-container')) {
+                drop.classList.remove('active'); 
+            }
+        });
+
+        window.abrirModalSync = () => { 
+            document.getElementById('userDropdown').classList.remove('active'); 
+            document.getElementById('modalSync').style.display = 'flex'; 
+        };
+        
+        window.fecharModalSync = () => { 
+            document.getElementById('modalSync').style.display = 'none'; 
+        };
+
+        const sidebar = document.getElementById('sidebar');
+        const handle = document.getElementById('drawer-handle-container');
+        let startY = 0, startHeight = 0, isDragging = false;
+        
+        handle.addEventListener('touchstart', (e) => { 
+            if(window.innerWidth > 768 || window.innerWidth > window.innerHeight) return; 
+            isDragging = true; 
+            startY = e.touches[0].clientY; 
+            startHeight = sidebar.getBoundingClientRect().height; 
+            sidebar.classList.add('dragging'); 
+        }, {passive: true});
+
+        document.addEventListener('touchmove', (e) => { 
+            if(!isDragging) return; 
+            let newH = startHeight + (startY - e.touches[0].clientY); 
+            const minH = window.innerHeight * 0.15, maxH = window.innerHeight * 0.90; 
+            if(newH < minH) newH = minH; 
+            if(newH > maxH) newH = maxH; 
+            sidebar.style.height = newH + 'px'; 
+        }, {passive: true});
+
+        document.addEventListener('touchend', () => { 
+            if(!isDragging) return; 
+            isDragging = false; 
+            sidebar.classList.remove('dragging'); 
+            const h = window.innerHeight, curr = sidebar.getBoundingClientRect().height; 
+            sidebar.style.height = curr > h * 0.65 ? '85vh' : (curr < h * 0.35 ? '15vh' : '45vh'); 
+            setTimeout(() => map.invalidateSize(), 300); 
+        });
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAh0OpiVBN_tAmziVvvZS8ONHjfvrKZnqU", 
+            authDomain: "rota-comercial.firebaseapp.com", 
+            projectId: "rota-comercial", 
+            storageBucket: "rota-comercial.firebasestorage.app", 
+            messagingSenderId: "828175392312", 
+            appId: "1:828175392312:web:f3bc6f4fe373b995ad90cd" 
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(); 
+        const db = firebase.firestore();
+
+        const map = L.map('map', { zoomControl: false }).setView([-26.9166, -49.0661], 12);
+        L.control.zoom({ position: 'topright' }).addTo(map);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles © Esri' }).addTo(map);
+
+        let grupoMarcadores = L.layerGroup().addTo(map);
+        let grupoRota = L.layerGroup().addTo(map);
+        
+        let bancoDeDadosClientes = [];
+        let clienteSelecionadoAtualmente = null;
+        let minhaPosicaoGPS = null;
+        let marcadoresAtivosMap = [];
+        let relatorioAtual = [];
+        let usuarioAtual = null;
+        let scriptUrlVinculado = "";
+        
+        let clientesVisitadosHoje = new Set();
+        let cacheCoordsGeral = {};
+        let cacheRuasTracas = {};
+        let ordemMagicaOSRM = null;
+
+        const paletaCores = ['#38bdf8', '#8b5cf6', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#ec4899'];
+
+        const criarIconeNumerado = (cor, txt) => {
+            return L.divIcon({ 
+                className: 'custom-pin', 
+                html: `<div style="background-color:${cor}; width:26px; height:26px; border-radius:50%; border:3px solid #0f172a; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">${txt}</div>`, 
+                iconSize: [26, 26], 
+                iconAnchor: [13, 13] 
+            });
+        };
+
+        function definirDataAtualAutomatica() {
+            const dataHoje = new Date();
+            const diaIndex = dataHoje.getDay();
+            const mapaDias = { 1: "Segunda-Feira", 2: "Terça-Feira", 3: "Quarta-Feira", 4: "Quinta-Feira" };
+            document.getElementById('filtroDia').value = mapaDias[diaIndex] || "Segunda-Feira";
+            
+            const diaDoMes = dataHoje.getDate();
+            document.getElementById('filtroSemana').value = diaDoMes <= 7 ? "Semana 1" : (diaDoMes <= 14 ? "Semana 2" : (diaDoMes <= 21 ? "Semana 3" : "Semana 4"));
+        }
+
+        window.limparCacheMudancaFiltro = () => {
+            clientesVisitadosHoje.clear();
+            ordemMagicaOSRM = null; 
+            filtrarERenderizar();
+        };
+
+        window.alternarVisita = (codigo, event) => {
+            event.stopPropagation();
+            let codStr = String(codigo); 
+            if (clientesVisitadosHoje.has(codStr)) {
+                clientesVisitadosHoje.delete(codStr);
+            } else {
+                clientesVisitadosHoje.add(codStr);
+            }
+            document.getElementById('status').innerText = "Atualizando rota..."; 
+            filtrarERenderizar();
+        };
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                usuarioAtual = user;
+                document.getElementById('tela-login').style.display = 'none';
+                document.getElementById('userEmailDisplay').innerText = user.email;
+                document.getElementById('avatarBtn').innerText = user.email.charAt(0).toUpperCase();
+                
+                const docConfig = await db.collection("configuracoes").doc(user.uid).get();
+                if(docConfig.exists && docConfig.data().scriptUrl) {
+                    scriptUrlVinculado = docConfig.data().scriptUrl;
+                    document.getElementById('urlScriptDrive').value = scriptUrlVinculado;
+                }
+                
+                definirDataAtualAutomatica();
+                puxarDadosLocaisFirebase();
+            } else {
+                usuarioAtual = null; 
+                document.getElementById('tela-login').style.display = 'flex';
+            }
+        });
+
+        window.fazerLogin = () => {
+            const e = document.getElementById('login-email').value;
+            const s = document.getElementById('login-senha').value;
+            auth.signInWithEmailAndPassword(e, s).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message);
+        };
+
+        window.criarConta = () => { 
+            const e = document.getElementById('login-email').value;
+            const s = document.getElementById('login-senha').value; 
+            if(s.length < 6) return document.getElementById('msg-login').innerText = "Senha deve ter 6+ caracteres."; 
+            auth.createUserWithEmailAndPassword(e, s).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message); 
+        };
+
+        window.mudarAba = (aba) => { 
+            window.fecharPainelEdicao(); 
+            const t = { agenda: 'conteudoAgenda', clientes: 'conteudoClientes', adicionar: 'conteudoAdicionar' }; 
+            Object.keys(t).forEach(k => { 
+                document.getElementById(t[k]).classList.add('aba-escondida'); 
+                document.getElementById('btnTab' + k.charAt(0).toUpperCase() + k.slice(1)).classList.remove('ativo'); 
+            }); 
+            document.getElementById(t[aba]).classList.remove('aba-escondida'); 
+            document.getElementById('btnTab' + aba.charAt(0).toUpperCase() + aba.slice(1)).classList.add('ativo'); 
+            
+            if(aba === 'clientes') {
+                document.getElementById('barraBuscaAvancada').style.display = 'none';
+                document.getElementById('painelFiltrosBase').style.display = 'none';
+                document.getElementById('btnAbreBusca').classList.remove('ativo');
+                document.getElementById('btnAbreFiltro').classList.remove('ativo');
+                atualizarFiltrosDinamicos();
+                aplicarFiltrosNaBase();
+            }
+        };
+
+        async function puxarDadosLocaisFirebase() {
+            document.getElementById('status').innerText = "Sincronizando banco...";
+            const snapshot = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
+            bancoDeDadosClientes = [];
+            snapshot.forEach(doc => { 
+                let c = doc.data(); 
+                c.idFirebase = doc.id; 
+                bancoDeDadosClientes.push(c); 
+            });
+            if(!minhaPosicaoGPS) minhaPosicaoGPS = await inicializarGPS();
+            
+            document.getElementById('status').innerText = "Base carregada e pronta.";
+            filtrarERenderizar();
+            atualizarFiltrosDinamicos(); 
+            aplicarFiltrosNaBase(); 
+        }
+
+        window.vincularESincronizarPlanilha = async () => { 
+            let url = document.getElementById('urlScriptDrive').value.trim(); 
+            if(!url) return;
+            
+            document.getElementById('status').innerText = "Limpando e clonando...";
+            try { 
+                await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url }); 
+                scriptUrlVinculado = url;
+                
+                const snaps = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
+                if (!snaps.empty) { 
+                    const batch = db.batch(); 
+                    snaps.forEach(doc => batch.delete(doc.ref)); 
+                    await batch.commit(); 
+                }
+                
+                const res = await fetch(url, { method: "GET", redirect: "follow", headers: { "Accept": "application/json" } });
+                const dados = await res.json(); 
+                for(let c of dados) { 
+                    c.userId = usuarioAtual.uid; 
+                    await db.collection("clientes").add(c); 
+                }
+                
+                fecharModalSync(); 
+                puxarDadosLocaisFirebase();
+            } catch(e) { 
+                document.getElementById('status').innerText = "Erro na sincronização"; 
+            }
+        };
+
+        // --- SISTEMA DE BALANCEAMENTO GLOBAL REFEITO (RESET TOTAL) ---
+        window.reorganizarBaseGlobal = async () => {
+            if(!confirm("⚠️ ATENÇÃO: A IA vai REFAZER sua agenda inteira do zero! Ela vai distribuir todos os seus clientes equilibradamente pelas 4 semanas e 4 dias, mantendo quem é do mesmo bairro junto. Continuar?")) return;
+
+            document.getElementById('status').innerText = "Calculando nova rota global...";
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('loading-text').innerText = "Balanceando a agenda...";
+
+            // 1. Agrupa os clientes por Bairro/Cidade
+            let agrupamento = {};
+            bancoDeDadosClientes.forEach(c => {
+                let chave = (c.cidade + " - " + (c.bairro || "Centro")).toUpperCase().trim();
+                if(!agrupamento[chave]) agrupamento[chave] = [];
+                agrupamento[chave].push(c);
+            });
+
+            // 2. Ordena os bairros do maior para o menor (para encaixar os grandes primeiro)
+            let listaBairros = Object.values(agrupamento).sort((a, b) => b.length - a.length);
+
+            // 3. Cria os 16 slots possíveis (Semana 1 a 4, Seg a Qui)
+            let slots = [];
+            let semanas = ["Semana 1", "Semana 2", "Semana 3", "Semana 4"];
+            let dias = ["Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira"];
+            
+            for(let s of semanas) {
+                for(let d of dias) {
+                    slots.push({ semana: s, diaSemana: d, totalClientes: 0, clientesAlocados: [] });
+                }
+            }
+
+            let updates = [];
+
+            // 4. Distribui os bairros nos dias mais vazios (Balanceamento de Carga)
+            listaBairros.forEach(grupoBairro => {
+                slots.sort((a, b) => a.totalClientes - b.totalClientes);
+                let melhorSlot = slots[0];
+                
+                melhorSlot.totalClientes += grupoBairro.length;
+                
+                grupoBairro.forEach(c => {
+                    if(c.semana !== melhorSlot.semana || c.diaSemana !== melhorSlot.diaSemana) {
+                        updates.push({ ...c, semana: melhorSlot.semana, diaSemana: melhorSlot.diaSemana });
+                    }
+                });
+            });
+
+            if(updates.length === 0) {
+                document.getElementById('loading-overlay').style.display = 'none';
+                alert("Sua agenda já está perfeitamente distribuída e otimizada!");
+                return;
+            }
+
+            // 5. Salva a nova distribuição em lote
+            for(let i = 0; i < updates.length; i++) {
+                let c = updates[i];
+                document.getElementById('loading-text').innerText = `Reorganizando ${i+1}/${updates.length}...`;
+                try {
+                    await db.collection("clientes").doc(c.idFirebase).update({ semana: c.semana, diaSemana: c.diaSemana });
+                    if(scriptUrlVinculado) {
+                        let pct = { ...c, acao: "editar" };
+                        fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) });
+                    }
+                    await new Promise(r => setTimeout(r, 600)); 
+                } catch(e) {}
+            }
+
+            await puxarDadosLocaisFirebase();
+            document.getElementById('loading-overlay').style.display = 'none';
+            alert(`SUCESSO! ${updates.length} clientes mudaram de dia. Sua agenda foi balanceada e os bairros estão agrupados.`);
+        };
+
+        window.salvarDuploNovo = async () => { 
+            const pct = { 
+                userId: usuarioAtual.uid, 
+                codigo: document.getElementById('addCodigo').value.trim(), 
+                nome: document.getElementById('addNome').value.trim(), 
+                endereco: document.getElementById('addEndereco').value.trim(), 
+                complemento: document.getElementById('addComplemento').value.trim(), 
+                bairro: document.getElementById('addBairro').value.trim(), 
+                cidade: document.getElementById('addCidade').value, 
+                semana: document.getElementById('addSemana').value, 
+                diaSemana: document.getElementById('addDia').value 
+            };
+            if(!pct.codigo || !pct.nome) return alert("Preencha o Código e a Razão Social.");
+            
+            document.getElementById('status').innerText = "Salvando...";
+            try {
+                await db.collection("clientes").add(pct);
+                if(scriptUrlVinculado) { 
+                    pct.acao = "salvar"; 
+                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); 
+                }
+                window.mudarAba('agenda'); 
+                puxarDadosLocaisFirebase();
+            } catch(e) { alert("Erro ao salvar."); }
+        };
+
+        window.salvarDuploEdicao = async () => { 
+            if(!clienteSelecionadoAtualmente) return;
+            const pct = { 
+                codigo: document.getElementById('editCodigo').value, 
+                nome: document.getElementById('editNome').value.trim(), 
+                endereco: document.getElementById('editEndereco').value.trim(), 
+                complemento: document.getElementById('editComplemento').value.trim(), 
+                bairro: document.getElementById('editBairro').value.trim(), 
+                cidade: document.getElementById('editCidade').value, 
+                semana: document.getElementById('editSemana').value, 
+                diaSemana: document.getElementById('editDia').value 
+            };
+            document.getElementById('status').innerText = "Espelhando edições...";
+            try {
+                await db.collection("clientes").doc(clienteSelecionadoAtualmente.idFirebase).update(pct);
+                if(scriptUrlVinculado) { 
+                    pct.acao = "editar"; 
+                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); 
+                }
+                window.fecharPainelEdicao(); 
+                puxarDadosLocaisFirebase();
+            } catch(e) { alert("Erro ao editar."); }
+        };
+
+        window.excluirDuplo = async () => { 
+            if(!clienteSelecionadoAtualmente || !confirm("Deletar permanentemente?")) return;
+            try {
+                await db.collection("clientes").doc(clienteSelecionadoAtualmente.idFirebase).delete();
+                if(scriptUrlVinculado) { 
+                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ codigo: clienteSelecionadoAtualmente.codigo, acao: "excluir" }) }); 
+                }
+                window.fecharPainelEdicao(); 
+                puxarDadosLocaisFirebase();
+            } catch(e) { alert("Erro ao deletar."); }
+        };
+
+        window.exportarRotaDoDia = () => { 
+            if(relatorioAtual.length === 0) return alert("Nenhuma rota carregada.");
+            let csv = "\uFEFFOrdem,Codigo,Nome,Endereco,Bairro,Cidade\n";
+            relatorioAtual.forEach((c, i) => csv += `${i+1},${c.codigo},"${c.nome}","${c.endereco}","${c.bairro}","${c.cidade}"\n`);
+            const a = document.createElement("a"); 
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); 
+            a.setAttribute("download", `Rota_${document.getElementById('filtroDia').value}.csv`); 
+            a.click();
+        };
+
+        async function inicializarGPS() { 
+            return new Promise((r) => { 
+                if(!navigator.geolocation) r(null); 
+                else navigator.geolocation.getCurrentPosition(p => r([p.coords.latitude, p.coords.longitude]), e => r(null), {timeout:4000}); 
+            }); 
+        }
+
+        async function descobrirCoordenadaReal(endereco, city) {
+            let b = encodeURIComponent(`${endereco.replace(/"/g, '')}, ${city}, SC, Brasil`);
+            try { 
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${b}&limit=1`); 
+                const dados = await res.json(); 
+                if (dados && dados.length > 0) return [parseFloat(dados[0].lat), parseFloat(dados[0].lon)]; 
+            } catch(e){}
+            const d = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112] }; 
+            return d[city] || [-26.9166, -49.0661];
+        }
+
+        window.focarNoClienteDoMapa = (lat, lng, codigo) => {
+            map.setView([lat, lng], 16); 
+            let alvo = marcadoresAtivosMap.find(m => m.codigo.toString().trim() === codigo.toString().trim()); 
+            if (alvo) alvo.marker.openPopup();
+        };
+
+        async function filtrarERenderizar() {
+            const clientesDoDia = bancoDeDadosClientes.filter(c => c.semana === document.getElementById('filtroSemana').value && c.diaSemana === document.getElementById('filtroDia').value);
+
+            grupoMarcadores.clearLayers(); 
+            grupoRota.clearLayers(); 
+            marcadoresAtivosMap = []; 
+            relatorioAtual = [];
+            
+            const container = document.getElementById('listaAgenda'); 
+            container.innerHTML = ''; 
+
+            if (clientesDoDia.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding-top:30px; color:var(--texto-secundario); font-size:13px;">Nenhuma rota para hoje. 🎉</p>';
+                return;
+            }
+
+            document.getElementById('loading-overlay').style.display = document.getElementById('status').innerText === "Atualizando rota..." ? 'none' : 'flex';
+            
+            let coordsOriginais = []; 
+            let usandoGPSLocal = false;
+            
+            if (minhaPosicaoGPS) { 
+                coordsOriginais.push(minhaPosicaoGPS); 
+                usandoGPSLocal = true; 
+            }
+
+            for (let c of clientesDoDia) {
+                let chaveEnd = c.endereco + c.cidade;
+                if (!cacheCoordsGeral[chaveEnd]) {
+                    cacheCoordsGeral[chaveEnd] = await descobrirCoordenadaReal(c.endereco, c.cidade);
+                    await new Promise(r => setTimeout(r, 600)); 
+                }
+                coordsOriginais.push(cacheCoordsGeral[chaveEnd]);
+            }
+
+            let rotaIndices = coordsOriginais.map((_, i) => i);
+            let stringRotas = coordsOriginais.map(c => `${c[1]},${c[0]}`).join(';');
+            
+            if (coordsOriginais.length > 1) {
+                if(ordemMagicaOSRM) {
+                    rotaIndices = ordemMagicaOSRM;
+                } else {
+                    try {
+                        const res = await fetch(`https://router.project-osrm.org/trip/v1/driving/${stringRotas}?roundtrip=false&source=first&geometries=geojson`);
+                        const dadosTrip = await res.json();
+                        if (dadosTrip.waypoints) {
+                            rotaIndices = dadosTrip.waypoints.map((wp, idx) => ({ o: idx, idxOpt: wp.waypoint_index })).sort((a,b) => a.idxOpt - b.idxOpt).map(wp => wp.o);
+                            ordemMagicaOSRM = rotaIndices; 
+                            document.getElementById('badgeOtimizado').style.display = 'inline-block';
+                        }
+                    } catch(e){}
+                }
+            }
+
+            let coordsCaminho = [];
+            let clientesOrganizadosNaTrilha = [];
+
+            rotaIndices.forEach((idxOrigem, ordemAtual) => {
+                let coord = coordsOriginais[idxOrigem];
+                coordsCaminho.push(coord);
+
+                if (usandoGPSLocal && idxOrigem === 0) {
+                    L.circleMarker(coord, { color: '#38bdf8', fillColor: '#0f172a', fillOpacity: 1, radius: 8, weight: 3 }).bindPopup('<b style="color:#38bdf8;">📍 Sua Posição</b>').addTo(grupoMarcadores);
+                } else {
+                    let c = clientesDoDia[usandoGPSLocal ? idxOrigem - 1 : idxOrigem];
+                    clientesOrganizadosNaTrilha.push(c);
+                    relatorioAtual.push(c);
+                    
+                    let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
+                    let isVisitado = clientesVisitadosHoje.has(String(c.codigo));
+                    
+                    let corCard = isVisitado ? '#475569' : paletaCores[iReal % paletaCores.length]; 
+                    let txtPino = isVisitado ? '✓' : (iReal + 1); 
+
+                    let marker = L.marker(coord, { icon: criarIconeNumerado(corCard, txtPino) }).bindPopup(`<div><b style="color:${corCard};">Visita ${iReal + 1}: ${c.nome}</b><p style="margin:4px 0;font-size:11px;">📍 ${c.endereco}</p></div>`);
+                    grupoMarcadores.addLayer(marker); 
+                    marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
+                    
+                    const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
+                    
+                    let actBtn = isVisitado 
+                        ? `<button class="btn-acao btn-desfazer" onclick="alternarVisita('${c.codigo}', event)">↩ Desfazer</button>`
+                        : `<button class="btn-acao btn-visitado" onclick="alternarVisita('${c.codigo}', event)">✅ Visitado</button>`;
+
+                    container.innerHTML += `
+                        <div class="card-item ${isVisitado ? 'visitado' : ''}" style="border-left-color:${corCard};" onclick="window.focarNoClienteDoMapa(${coord[0]}, ${coord[1]}, '${c.codigo}')">
+                            <h4 style="color:${corCard};">${txtPino}. <span style="color:var(--texto-principal);">${c.nome}</span></h4>
+                            <p><b>Bairro:</b> ${c.bairro} | <b>Cidade:</b> ${c.cidade}</p>
+                            <p><b>Endereço:</b> ${c.endereco}</p>
+                            ${c.complemento ? `<p style="color:${corCard}; font-size:11px; font-weight:500; margin: 4px 0;">${c.complemento}</p>` : ''}
+                            
+                            <div class="botoes-acao-card">
+                                <a href="${urlMaps}" target="_blank" class="btn-acao btn-gps" onclick="event.stopPropagation();">🧭 Abrir GPS</a>
+                                ${actBtn}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (coordsCaminho.length > 1) {
+                let limites = L.latLngBounds();
+                
+                for (let i = 0; i < coordsCaminho.length - 1; i++) {
+                    let pOrg = coordsCaminho[i]; 
+                    let pDest = coordsCaminho[i+1];
+                    let clienteFinalDoTrecho = clientesOrganizadosNaTrilha[i];
+                    
+                    let isDestinoVisitado = clientesVisitadosHoje.has(String(clienteFinalDoTrecho.codigo));
+                    let corLinha = isDestinoVisitado ? '#475569' : paletaCores[i % paletaCores.length];
+
+                    let strCache = `${pOrg[0]},${pOrg[1]}x${pDest[0]},${pDest[1]}`;
+
+                    if(cacheRuasTracas[strCache]) {
+                        let linhaColor = L.polyline(cacheRuasTracas[strCache], {color: corLinha, weight: 6, opacity: 0.85});
+                        grupoRota.addLayer(linhaColor); 
+                        limites.extend(linhaColor.getBounds());
+                    } else {
+                        try {
+                            const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${pOrg[1]},${pOrg[0]};${pDest[1]},${pDest[0]}?overview=full&geometries=geojson`);
+                            const dados = await res.json();
+                            if (dados.code === 'Ok' && dados.routes.length > 0) {
+                                let pontos = dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]);
+                                cacheRuasTracas[strCache] = pontos;
+                                let linhaColor = L.polyline(pontos, {color: corLinha, weight: 6, opacity: 0.85});
+                                grupoRota.addLayer(linhaColor); 
+                                limites.extend(linhaColor.getBounds());
+                            } else throw new Error();
+                        } catch(e) {
+                            let linhaReta = L.polyline([pOrg, pDest], {color: corLinha, weight: 4, dashArray: '6, 6', opacity: 0.7});
+                            grupoRota.addLayer(linhaReta); 
+                            limites.extend(linhaReta.getBounds());
+                        }
+                        await new Promise(r => setTimeout(r, 400));
+                    }
+                }
+                
+                if (limites.isValid() && document.getElementById('status').innerText !== "Atualizando rota...") {
+                    map.fitBounds(limites, {padding:[40,40]});
+                }
+            }
+
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('status').innerText = "Base carregada e pronta.";
+        }
+
+        window.toggleBuscaBase = () => {
+            const b = document.getElementById('barraBuscaAvancada');
+            const f = document.getElementById('painelFiltrosBase');
+            const btnB = document.getElementById('btnAbreBusca');
+            const btnF = document.getElementById('btnAbreFiltro');
+            
+            b.style.display = b.style.display === 'flex' ? 'none' : 'flex';
+            f.style.display = 'none'; 
+            
+            if(b.style.display === 'flex') {
+                btnB.classList.add('ativo');
+                btnF.classList.remove('ativo');
+                document.getElementById('campoBuscaAvancada').focus();
+            } else {
+                btnB.classList.remove('ativo');
+            }
+        };
+
+        window.toggleFiltroBase = () => {
+            const b = document.getElementById('barraBuscaAvancada');
+            const f = document.getElementById('painelFiltrosBase');
+            const btnB = document.getElementById('btnAbreBusca');
+            const btnF = document.getElementById('btnAbreFiltro');
+            
+            f.style.display = f.style.display === 'flex' ? 'none' : 'flex';
+            b.style.display = 'none'; 
+            
+            if(f.style.display === 'flex') {
+                btnF.classList.add('ativo');
+                btnB.classList.remove('ativo');
+                atualizarFiltrosDinamicos(); 
+            } else {
+                btnF.classList.remove('ativo');
+            }
+        };
+
+        function atualizarFiltrosDinamicos() {
+            let contagens = { cidades: {}, bairros: {}, semanas: {}, dias: {} };
+            
+            bancoDeDadosClientes.forEach(c => {
+                let cidForm = c.cidade || "Sem Cidade";
+                let baiForm = c.bairro || "Sem Bairro";
+                let semForm = c.semana || "Sem Semana";
+                let diaForm = c.diaSemana || "Sem Dia";
+
+                contagens.cidades[cidForm] = (contagens.cidades[cidForm] || 0) + 1;
+                contagens.bairros[baiForm] = (contagens.bairros[baiForm] || 0) + 1;
+                contagens.semanas[semForm] = (contagens.semanas[semForm] || 0) + 1;
+                contagens.dias[diaForm] = (contagens.dias[diaForm] || 0) + 1;
+            });
+
+            const preencherSelect = (id, obj, padrao) => {
+                const sel = document.getElementById(id);
+                const valorAnterior = sel.value; 
+                
+                sel.innerHTML = `<option value="">${padrao}</option>`;
+                Object.keys(obj).sort().forEach(k => {
+                    sel.innerHTML += `<option value="${k}">${k} (${obj[k]})</option>`;
+                });
+                
+                if(obj[valorAnterior]) sel.value = valorAnterior;
+            };
+
+            preencherSelect('filtroBaseCidade', contagens.cidades, 'Todas as Cidades');
+            preencherSelect('filtroBaseBairro', contagens.bairros, 'Todos os Bairros');
+            preencherSelect('filtroBaseSemana', contagens.semanas, 'Todas as Semanas');
+            preencherSelect('filtroBaseDia', contagens.dias, 'Todos os Dias');
+        }
+
+        window.aplicarFiltrosNaBase = () => {
+            const textoBusca = document.getElementById('campoBuscaAvancada').value.toLowerCase();
+            const cid = document.getElementById('filtroBaseCidade').value;
+            const bai = document.getElementById('filtroBaseBairro').value;
+            const sem = document.getElementById('filtroBaseSemana').value;
+            const dia = document.getElementById('filtroBaseDia').value;
+
+            let clientesFiltrados = bancoDeDadosClientes.filter(c => {
+                let matchTexto = true;
+                if(textoBusca) {
+                    const textoGeral = `${c.nome} ${c.codigo} ${c.endereco} ${c.bairro} ${c.cidade} ${c.complemento}`.toLowerCase();
+                    matchTexto = textoGeral.includes(textoBusca);
+                }
+                
+                let matchCid = cid ? c.cidade === cid : true;
+                let matchBai = bai ? c.bairro === bai : true;
+                let matchSem = sem ? c.semana === sem : true;
+                let matchDia = dia ? c.diaSemana === dia : true;
+
+                return matchTexto && matchCid && matchBai && matchSem && matchDia;
+            });
+
+            clientesFiltrados.sort((a, b) => {
+                if (a.semana !== b.semana) return (a.semana || "").localeCompare(b.semana || "");
+                const pesosDias = { "Segunda-Feira": 1, "Terça-Feira": 2, "Quarta-Feira": 3, "Quinta-Feira": 4, "Sexta-Feira": 5, "Sábado": 6, "Domingo": 7 };
+                let diffDia = (pesosDias[a.diaSemana] || 99) - (pesosDias[b.diaSemana] || 99);
+                if (diffDia !== 0) return diffDia;
+                return (a.nome || "").localeCompare(b.nome || "");
+            });
+
+            const container = document.getElementById('listaClientesGeral');
+            container.innerHTML = '';
+            
+            if(clientesFiltrados.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--texto-secundario); margin-top:20px;">Nenhum cliente encontrado nesses filtros.</p>';
+                return;
+            }
+
+            clientesFiltrados.forEach(c => {
+                container.innerHTML += `
+                <div class="card-item" style="border-left-color: var(--borda);" onclick="window.abrirPainelEdicao('${c.codigo}')">
+                    <h4>${c.nome}</h4>
+                    <p style="color:var(--cor-primaria); font-weight:600; margin-bottom: 4px;">${c.semana} - ${c.diaSemana}</p>
+                    <p><b>Cód:</b> ${c.codigo} | <b>Bairro:</b> ${c.bairro}</p>
+                    <p><b>Cidade:</b> ${c.cidade}</p>
+                </div>`;
+            });
+        };
+
+        window.abrirPainelEdicao = (codigo) => { 
+            const c = bancoDeDadosClientes.find(item => item.codigo.toString() === codigo.toString()); 
+            if (!c) return; 
+            clienteSelecionadoAtualmente = c; 
+            ['Codigo', 'Nome', 'Endereco', 'Complemento', 'Bairro', 'Cidade', 'Semana', 'Dia'].forEach(k => {
+                document.getElementById(`edit${k}`).value = c[k.toLowerCase()] || c[k === 'Dia' ? 'diaSemana' : ''];
+            }); 
+            document.getElementById('painelEdicao').classList.remove('aba-escondida'); 
+        };
+
+        window.fecharPainelEdicao = () => { 
+            document.getElementById('painelEdicao').classList.add('aba-escondida'); 
+            clienteSelecionadoAtualmente = null; 
+        };
+        
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Motor de Rotas - Pro Edition SaaS</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root {
+            --bg-principal: #0f172a; --bg-card: #1e293b; --bg-input: #334155;
+            --cor-primaria: #38bdf8; --cor-primaria-hover: #0ea5e9;
+            --texto-principal: #f8fafc; --texto-secundario: #94a3b8;
+            --borda: #334155; --sombra-card: rgba(0, 0, 0, 0.2);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: row; 
+            height: 100vh; 
+            background-color: var(--bg-principal); 
+            color: var(--texto-principal); 
+            overflow: hidden; 
+            position: relative; 
+        }
+        
+        #sidebar { 
+            width: 420px; 
+            background: var(--bg-principal); 
+            border-right: 1px solid var(--borda); 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 2000; 
+            box-shadow: 4px 0 20px rgba(0,0,0,0.4); 
+            order: 1; 
+        }
+
+        #map { 
+            flex: 1; 
+            height: 100%; 
+            background: #e5e3df; 
+            z-index: 1; 
+            order: 2; 
+        }
+        
+        #drawer-handle-container { 
+            display: none; 
+            width: 100%; 
+            padding: 12px 0 4px 0; 
+            background: var(--bg-card); 
+            cursor: grab; 
+            text-align: center; 
+            border-radius: 24px 24px 0 0; 
+        }
+
+        .drawer-handle { 
+            width: 50px; 
+            height: 5px; 
+            background: #475569; 
+            border-radius: 10px; 
+            margin: 0 auto; 
+        }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            body { flex-direction: column; }
+            #map { width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; order: unset; }
+            #sidebar { 
+                width: 100% !important; 
+                height: 45vh; 
+                position: absolute; 
+                bottom: 0; 
+                left: 0; 
+                border-right: none; 
+                border-top: none; 
+                border-radius: 24px 24px 0 0; 
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.5); 
+                transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
+                order: unset; 
+            }
+            #sidebar.dragging { transition: none; }
+            #drawer-handle-container { display: block; }
+            .header { padding-top: 5px; background: var(--bg-card); }
+        }
+
+        @media (max-width: 932px) and (orientation: landscape) {
+            body { flex-direction: row; }
+            #sidebar { width: 300px !important; }
+        }
+
+        .header { padding: 15px 20px; background: var(--bg-card); border-bottom: 1px solid var(--borda); display: flex; justify-content: space-between; align-items: center; }
+        .header h3 { margin: 0 0 4px 0; font-size: 19px; font-weight: 700; letter-spacing: -0.5px; }
+        .header p { margin: 0; font-size: 11px; color: var(--texto-secundario); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .user-menu-container { position: relative; }
+        .avatar-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--cor-primaria); color: #0f172a; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 16px; cursor: pointer; border: 2px solid #0f172a; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s; }
+        .avatar-btn:active { transform: scale(0.9); }
+        .dropdown-menu { position: absolute; right: 0; top: 45px; background: var(--bg-card); border: 1px solid var(--borda); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); width: 220px; display: none; flex-direction: column; z-index: 3000; overflow: hidden; transform-origin: top right; }
+        .dropdown-menu.active { display: flex; animation: slideDown 0.2s ease forwards; }
+        @keyframes slideDown { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        .dropdown-header { padding: 16px; border-bottom: 1px solid var(--borda); font-size: 12px; color: var(--texto-secundario); background: #182235; word-break: break-all; }
+        .dropdown-header strong { display: block; color: var(--texto-principal); font-size: 14px; margin-bottom: 2px; }
+        .dropdown-item { padding: 14px 16px; font-size: 13px; font-weight: 500; color: var(--texto-principal); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; border-bottom: 1px solid var(--borda); }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: var(--bg-input); padding-left: 20px; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--bg-card); padding: 24px; border-radius: 16px; width: 100%; max-width: 380px; border: 1px solid var(--borda); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+
+        .badge-otimizado { background: rgba(56, 189, 248, 0.15); color: var(--cor-primaria); font-size: 10px; padding: 4px 8px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.3); vertical-align: middle; margin-left: 8px;}
+
+        .conteudo-aba { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .aba-escondida { display: none !important; }
+        
+        .filtros, .busca-container { padding: 16px 20px; background: var(--bg-principal); display: flex; gap: 10px; border-bottom: 1px solid var(--borda); flex-wrap: wrap; }
+        .filtros select, .busca-container input { flex: 1; min-width: 120px; padding: 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; transition: 0.3s; }
+        .filtros select:focus, .busca-container input:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
+        
+        .acoes-base { display: flex; gap: 8px; padding: 16px 20px 0 20px; background: var(--bg-principal); flex-wrap: wrap; }
+        .btn-bloco { flex: 1; min-width: 25%; padding: 10px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--borda); color: var(--texto-principal); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; text-align: center; }
+        .btn-bloco:hover, .btn-bloco.ativo { background: var(--bg-input); border-color: var(--cor-primaria); color: var(--cor-primaria); }
+        
+        .painel-avancado { padding: 16px 20px; background: var(--bg-principal); border-bottom: 1px solid var(--borda); display: none; flex-direction: column; gap: 10px; }
+        .painel-avancado input, .painel-avancado select { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: 0.3s; }
+        .painel-avancado input:focus, .painel-avancado select:focus { border-color: var(--cor-primaria); }
+
+        .lista-scroll { padding: 20px; overflow-y: auto; flex: 1; background: var(--bg-principal); padding-bottom: 30px; display: flex; flex-direction: column; }
+        .lista-scroll::-webkit-scrollbar { width: 6px; }
+        .lista-scroll::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 3px; }
+        
+        .card-item { background: var(--bg-card); border-left: 5px solid var(--cor-primaria); padding: 16px; margin-bottom: 14px; border-radius: 12px; box-shadow: 0 4px 12px var(--sombra-card); cursor: pointer; transition: all 0.2s ease; order: 1; }
+        .card-item:hover { transform: translateY(-3px); background: #233147; }
+        
+        .card-item.visitado { opacity: 0.4; filter: grayscale(100%); background: #1e293b; border-left-color: #475569 !important; order: 999; }
+        .card-item.visitado:hover { transform: none; background: #1e293b; }
+        .card-item.visitado h4 { text-decoration: line-through; color: #94a3b8 !important; }
+
+        .card-item h4 { margin: 0 0 8px 0; color: var(--texto-principal); font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+        .card-item p { margin: 4px 0; font-size: 12px; color: var(--texto-secundario); line-height: 1.5; }
+        
+        .botoes-acao-card { display: flex; gap: 8px; margin-top: 12px; }
+        .btn-acao { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; background: var(--cor-primaria); color: #0f172a; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.2s ease; width: 100%; box-sizing: border-box; text-align: center; }
+        .btn-acao:hover { background: var(--cor-primaria-hover); opacity: 0.9; }
+        
+        .btn-gps { background: transparent; border: 1px solid var(--cor-primaria); color: var(--cor-primaria); padding: 6px 12px; }
+        .btn-gps:hover { background: var(--cor-primaria); color: #0f172a; }
+        .btn-visitado { background: transparent; border: 1px solid #10b981; color: #10b981; padding: 6px 12px; }
+        .btn-visitado:hover { background: #10b981; color: white; }
+        .btn-desfazer { background: transparent; border: 1px solid #94a3b8; color: #94a3b8; padding: 6px 12px; }
+
+        .btn-secundario { background: rgba(56, 189, 248, 0.1); color: var(--cor-primaria); border: 1px solid var(--cor-primaria); margin-top: 10px;}
+        
+        .form-exclusivo { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; background: var(--bg-principal); }
+        #painelEdicao { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-principal); z-index: 2000; display: flex; flex-direction: column; }
+        .form-exclusivo label { font-size: 11px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: -6px; font-weight: 700; }
+        .form-exclusivo input, .form-exclusivo select { padding: 12px; background: var(--bg-input); border: 1px solid transparent; border-radius: 8px; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: 0.3s; }
+        .form-exclusivo input:focus, .form-exclusivo select:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+
+        #loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; text-align: center; backdrop-filter: blur(4px); }
+        .spinner { border: 4px solid var(--borda); border-top: 4px solid var(--cor-primaria); border-radius: 50%; width: 36px; height: 36px; animation: spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite; margin-bottom: 16px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .barra-inferior { height: 65px; background: var(--bg-card); border-top: 1px solid var(--borda); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 10px rgba(0,0,0,0.2); }
+        .btn-tab { flex: 1; height: 100%; background: transparent; border: none; color: var(--texto-secundario); font-size: 11px; font-weight: 600; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
+        .btn-tab.ativo { color: var(--cor-primaria); background: rgba(56, 189, 248, 0.08); }
+        
+        .leaflet-popup-content-wrapper { background: var(--bg-card) !important; color: var(--texto-principal) !important; border-radius: 12px !important; border: 1px solid var(--borda); box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
+        .leaflet-popup-tip { background: var(--bg-card) !important; }
+
+        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-principal); z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .login-card { background: var(--bg-card); padding: 40px 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid var(--borda); max-width: 400px; width: 100%; text-align: center; }
+        .login-card h2 { margin: 0 0 10px 0; color: var(--cor-primaria); font-size: 24px; font-weight: 700; }
+        .login-card p { color: var(--texto-secundario); font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
+        .login-card input { width: 100%; padding: 14px; background: var(--bg-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-size: 14px; margin-bottom: 16px; box-sizing: border-box; outline: none; }
+        .msg-erro-auth { color: #f43f5e; font-size: 13px; margin-top: 12px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div id="tela-login" class="auth-overlay">
+        <div class="login-card">
+            <h2>Rota Pro SaaS</h2>
+            <p>Entre para espelhar suas rotas com sua planilha em tempo real.</p>
+            <input type="email" id="login-email" placeholder="E-mail corporativo">
+            <input type="password" id="login-senha" placeholder="Sua Senha">
+            <button class="btn-acao" onclick="fazerLogin()">Entrar no Sistema</button>
+            <button style="background:none; border:none; color:var(--texto-secundario); font-size:12px; margin-top:15px; cursor:pointer; text-decoration:underline;" onclick="criarConta()">Não tem conta? Criar clicando aqui</button>
+            <p id="msg-login" class="msg-erro-auth"></p>
+        </div>
+    </div>
+
+    <div id="modalSync" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin: 0 0 8px 0; color: var(--cor-primaria); font-size: 18px;">Conectar Google Drive</h3>
+            <p style="font-size: 12px; color: var(--texto-secundario); line-height: 1.5; margin-bottom: 20px;">Cole abaixo a URL de implantação do Apps Script.</p>
+            <label style="font-size: 11px; color: var(--texto-secundario); font-weight: 700; margin-bottom: 6px; display: block;">🔗 URL do Script</label>
+            <input type="text" id="urlScriptDrive" placeholder="https://script.google.com/macros/..." style="width: 100%; padding: 14px; box-sizing: border-box; background: var(--bg-input); color: white; border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 20px; font-size: 13px; outline: none;">
+            <button class="btn-acao" style="background: #10b981; color: white; margin-bottom: 10px;" onclick="vincularESincronizarPlanilha()">Baixar e Sincronizar</button>
+            <button class="btn-acao" style="background: transparent; border: 1px solid var(--borda); color: var(--texto-secundario);" onclick="fecharModalSync()">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <div id="drawer-handle-container">
+            <div class="drawer-handle"></div>
+        </div>
+
+        <div class="header">
+            <div>
+                <h3>Visão Operacional <span class="badge-otimizado" id="badgeOtimizado" style="display:none;">IA</span></h3>
+                <p id="status">Verificando dados...</p>
+            </div>
+            <div class="user-menu-container">
+                <div class="avatar-btn" id="avatarBtn" onclick="toggleUserMenu(event)">?</div>
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-header">
+                        <strong>Logado como</strong>
+                        <span id="userEmailDisplay">carregando...</span>
+                    </div>
+                    <div class="dropdown-item" onclick="abrirModalSync()">
+                        <span style="font-size: 16px;">🔄</span> Sincronizar Planilha
+                    </div>
+                    <div class="dropdown-item" style="color: #f43f5e;" onclick="auth.signOut()">
+                        <span style="font-size: 16px;">🚪</span> Sair do Sistema
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+            <span id="loading-text" style="font-size: 13px; color: var(--cor-primaria); font-weight: 600;">Processando...</span>
+        </div>
+
+        <div id="conteudoAgenda" class="conteudo-aba">
+            <div class="filtros">
+                <select id="filtroSemana" onchange="limparCacheMudancaFiltro()">
+                    <option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option>
+                    <option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option>
+                </select>
+                <select id="filtroDia" onchange="limparCacheMudancaFiltro()">
+                    <option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option>
+                    <option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option>
+                </select>
+                <button class="btn-acao" style="background-color: #10b981; color: white;" onclick="exportarRotaDoDia()">📥 Baixar Rota</button>
+            </div>
+            <div class="lista-scroll" id="listaAgenda"></div>
+        </div>
+
+        <div id="conteudoClientes" class="conteudo-aba aba-escondida">
+            
+            <div class="acoes-base">
+                <div class="btn-bloco" id="btnAbreBusca" onclick="toggleBuscaBase()">🔍 Busca</div>
+                <div class="btn-bloco" id="btnAbreFiltro" onclick="toggleFiltroBase()">⚙️ Filtro</div>
                 <div class="btn-bloco" style="background-color: #8b5cf6; color: white; border: none;" onclick="reorganizarBaseGlobal()">🪄 IA Global</div>
             </div>
 
@@ -584,72 +1618,75 @@
             }
         };
 
-        // --- SISTEMA DE OTIMIZAÇÃO GLOBAL (NOVO) ---
+        // --- SISTEMA DE BALANCEAMENTO GLOBAL REFEITO (RESET TOTAL) ---
         window.reorganizarBaseGlobal = async () => {
-            if(!confirm("⚠️ ATENÇÃO: Isso vai reescrever o Dia e a Semana de TODOS os clientes para agrupá-los por bairro. Deseja continuar?")) return;
+            if(!confirm("⚠️ ATENÇÃO: A IA vai REFAZER sua agenda inteira do zero! Ela vai distribuir todos os seus clientes equilibradamente pelas 4 semanas e 4 dias, mantendo quem é do mesmo bairro junto. Continuar?")) return;
 
-            document.getElementById('status').innerText = "Calculando clusters globais...";
+            document.getElementById('status').innerText = "Calculando nova rota global...";
             document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "Agrupando vizinhanças...";
+            document.getElementById('loading-text').innerText = "Balanceando a agenda...";
 
-            // 1. Agrupa todo mundo por Bairro
-            let bairros = {};
+            // 1. Agrupa os clientes por Bairro/Cidade
+            let agrupamento = {};
             bancoDeDadosClientes.forEach(c => {
-                let chave = c.cidade + "|" + (c.bairro || "Desconhecido").toLowerCase().trim();
-                if(!bairros[chave]) bairros[chave] = [];
-                bairros[chave].push(c);
+                let chave = (c.cidade + " - " + (c.bairro || "Centro")).toUpperCase().trim();
+                if(!agrupamento[chave]) agrupamento[chave] = [];
+                agrupamento[chave].push(c);
             });
+
+            // 2. Ordena os bairros do maior para o menor (para encaixar os grandes primeiro)
+            let listaBairros = Object.values(agrupamento).sort((a, b) => b.length - a.length);
+
+            // 3. Cria os 16 slots possíveis (Semana 1 a 4, Seg a Qui)
+            let slots = [];
+            let semanas = ["Semana 1", "Semana 2", "Semana 3", "Semana 4"];
+            let dias = ["Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira"];
+            
+            for(let s of semanas) {
+                for(let d of dias) {
+                    slots.push({ semana: s, diaSemana: d, totalClientes: 0, clientesAlocados: [] });
+                }
+            }
 
             let updates = [];
 
-            // 2. Acha o padrão de cada bairro
-            for(let chave in bairros) {
-                let vizinhos = bairros[chave];
-                let contagem = {};
-                vizinhos.forEach(v => {
-                    let k = `${v.semana}|${v.diaSemana}`;
-                    contagem[k] = (contagem[k] || 0) + 1;
-                });
+            // 4. Distribui os bairros nos dias mais vazios (Balanceamento de Carga)
+            listaBairros.forEach(grupoBairro => {
+                slots.sort((a, b) => a.totalClientes - b.totalClientes);
+                let melhorSlot = slots[0];
                 
-                let max = 0, melhor = "";
-                for(let r in contagem) {
-                    if(contagem[r] > max) { max = contagem[r]; melhor = r; }
-                }
-
-                if(melhor) {
-                    const [s, d] = melhor.split('|');
-                    // Vê quem tá fora do padrão nesse bairro
-                    vizinhos.forEach(v => {
-                        if(v.semana !== s || v.diaSemana !== d) {
-                            updates.push({ ...v, semana: s, diaSemana: d });
-                        }
-                    });
-                }
-            }
+                melhorSlot.totalClientes += grupoBairro.length;
+                
+                grupoBairro.forEach(c => {
+                    if(c.semana !== melhorSlot.semana || c.diaSemana !== melhorSlot.diaSemana) {
+                        updates.push({ ...c, semana: melhorSlot.semana, diaSemana: melhorSlot.diaSemana });
+                    }
+                });
+            });
 
             if(updates.length === 0) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                alert("Sua base já está 100% otimizada! Nenhum cliente estava fora do padrão do seu bairro.");
+                alert("Sua agenda já está perfeitamente distribuída e otimizada!");
                 return;
             }
 
-            // 3. Salva no Firebase e manda pro Google Drive na moral (com delay pra não travar)
+            // 5. Salva a nova distribuição em lote
             for(let i = 0; i < updates.length; i++) {
                 let c = updates[i];
-                document.getElementById('loading-text').innerText = `Salvando ${i+1}/${updates.length}...`;
+                document.getElementById('loading-text').innerText = `Reorganizando ${i+1}/${updates.length}...`;
                 try {
                     await db.collection("clientes").doc(c.idFirebase).update({ semana: c.semana, diaSemana: c.diaSemana });
                     if(scriptUrlVinculado) {
                         let pct = { ...c, acao: "editar" };
                         fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) });
                     }
-                    await new Promise(r => setTimeout(r, 600)); // Proteção pro Google não te bloquear
+                    await new Promise(r => setTimeout(r, 600)); 
                 } catch(e) {}
             }
 
             await puxarDadosLocaisFirebase();
             document.getElementById('loading-overlay').style.display = 'none';
-            alert(`Sucesso! ${updates.length} clientes foram reorganizados e agrupados.`);
+            alert(`SUCESSO! ${updates.length} clientes mudaram de dia. Sua agenda foi balanceada e os bairros estão agrupados.`);
         };
 
         window.salvarDuploNovo = async () => { 
@@ -746,29 +1783,6 @@
             map.setView([lat, lng], 16); 
             let alvo = marcadoresAtivosMap.find(m => m.codigo.toString().trim() === codigo.toString().trim()); 
             if (alvo) alvo.marker.openPopup();
-        };
-
-        window.sugerirRotaInteligente = (prefixo) => {
-            const bairroInput = document.getElementById(prefixo + 'Bairro').value.trim().toLowerCase();
-            const cidadeInput = document.getElementById(prefixo + 'Cidade').value;
-            if(!bairroInput) return alert("Digite o Bairro primeiro para mapear a região.");
-            document.getElementById('status').innerText = "Analisando vizinhança...";
-            
-            let vizinhos = bancoDeDadosClientes.filter(c => c.cidade === cidadeInput && c.bairro.toLowerCase().includes(bairroInput));
-            if(vizinhos.length === 0) return document.getElementById('status').innerText = "Região nova mapeada.";
-            
-            let contagem = {};
-            vizinhos.forEach(v => { let k = `${v.semana}|${v.diaSemana}`; contagem[k] = (contagem[k] || 0) + 1; });
-            
-            let max = 0, melhor = "";
-            for(let r in contagem) { if(contagem[r] > max) { max = contagem[r]; melhor = r; } }
-            
-            if(melhor) {
-                const [s, d] = melhor.split('|');
-                document.getElementById(prefixo + 'Semana').value = s; 
-                document.getElementById(prefixo + 'Dia').value = d;
-                document.getElementById('status').innerText = `Sugestão: ${max} vizinhos neste trajeto.`;
-            }
         };
 
         async function filtrarERenderizar() {
@@ -917,9 +1931,6 @@
             document.getElementById('status').innerText = "Base carregada e pronta.";
         }
 
-        // ----------------------------------------------------
-        // NOVO SISTEMA DA ABA "BASE" COM BUSCA, FILTROS E IA GLOBAL
-        // ----------------------------------------------------
         window.toggleBuscaBase = () => {
             const b = document.getElementById('barraBuscaAvancada');
             const f = document.getElementById('painelFiltrosBase');
