@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Motor de Rotas - Precisão Total</title>
+    <title>Motor de Rotas - Navegação Precisa</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
@@ -139,6 +139,7 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // ⚠️ COLOQUE A SUA URL DO GOOGLE APPS SCRIPT AQUI DENTRO:
         const URL_API_DRIVE = "https://script.google.com/macros/s/AKfycbxBa4uGgSfeRFTZVdourZNzsCyygRNgKNJMzNOZsDdrG9OqSNwkFuk7CA8soKqv91I8/exec";
 
         const map = L.map('map').setView([-26.9166, -49.0661], 12);
@@ -179,7 +180,7 @@
                             resolve(loc);
                         },
                         err => {
-                            document.getElementById('status').innerText = "⚠️ Sem permissão de GPS/HTTPS";
+                            document.getElementById('status').innerText = "⚠️ Sem permissão de GPS";
                             resolve(null);
                         },
                         { enableHighAccuracy: true, timeout: 5000 }
@@ -198,18 +199,30 @@
             } catch (err) { document.getElementById('status').innerText = "Erro ao baixar planilha."; }
         }
 
-        // CORREÇÃO CRÍTICA: Busca o endereço exato com o NÚMERO sem cortar a string
+        // MOTOR DE BUSCA DUPLA (FIM DAS CURVAS MALUCAS E LAÇOS)
         async function descobrirCoordenadaReal(endereco, city) {
             let enderecoLimpo = endereco.replace(/"/g, '').trim(); 
-            let busca = encodeURIComponent(`${enderecoLimpo}, ${city}, SC, Brasil`);
-            let url = `https://nominatim.openstreetmap.org/search?format=json&q=${busca}&limit=1&email=contato@rotasapp.com`;
+            
+            // TENTATIVA 1: Busca o endereço exato com o NÚMERO
+            let buscaCompleta = encodeURIComponent(`${enderecoLimpo}, ${city}, SC, Brasil`);
+            let url1 = `https://nominatim.openstreetmap.org/search?format=json&q=${buscaCompleta}&limit=1&email=contato@rotasapp.com`;
             try {
-                const r = await fetch(url);
-                const d = await r.json();
-                if (d && d.length > 0) return [parseFloat(d[0].lat), parseFloat(d[0].lon)];
+                const r1 = await fetch(url1);
+                const d1 = await r1.json();
+                if (d1 && d1.length > 0) return [parseFloat(d1[0].lat), parseFloat(d1[0].lon)];
+            } catch(e){}
+
+            // TENTATIVA 2: Se o número falhar ou cair num telhado isolado, busca APENAS O NOME DA RUA para cravar no asfalto
+            let ruaSemNumero = enderecoLimpo.split(',')[0].trim();
+            let buscaRua = encodeURIComponent(`${ruaSemNumero}, ${city}, SC, Brasil`);
+            let url2 = `https://nominatim.openstreetmap.org/search?format=json&q=${buscaRua}&limit=1&email=contato@rotasapp.com`;
+            try {
+                const r2 = await fetch(url2);
+                const d2 = await r2.json();
+                if (d2 && d2.length > 0) return [parseFloat(d2[0].lat), parseFloat(d2[0].lon)];
             } catch(e){}
             
-            // Fallback inteligente por cidade caso o número seja inválido
+            // Fallback de segurança da cidade
             const defs = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112], "Indaial": [-26.8978, -49.2400], "Pomerode": [-26.7410, -49.1762], "Gaspar": [-26.9325, -48.9560], "Botuverá": [-27.1997, -49.0750] };
             return defs[city] || [-26.9166, -49.0661];
         }
@@ -242,14 +255,14 @@
                 usandoGPSLocal = true;
             }
 
-            txtLoading.innerText = "Localizando endereços exatos...";
+            txtLoading.innerText = "Mapeando ruas cravadas no asfalto...";
             for (let i = 0; i < clientesDoDia.length; i++) {
                 let [lat, lng] = await descobrirCoordenadaReal(clientesDoDia[i].endereco, clientesDoDia[i].cidade);
                 coordsOriginais.push([lat, lng]);
                 await new Promise(r => setTimeout(r, 1200)); 
             }
 
-            txtLoading.innerText = "IA Calculando a Ordem Perfeita...";
+            txtLoading.innerText = "IA Otimizando a Ordem das Paragens...";
             let rotaOrdenadaIndices = [];
 
             if (coordsOriginais.length > 1) {
@@ -272,7 +285,7 @@
                 } catch(e) { rotaOrdenadaIndices = coordsOriginais.map((_, i) => i); }
             } else { rotaOrdenadaIndices = [0]; }
 
-            txtLoading.innerText = "Desenhando a Rota Colorida...";
+            txtLoading.innerText = "Traçando a Rota Final...";
             let coordsCaminho = [];
             
             rotaOrdenadaIndices.forEach((idxOrigem, ordemAtual) => {
@@ -281,7 +294,7 @@
 
                 if (usandoGPSLocal && idxOrigem === 0) {
                     L.circleMarker(coord, { color: '#00ff66', fillColor: '#121212', fillOpacity: 1, radius: 8, weight: 3 })
-                     .bindPopup('<b>📍 Partida (O Meu Local Atual)</b>').addTo(grupoMarcadores);
+                     .bindPopup('<b>📍 Partida (O Meu Local)</b>').addTo(grupoMarcadores);
                 } else {
                     let clienteIndex = usandoGPSLocal ? idxOrigem - 1 : idxOrigem;
                     let c = clientesDoDia[clienteIndex];
@@ -305,6 +318,7 @@
                 }
             });
 
+            // PROTEÇÃO ANTI-LINHA-RETA (Delay maior entre chamadas de rota)
             if (coordsCaminho.length > 1) {
                 let limitesMapa = L.latLngBounds();
 
@@ -318,17 +332,20 @@
                     try {
                         const res = await fetch(urlOSRM);
                         const dados = await res.json();
-                        if (dados.routes && dados.routes.length > 0) {
+                        if (dados.code === 'Ok' && dados.routes && dados.routes.length > 0) {
                             const pontosRua = dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]);
                             let linhaReal = L.polyline(pontosRua, {color: corLinha, weight: 6, opacity: 0.85});
                             grupoRota.addLayer(linhaReal);
                             limitesMapa.extend(linhaReal.getBounds());
-                        }
+                        } else { throw new Error("OSRM Falhou"); }
                     } catch(e) {
-                        let linhaReta = L.polyline([pOriginal, pDestino], {color: corLinha, weight: 4, dashArray: '5, 10'});
+                        // Linha reta tracejada visual para indicar que não conseguiu pegar as ruas daquele trechinho específico
+                        let linhaReta = L.polyline([pOriginal, pDestino], {color: corLinha, weight: 4, dashArray: '8, 8', opacity: 0.6});
                         grupoRota.addLayer(linhaReta);
                         limitesMapa.extend(linhaReta.getBounds());
                     }
+                    // O Segredo para não bloquear o servidor de rotas (Esperar meio segundo)
+                    await new Promise(r => setTimeout(r, 600)); 
                 }
                 if (limitesMapa.isValid()) map.fitBounds(limitesMapa, {padding: [30, 30]});
             } else if (coordsCaminho.length === 1) {
@@ -338,6 +355,7 @@
             overlay.style.display = 'none';
         }
 
+        // FUNÇÕES DO BANCO DE DADOS (ABA 2 E 3)
         function renderizarListaGeralClientes() {
             const container = document.getElementById('listaClientesGeral');
             container.innerHTML = '';
