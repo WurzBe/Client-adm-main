@@ -22,18 +22,71 @@
             --borda: #334155; --sombra-card: rgba(0, 0, 0, 0.2);
         }
 
-        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: row; height: 100vh; background-color: var(--bg-principal); color: var(--texto-principal); overflow: hidden; position: relative; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: row; 
+            height: 100vh; 
+            background-color: var(--bg-principal); 
+            color: var(--texto-principal); 
+            overflow: hidden; 
+            position: relative; 
+        }
         
-        #sidebar { width: 420px; background: var(--bg-principal); border-right: 1px solid var(--borda); display: flex; flex-direction: column; z-index: 2000; box-shadow: 4px 0 20px rgba(0,0,0,0.4); order: 1; }
-        #map { flex: 1; height: 100%; background: #e5e3df; z-index: 1; order: 2; }
+        #sidebar { 
+            width: 420px; 
+            background: var(--bg-principal); 
+            border-right: 1px solid var(--borda); 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 2000; 
+            box-shadow: 4px 0 20px rgba(0,0,0,0.4); 
+            order: 1; 
+        }
+
+        #map { 
+            flex: 1; 
+            height: 100%; 
+            background: #e5e3df; 
+            z-index: 1; 
+            order: 2; 
+        }
         
-        #drawer-handle-container { display: none; width: 100%; padding: 12px 0 4px 0; background: var(--bg-card); cursor: grab; text-align: center; border-radius: 24px 24px 0 0; }
-        .drawer-handle { width: 50px; height: 5px; background: #475569; border-radius: 10px; margin: 0 auto; }
+        #drawer-handle-container { 
+            display: none; 
+            width: 100%; 
+            padding: 12px 0 4px 0; 
+            background: var(--bg-card); 
+            cursor: grab; 
+            text-align: center; 
+            border-radius: 24px 24px 0 0; 
+        }
+
+        .drawer-handle { 
+            width: 50px; 
+            height: 5px; 
+            background: #475569; 
+            border-radius: 10px; 
+            margin: 0 auto; 
+        }
 
         @media (max-width: 768px) and (orientation: portrait) {
             body { flex-direction: column; }
             #map { width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; order: unset; }
-            #sidebar { width: 100% !important; height: 45vh; position: absolute; bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); order: unset; }
+            #sidebar { 
+                width: 100% !important; 
+                height: 45vh; 
+                position: absolute; 
+                bottom: 0; 
+                left: 0; 
+                border-right: none; 
+                border-top: none; 
+                border-radius: 24px 24px 0 0; 
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.5); 
+                transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
+                order: unset; 
+            }
             #sidebar.dragging { transition: none; }
             #drawer-handle-container { display: block; }
             .header { padding-top: 5px; background: var(--bg-card); }
@@ -73,10 +126,10 @@
         .filtros select, .busca-container input { flex: 1; min-width: 120px; padding: 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; transition: 0.3s; }
         .filtros select:focus, .busca-container input:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
         
-        /* BLOCOS DE BUSCA E FILTRO DA ABA BASE */
-        .acoes-base { display: flex; gap: 10px; padding: 16px 20px 0 20px; background: var(--bg-principal); }
-        .btn-bloco { flex: 1; padding: 12px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--borda); color: var(--texto-principal); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+        .acoes-base { display: flex; gap: 8px; padding: 16px 20px 0 20px; background: var(--bg-principal); flex-wrap: wrap; }
+        .btn-bloco { flex: 1; min-width: 25%; padding: 10px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--borda); color: var(--texto-principal); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; text-align: center; }
         .btn-bloco:hover, .btn-bloco.ativo { background: var(--bg-input); border-color: var(--cor-primaria); color: var(--cor-primaria); }
+        
         .painel-avancado { padding: 16px 20px; background: var(--bg-principal); border-bottom: 1px solid var(--borda); display: none; flex-direction: column; gap: 10px; }
         .painel-avancado input, .painel-avancado select { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: 0.3s; }
         .painel-avancado input:focus, .painel-avancado select:focus { border-color: var(--cor-primaria); }
@@ -207,8 +260,9 @@
         <div id="conteudoClientes" class="conteudo-aba aba-escondida">
             
             <div class="acoes-base">
-                <div class="btn-bloco" id="btnAbreBusca" onclick="toggleBuscaBase()">🔍 Buscar</div>
-                <div class="btn-bloco" id="btnAbreFiltro" onclick="toggleFiltroBase()">⚙️ Filtrar</div>
+                <div class="btn-bloco" id="btnAbreBusca" onclick="toggleBuscaBase()">🔍 Busca</div>
+                <div class="btn-bloco" id="btnAbreFiltro" onclick="toggleFiltroBase()">⚙️ Filtro</div>
+                <div class="btn-bloco" style="background-color: #8b5cf6; color: white; border: none;" onclick="reorganizarBaseGlobal()">🪄 IA Global</div>
             </div>
 
             <div id="barraBuscaAvancada" class="painel-avancado">
@@ -306,7 +360,6 @@
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW', err)); 
         }
 
-        // MENU DO USUÁRIO
         window.toggleUserMenu = (e) => { 
             e.stopPropagation(); 
             document.getElementById('userDropdown').classList.toggle('active'); 
@@ -323,11 +376,11 @@
             document.getElementById('userDropdown').classList.remove('active'); 
             document.getElementById('modalSync').style.display = 'flex'; 
         };
+        
         window.fecharModalSync = () => { 
             document.getElementById('modalSync').style.display = 'none'; 
         };
 
-        // GAVETA MOBILE ARRASTÁVEL
         const sidebar = document.getElementById('sidebar');
         const handle = document.getElementById('drawer-handle-container');
         let startY = 0, startHeight = 0, isDragging = false;
@@ -358,7 +411,6 @@
             setTimeout(() => map.invalidateSize(), 300); 
         });
 
-        // BANCO DE DADOS
         const firebaseConfig = { 
             apiKey: "AIzaSyAh0OpiVBN_tAmziVvvZS8ONHjfvrKZnqU", 
             authDomain: "rota-comercial.firebaseapp.com", 
@@ -475,12 +527,13 @@
             document.getElementById(t[aba]).classList.remove('aba-escondida'); 
             document.getElementById('btnTab' + aba.charAt(0).toUpperCase() + aba.slice(1)).classList.add('ativo'); 
             
-            // Se for pra aba clientes, garante que os filtros mostram os botões padrão
             if(aba === 'clientes') {
                 document.getElementById('barraBuscaAvancada').style.display = 'none';
                 document.getElementById('painelFiltrosBase').style.display = 'none';
                 document.getElementById('btnAbreBusca').classList.remove('ativo');
                 document.getElementById('btnAbreFiltro').classList.remove('ativo');
+                atualizarFiltrosDinamicos();
+                aplicarFiltrosNaBase();
             }
         };
 
@@ -497,8 +550,8 @@
             
             document.getElementById('status').innerText = "Base carregada e pronta.";
             filtrarERenderizar();
-            atualizarFiltrosDinamicos(); // Puxa as contagens de cidade/bairro
-            aplicarFiltrosNaBase(); // Renderiza a lista de clientes
+            atualizarFiltrosDinamicos(); 
+            aplicarFiltrosNaBase(); 
         }
 
         window.vincularESincronizarPlanilha = async () => { 
@@ -529,6 +582,74 @@
             } catch(e) { 
                 document.getElementById('status').innerText = "Erro na sincronização"; 
             }
+        };
+
+        // --- SISTEMA DE OTIMIZAÇÃO GLOBAL (NOVO) ---
+        window.reorganizarBaseGlobal = async () => {
+            if(!confirm("⚠️ ATENÇÃO: Isso vai reescrever o Dia e a Semana de TODOS os clientes para agrupá-los por bairro. Deseja continuar?")) return;
+
+            document.getElementById('status').innerText = "Calculando clusters globais...";
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('loading-text').innerText = "Agrupando vizinhanças...";
+
+            // 1. Agrupa todo mundo por Bairro
+            let bairros = {};
+            bancoDeDadosClientes.forEach(c => {
+                let chave = c.cidade + "|" + (c.bairro || "Desconhecido").toLowerCase().trim();
+                if(!bairros[chave]) bairros[chave] = [];
+                bairros[chave].push(c);
+            });
+
+            let updates = [];
+
+            // 2. Acha o padrão de cada bairro
+            for(let chave in bairros) {
+                let vizinhos = bairros[chave];
+                let contagem = {};
+                vizinhos.forEach(v => {
+                    let k = `${v.semana}|${v.diaSemana}`;
+                    contagem[k] = (contagem[k] || 0) + 1;
+                });
+                
+                let max = 0, melhor = "";
+                for(let r in contagem) {
+                    if(contagem[r] > max) { max = contagem[r]; melhor = r; }
+                }
+
+                if(melhor) {
+                    const [s, d] = melhor.split('|');
+                    // Vê quem tá fora do padrão nesse bairro
+                    vizinhos.forEach(v => {
+                        if(v.semana !== s || v.diaSemana !== d) {
+                            updates.push({ ...v, semana: s, diaSemana: d });
+                        }
+                    });
+                }
+            }
+
+            if(updates.length === 0) {
+                document.getElementById('loading-overlay').style.display = 'none';
+                alert("Sua base já está 100% otimizada! Nenhum cliente estava fora do padrão do seu bairro.");
+                return;
+            }
+
+            // 3. Salva no Firebase e manda pro Google Drive na moral (com delay pra não travar)
+            for(let i = 0; i < updates.length; i++) {
+                let c = updates[i];
+                document.getElementById('loading-text').innerText = `Salvando ${i+1}/${updates.length}...`;
+                try {
+                    await db.collection("clientes").doc(c.idFirebase).update({ semana: c.semana, diaSemana: c.diaSemana });
+                    if(scriptUrlVinculado) {
+                        let pct = { ...c, acao: "editar" };
+                        fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) });
+                    }
+                    await new Promise(r => setTimeout(r, 600)); // Proteção pro Google não te bloquear
+                } catch(e) {}
+            }
+
+            await puxarDadosLocaisFirebase();
+            document.getElementById('loading-overlay').style.display = 'none';
+            alert(`Sucesso! ${updates.length} clientes foram reorganizados e agrupados.`);
         };
 
         window.salvarDuploNovo = async () => { 
@@ -797,9 +918,8 @@
         }
 
         // ----------------------------------------------------
-        // NOVO SISTEMA DA ABA "BASE" COM BUSCA E FILTROS DINÂMICOS
+        // NOVO SISTEMA DA ABA "BASE" COM BUSCA, FILTROS E IA GLOBAL
         // ----------------------------------------------------
-
         window.toggleBuscaBase = () => {
             const b = document.getElementById('barraBuscaAvancada');
             const f = document.getElementById('painelFiltrosBase');
@@ -836,20 +956,23 @@
             }
         };
 
-        // Conta quantos clientes tem em cada cidade, bairro, etc.
         function atualizarFiltrosDinamicos() {
             let contagens = { cidades: {}, bairros: {}, semanas: {}, dias: {} };
             
             bancoDeDadosClientes.forEach(c => {
-                contagens.cidades[c.cidade] = (contagens.cidades[c.cidade] || 0) + 1;
-                if(c.bairro) contagens.bairros[c.bairro] = (contagens.bairros[c.bairro] || 0) + 1;
-                contagens.semanas[c.semana] = (contagens.semanas[c.semana] || 0) + 1;
-                contagens.dias[c.diaSemana] = (contagens.dias[c.diaSemana] || 0) + 1;
+                let cidForm = c.cidade || "Sem Cidade";
+                let baiForm = c.bairro || "Sem Bairro";
+                let semForm = c.semana || "Sem Semana";
+                let diaForm = c.diaSemana || "Sem Dia";
+
+                contagens.cidades[cidForm] = (contagens.cidades[cidForm] || 0) + 1;
+                contagens.bairros[baiForm] = (contagens.bairros[baiForm] || 0) + 1;
+                contagens.semanas[semForm] = (contagens.semanas[semForm] || 0) + 1;
+                contagens.dias[diaForm] = (contagens.dias[diaForm] || 0) + 1;
             });
 
             const preencherSelect = (id, obj, padrao) => {
                 const sel = document.getElementById(id);
-                // Guarda o valor que o usuário já tinha selecionado pra não resetar
                 const valorAnterior = sel.value; 
                 
                 sel.innerHTML = `<option value="">${padrao}</option>`;
@@ -866,7 +989,6 @@
             preencherSelect('filtroBaseDia', contagens.dias, 'Todos os Dias');
         }
 
-        // Mistura a busca digitada com os selects escolhidos
         window.aplicarFiltrosNaBase = () => {
             const textoBusca = document.getElementById('campoBuscaAvancada').value.toLowerCase();
             const cid = document.getElementById('filtroBaseCidade').value;
@@ -877,7 +999,6 @@
             let clientesFiltrados = bancoDeDadosClientes.filter(c => {
                 let matchTexto = true;
                 if(textoBusca) {
-                    // Procura em todos os cantos do cliente ao mesmo tempo
                     const textoGeral = `${c.nome} ${c.codigo} ${c.endereco} ${c.bairro} ${c.cidade} ${c.complemento}`.toLowerCase();
                     matchTexto = textoGeral.includes(textoBusca);
                 }
@@ -890,7 +1011,6 @@
                 return matchTexto && matchCid && matchBai && matchSem && matchDia;
             });
 
-            // Ordenação Dupla
             clientesFiltrados.sort((a, b) => {
                 if (a.semana !== b.semana) return (a.semana || "").localeCompare(b.semana || "");
                 const pesosDias = { "Segunda-Feira": 1, "Terça-Feira": 2, "Quarta-Feira": 3, "Quinta-Feira": 4, "Sexta-Feira": 5, "Sábado": 6, "Domingo": 7 };
