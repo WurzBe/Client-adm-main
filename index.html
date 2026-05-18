@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Motor de Rotas - Sincronização Inteligente</title>
+    <title>Motor de Rotas - Pro Edition SaaS</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,7 +36,7 @@
         .aba-escondida { display: none !important; }
         
         .filtros, .busca-container { padding: 16px 20px; background: var(--bg-principal); display: flex; gap: 10px; border-bottom: 1px solid var(--borda); flex-wrap: wrap; }
-        .filtros select, .busca-container input { flex: 1; min-width: 120px; padding: 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; }
+        .filtros select, .busca-container input { flex: 1; min-width: 120px; padding: 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; transition: 0.3s; }
         .filtros select:focus, .busca-container input:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
         
         .lista-scroll { padding: 20px; overflow-y: auto; flex: 1; background: var(--bg-principal); padding-bottom: 30px; }
@@ -49,15 +49,16 @@
         .card-item p { margin: 4px 0; font-size: 12px; color: var(--texto-secundario); line-height: 1.5; }
         
         .btn-acao { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; background: var(--cor-primaria); color: #0f172a; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.2s ease; width: 100%; box-sizing: border-box; text-align: center; }
-        .btn-acao:hover { background: var(--cor-primaria-hover); }
+        .btn-acao:hover { background: var(--cor-primaria-hover); opacity: 0.9; }
         .btn-secundario { background: rgba(56, 189, 248, 0.1); color: var(--cor-primaria); border: 1px solid var(--cor-primaria); margin-top: 10px;}
         .btn-secundario:hover { background: var(--cor-primaria); color: #0f172a; }
         
         .form-exclusivo { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; background: var(--bg-principal); }
         #painelEdicao { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-principal); z-index: 2000; display: flex; flex-direction: column; }
         .form-exclusivo label { font-size: 11px; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: -6px; font-weight: 700; }
-        .form-exclusivo input, .form-exclusivo select { padding: 12px; background: var(--bg-input); border: 1px solid transparent; border-radius: 8px; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; }
-        
+        .form-exclusivo input, .form-exclusivo select { padding: 12px; background: var(--bg-input); border: 1px solid transparent; border-radius: 8px; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: 0.3s; }
+        .form-exclusivo input:focus, .form-exclusivo select:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+
         #loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; text-align: center; backdrop-filter: blur(4px); }
         .spinner { border: 4px solid var(--borda); border-top: 4px solid var(--cor-primaria); border-radius: 50%; width: 36px; height: 36px; animation: spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite; margin-bottom: 16px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -103,7 +104,7 @@
         </div>
 
         <div id="aviso-pos-login" style="display: none;">
-            <span>🔄 <b>Planilha Conectada:</b> Qualquer alteração feita aqui atualizará seu Drive automaticamente!</span>
+            <span>🔄 <b>Planilha Conectada:</b> O App atualizará seu Drive automaticamente!</span>
             <button onclick="document.getElementById('aviso-pos-login').style.display='none'">✕</button>
         </div>
 
@@ -148,6 +149,9 @@
                     <label>Complemento</label><input type="text" id="editComplemento">
                     <label>Bairro</label><input type="text" id="editBairro">
                     <label>Cidade</label><select id="editCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
+                    
+                    <button type="button" class="btn-acao" style="background-color: #8b5cf6; color: white; margin: 4px 0;" onclick="sugerirRotaInteligente('edit')">🪄 Auto-Completar Rota Ideal</button>
+
                     <label>Semana</label><select id="editSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
                     <label>Dia da Rota</label><select id="editDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
                     <button class="btn-acao" onclick="salvarDuploEdicao()">Salvar em Ambos</button>
@@ -166,6 +170,9 @@
                 <label>Complemento</label><input type="text" id="addComplemento">
                 <label>Bairro</label><input type="text" id="addBairro">
                 <label>Cidade</label><select id="addCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
+                
+                <button type="button" class="btn-acao" style="background-color: #8b5cf6; color: white; margin: 4px 0;" onclick="sugerirRotaInteligente('add')">🪄 Auto-Completar Rota Ideal</button>
+
                 <label>Semana</label><select id="addSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
                 <label>Dia da Rota</label><select id="addDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
                 <button class="btn-acao" onclick="salvarDuploNovo()">Cadastrar e Sincronizar</button>
@@ -216,6 +223,87 @@
 
         const paletaCores = ['#38bdf8', '#8b5cf6', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#ec4899'];
 
+        // RECURSO 1: DATA AUTOMÁTICA NA INICIALIZAÇÃO
+        function definirDataAtualAutomatica() {
+            const dataHoje = new Date();
+            
+            const diaIndex = dataHoje.getDay();
+            const mapaDias = { 1: "Segunda-Feira", 2: "Terça-Feira", 3: "Quarta-Feira", 4: "Quinta-Feira" };
+            // Finais de semana puxam para Segunda por padrão
+            const diaCalculado = mapaDias[diaIndex] || "Segunda-Feira";
+            document.getElementById('filtroDia').value = diaCalculado;
+
+            const diaDoMes = dataHoje.getDate();
+            let semanaCalculada = "Semana 1";
+            if (diaDoMes > 7 && diaDoMes <= 14) semanaCalculada = "Semana 2";
+            else if (diaDoMes > 14 && diaDoMes <= 21) semanaCalculada = "Semana 3";
+            else if (diaDoMes > 21) semanaCalculada = "Semana 4";
+            
+            document.getElementById('filtroSemana').value = semanaCalculada;
+        }
+
+        // RECURSO 2: INTELIGÊNCIA GEOGRÁFICA DE VIZINHANÇA PARA AUTO-PREENCHIMENTO
+        window.sugerirRotaInteligente = (prefixo) => {
+            const bairroInput = document.getElementById(prefixo + 'Bairro').value.trim().toLowerCase();
+            const cidadeInput = document.getElementById(prefixo + 'Cidade').value;
+            
+            if(!bairroInput) {
+                alert("Por favor, digite o Bairro primeiro para a inteligência mapear a região.");
+                return;
+            }
+
+            document.getElementById('status').innerText = "Analisando vizinhança...";
+            
+            // Filtra os clientes que já existem no mesmo bairro e cidade
+            let vizinhos = bancoDeDadosClientes.filter(c => 
+                c.cidade === cidadeInput && 
+                c.bairro.toLowerCase().includes(bairroInput)
+            );
+            
+            if(vizinhos.length === 0) {
+                alert("Nenhum cliente cadastrado neste bairro ainda. Escolha o dia e semana manualmente para ser o pioneiro na região.");
+                document.getElementById('status').innerText = "Região nova mapeada.";
+                return;
+            }
+
+            // Conta os votos para ver qual o dia mais frequentado na região
+            let contagemRotas = {};
+            vizinhos.forEach(v => {
+                let chave = `${v.semana}|${v.diaSemana}`;
+                contagemRotas[chave] = (contagemRotas[chave] || 0) + 1;
+            });
+
+            let melhorRota = "";
+            let maxVotos = 0;
+            for(let r in contagemRotas) {
+                if(contagemRotas[r] > maxVotos) {
+                    maxVotos = contagemRotas[r];
+                    melhorRota = r;
+                }
+            }
+
+            if(melhorRota) {
+                const [semanaSugerida, diaSugerido] = melhorRota.split('|');
+                
+                const selectSemana = document.getElementById(prefixo + 'Semana');
+                const selectDia = document.getElementById(prefixo + 'Dia');
+                
+                selectSemana.value = semanaSugerida;
+                selectDia.value = diaSugerido;
+                
+                // Pisca a borda de verde para mostrar que foi automático
+                selectSemana.style.boxShadow = "0 0 10px #10b981";
+                selectDia.style.boxShadow = "0 0 10px #10b981";
+                
+                setTimeout(() => {
+                    selectSemana.style.boxShadow = "none";
+                    selectDia.style.boxShadow = "none";
+                }, 1500);
+                
+                document.getElementById('status').innerText = `Sugestão: ${maxVotos} vizinhos neste trajeto.`;
+            }
+        };
+
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 usuarioAtual = user;
@@ -227,6 +315,8 @@
                     document.getElementById('urlScriptDrive').value = scriptUrlVinculado;
                     document.getElementById('aviso-pos-login').style.display = 'flex';
                 }
+                
+                definirDataAtualAutomatica();
                 puxarDadosLocaisFirebase();
             } else {
                 usuarioAtual = null;
@@ -279,7 +369,6 @@
                 await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url });
                 scriptUrlVinculado = url;
 
-                // CORREÇÃO DOS DUPLICADOS: Limpa os registros do Firebase de forma síncrona real
                 const snapshotAntigo = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
                 if (!snapshotAntigo.empty) {
                     const batch = db.batch();
@@ -434,32 +523,30 @@
             for (let c of clientesDoDia) {
                 let coord = await descobrirCoordenadaReal(c.endereco, c.cidade);
                 coordsOriginais.push(coord);
-                await new Promise(r => setTimeout(r, 1300)); // Delay estendido de 1.3s para estabilizar conexões do servidor de mapas
+                await new Promise(r => setTimeout(r, 1300)); 
             }
 
             let rotaOrdenadaIndices = coordsOriginais.map((_, i) => i);
             let dadosTripGlobal = null;
 
-            // MOTOR INTEGRADO OSRM TRIP: Otimiza e desenha o trajeto pelas ruas de uma vez só
             if (coordsOriginais.length > 1) {
                 try {
                     document.getElementById('loading-text').innerText = "Traçando inteligência das ruas...";
                     let stringOSRM = coordsOriginais.map(c => `${c[1]},${c[0]}`).join(';');
                     
-                    // Pedimos geometries=geojson e overview=full para receber o mapa completo das ruas
                     const res = await fetch(`https://router.project-osrm.org/trip/v1/driving/${stringOSRM}?roundtrip=false&source=first&geometries=geojson&overview=full`);
                     const dadosTrip = await res.json();
                     
                     if (dadosTrip.waypoints && dadosTrip.trips && dadosTrip.trips.length > 0) {
                         document.getElementById('badgeOtimizado').style.display = 'inline-block';
-                        dadosTripGlobal = dadosTrip.trips[0]; // Guarda o desenho perfeito das ruas
+                        dadosTripGlobal = dadosTrip.trips[0];
                         
                         rotaOrdenadaIndices = dadosTrip.waypoints
                             .map((wp, idx) => ({ o: idx, idxOpt: wp.waypoint_index }))
                             .sort((a,b) => a.idxOpt - b.idxOpt)
                             .map(wp => wp.o);
                     }
-                } catch(e){ console.error("Falha no OSRM Trip, usando rota linear reserva", e); }
+                } catch(e){ console.error(e); }
             }
 
             rotaOrdenadaIndices.forEach((idxOrigem, ordemAtual) => {
@@ -501,14 +588,12 @@
                 }
             });
 
-            // REDESENHO TRAVADO NAS RUAS: Se o motor Trip retornou o trajeto completo, desenha ele direto sem picotar
             if (dadosTripGlobal && dadosTripGlobal.geometry && dadosTripGlobal.geometry.coordinates) {
                 const pontosReaisDasRuas = dadosTripGlobal.geometry.coordinates.map(p => [p[1], p[0]]);
                 let linhaPerfeita = L.polyline(pontosReaisDasRuas, {color: '#38bdf8', weight: 6, opacity: 0.85});
                 grupoRota.addLayer(linhaPerfeita);
                 map.fitBounds(linhaPerfeita.getBounds(), {padding:[40,40]});
             } else if (coordsOriginais.length > 1) {
-                // Linha reserva em degradê caso o servidor global falhe
                 let limitesReserva = L.latLngBounds();
                 for (let i = 0; i < coordsOriginais.length - 1; i++) {
                     let linhaReta = L.polyline([coordsOriginais[i], coordsOriginais[i+1]], {color: paletaCores[i % paletaCores.length], weight: 4, dashArray: '6, 6', opacity: 0.7});
