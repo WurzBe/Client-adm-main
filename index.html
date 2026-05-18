@@ -529,7 +529,7 @@
             }
         };
 
-        // --- SISTEMA GPS CORRIGIDO COM MEMÓRIA (CACHE LOCAL) ---
+        // --- MOTOR GPS PRECISO COM MEMÓRIA ---
         async function descobrirCoordenadaReal(endereco, city) {
             let chaveCache = (endereco + city).trim();
             let cachePersistente = JSON.parse(localStorage.getItem('rotaCoordsCache') || '{}');
@@ -557,121 +557,115 @@
                 } catch(e) {}
             }
 
-            const d = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112] }; 
+            const d = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112], "Indaial": [-26.8978, -49.2400], "Pomerode": [-26.7410, -49.1762], "Gaspar": [-26.9325, -48.9560], "Botuverá": [-27.1997, -49.0750] }; 
             return d[city] || [-26.9166, -49.0661];
         }
 
+        // --- NOVO MOTOR DA IA GLOBAL (TRAVA CIDADES EM DIAS EXCLUSIVOS) ---
         window.reorganizarBaseGlobal = async () => {
-            if(!confirm("⚠️ ATENÇÃO: A IA vai REFAZER sua agenda inteira do zero! Ela vai distribuir todos os clientes equilibradamente. Continuar?")) return;
+            if(!confirm("⚠️ ATENÇÃO: A IA vai REFAZER sua agenda inteira do zero! Ela vai separar e isolar as cidades por dia para que você nunca faça viagens cruzadas ou misturadas. Continuar?")) return;
 
-            document.getElementById('status').innerText = "Calculando nova rota global...";
+            document.getElementById('status').innerText = "Isolando cidades por dia...";
             document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "Balanceando a agenda...";
+            document.getElementById('loading-text').innerText = "Analisando bairros...";
 
-            let agrupamento = {};
-            bancoDeDadosClientes.forEach(c => {
-                let chave = (c.cidade + " - " + (c.bairro || "Centro")).toUpperCase().trim();
-                if(!agrupamento[chave]) agrupamento[chave] = [];
-                agrupamento[chave].push(c);
-            });
-
-            let listaBairros = Object.values(agrupamento).sort((a, b) => b.length - a.length);
+            // 1. Cria os 16 dias/slots disponíveis (4 semanas x 4 dias)
             let slots = [];
             let semanas = ["Semana 1", "Semana 2", "Semana 3", "Semana 4"];
             let dias = ["Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira"];
             
             for(let s of semanas) {
                 for(let d of dias) {
-                    slots.push({ semana: s, diaSemana: d, totalClientes: 0, clientesAlocados: [] });
+                    slots.push({ semana: s, diaSemana: d, totalClientes: 0, cidadeAlocada: null });
                 }
             }
 
+            // 2. Separa a base: Primeiro por Cidade, depois por Bairro
+            let cidadesMapeadas = {};
+            bancoDeDadosClientes.forEach(c => {
+                let cid = (c.cidade || "Blumenau").trim();
+                let bai = (c.bairro || "Centro").trim();
+                if(!cidadesMapeadas[cid]) cidadesMapeadas[cid] = {};
+                if(!cidadesMapeadas[cid][bai]) cidadesMapeadas[cid][bai] = [];
+                cidadesMapeadas[cid][bai].push(c);
+            });
+
             let updates = [];
 
-            listaBairros.forEach(grupoBairro => {
-                slots.sort((a, b) => a.totalClientes - b.totalClientes);
-                let melhorSlot = slots[0];
-                
-                melhorSlot.totalClientes += grupoBairro.length;
-                
-                grupoBairro.forEach(c => {
-                    if(c.semana !== melhorSlot.semana || c.diaSemana !== melhorSlot.diaSemana) {
-                        updates.push({ ...c, semana: melhorSlot.semana, diaSemana: melhorSlot.diaSemana });
+            // 3. Distribui os blocos de bairros blindando as cidades
+            Object.keys(cidadesMapeadas).forEach(cid => {
+                Object.keys(cidadesMapeadas[cid]).forEach(bai => {
+                    let grupoBairro = cidadesMapeadas[cid][bai];
+                    
+                    // A MÁGICA: Filtra os dias que já são dessa cidade ou dias que estão completamente livres (vazios)
+                    let slotsValidos = slots.filter(s => s.cidadeAlocada === cid || s.cidadeAlocada === null);
+                    
+                    // Fallback de segurança (se encher tudo, abre os outros)
+                    if(slotsValidos.length === 0) slotsValidos = slots;
+                    
+                    // Ordena para pegar o dia mais vazio desse grupo válido (Balanceamento interno)
+                    slotsValidos.sort((a, b) => a.totalClientes - b.totalClientes);
+                    let melhorSlot = slotsValidos[0];
+                    
+                    // Trava o dia para essa cidade
+                    if(melhorSlot.cidadeAlocada === null) {
+                        melhorSlot.cidadeAlocada = cid;
                     }
+                    
+                    melhorSlot.totalClientes += grupoBairro.length;
+                    
+                    grupoBairro.forEach(c => {
+                        if(c.semana !== melhorSlot.semana || c.diaSemana !== melhorSlot.diaSemana) {
+                            updates.push({ ...c, semana: melhorSlot.semana, diaSemana: melhorSlot.diaSemana });
+                        }
+                    });
                 });
             });
 
             if(updates.length === 0) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                alert("Sua agenda já está perfeitamente distribuída e otimizada!");
+                alert("Sua agenda já está perfeitamente agrupada por cidades!");
                 return;
             }
 
+            // 4. Grava em lote na nuvem e no Drive com segurança
             for(let i = 0; i < updates.length; i++) {
                 let c = updates[i];
-                document.getElementById('loading-text').innerText = `Reorganizando ${i+1}/${updates.length}...`;
+                document.getElementById('loading-text').innerText = `Salvando na Planilha ${i+1}/${updates.length}...`;
                 try {
                     await db.collection("clientes").doc(c.idFirebase).update({ semana: c.semana, diaSemana: c.diaSemana });
                     if(scriptUrlVinculado) {
                         let pct = { ...c, acao: "editar" };
                         fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) });
                     }
-                    await new Promise(r => setTimeout(r, 600)); 
+                    await new Promise(r => setTimeout(r, 650)); 
                 } catch(e) {}
             }
 
             await puxarDadosLocaisFirebase();
             document.getElementById('loading-overlay').style.display = 'none';
-            alert(`SUCESSO! ${updates.length} clientes mudaram de dia.`);
+            alert(`Sucesso operacional! ${updates.length} clientes foram reorganizados. Agora as cidades estão separadas de forma inteligente por dia de rota.`);
         };
 
         window.salvarDuploNovo = async () => { 
-            const pct = { 
-                userId: usuarioAtual.uid, 
-                codigo: document.getElementById('addCodigo').value.trim(), 
-                nome: document.getElementById('addNome').value.trim(), 
-                endereco: document.getElementById('addEndereco').value.trim(), 
-                complemento: document.getElementById('addComplemento').value.trim(), 
-                bairro: document.getElementById('addBairro').value.trim(), 
-                cidade: document.getElementById('addCidade').value, 
-                semana: document.getElementById('addSemana').value, 
-                diaSemana: document.getElementById('addDia').value 
-            };
+            const pct = { userId: usuarioAtual.uid, codigo: document.getElementById('addCodigo').value.trim(), nome: document.getElementById('addNome').value.trim(), endereco: document.getElementById('addEndereco').value.trim(), complemento: document.getElementById('addComplemento').value.trim(), bairro: document.getElementById('addBairro').value.trim(), cidade: document.getElementById('addCidade').value, semana: document.getElementById('addSemana').value, diaSemana: document.getElementById('addDia').value };
             if(!pct.codigo || !pct.nome) return alert("Preencha o Código e a Razão Social.");
-            
             document.getElementById('status').innerText = "Salvando...";
             try {
                 await db.collection("clientes").add(pct);
-                if(scriptUrlVinculado) { 
-                    pct.acao = "salvar"; 
-                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); 
-                }
-                window.mudarAba('agenda'); 
-                puxarDadosLocaisFirebase();
+                if(scriptUrlVinculado) { pct.acao = "salvar"; fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); }
+                window.mudarAba('agenda'); puxarDadosLocaisFirebase();
             } catch(e) { alert("Erro ao salvar."); }
         };
 
         window.salvarDuploEdicao = async () => { 
             if(!clienteSelecionadoAtualmente) return;
-            const pct = { 
-                codigo: document.getElementById('editCodigo').value, 
-                nome: document.getElementById('editNome').value.trim(), 
-                endereco: document.getElementById('editEndereco').value.trim(), 
-                complemento: document.getElementById('editComplemento').value.trim(), 
-                bairro: document.getElementById('editBairro').value.trim(), 
-                cidade: document.getElementById('editCidade').value, 
-                semana: document.getElementById('editSemana').value, 
-                diaSemana: document.getElementById('editDia').value 
-            };
+            const pct = { codigo: document.getElementById('editCodigo').value, nome: document.getElementById('editNome').value.trim(), endereco: document.getElementById('editEndereco').value.trim(), complemento: document.getElementById('editComplemento').value.trim(), bairro: document.getElementById('editBairro').value.trim(), cidade: document.getElementById('editCidade').value, semana: document.getElementById('editSemana').value, diaSemana: document.getElementById('editDia').value };
             document.getElementById('status').innerText = "Espelhando edições...";
             try {
                 await db.collection("clientes").doc(clienteSelecionadoAtualmente.idFirebase).update(pct);
-                if(scriptUrlVinculado) { 
-                    pct.acao = "editar"; 
-                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); 
-                }
-                window.fecharPainelEdicao(); 
-                puxarDadosLocaisFirebase();
+                if(scriptUrlVinculado) { pct.acao = "editar"; fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); }
+                window.fecharPainelEdicao(); puxarDadosLocaisFirebase();
             } catch(e) { alert("Erro ao editar."); }
         };
 
@@ -679,11 +673,8 @@
             if(!clienteSelecionadoAtualmente || !confirm("Deletar permanentemente?")) return;
             try {
                 await db.collection("clientes").doc(clienteSelecionadoAtualmente.idFirebase).delete();
-                if(scriptUrlVinculado) { 
-                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ codigo: clienteSelecionadoAtualmente.codigo, acao: "excluir" }) }); 
-                }
-                window.fecharPainelEdicao(); 
-                puxarDadosLocaisFirebase();
+                if(scriptUrlVinculado) { fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ codigo: clienteSelecionadoAtualmente.codigo, acao: "excluir" }) }); }
+                window.fecharPainelEdicao(); puxarDadosLocaisFirebase();
             } catch(e) { alert("Erro ao deletar."); }
         };
 
@@ -691,62 +682,22 @@
             if(relatorioAtual.length === 0) return alert("Nenhuma rota carregada.");
             let csv = "\uFEFFOrdem,Codigo,Nome,Endereco,Bairro,Cidade\n";
             relatorioAtual.forEach((c, i) => csv += `${i+1},${c.codigo},"${c.nome}","${c.endereco}","${c.bairro}","${c.cidade}"\n`);
-            const a = document.createElement("a"); 
-            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); 
-            a.setAttribute("download", `Rota_${document.getElementById('filtroDia').value}.csv`); 
-            a.click();
+            const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); a.setAttribute("download", `Rota_${document.getElementById('filtroDia').value}.csv`); a.click();
         };
 
-        async function inicializarGPS() { 
-            return new Promise((r) => { 
-                if(!navigator.geolocation) r(null); 
-                else navigator.geolocation.getCurrentPosition(p => r([p.coords.latitude, p.coords.longitude]), e => r(null), {timeout:4000}); 
-            }); 
-        }
+        async function inicializarGPS() { return new Promise((r) => { if(!navigator.geolocation) r(null); else navigator.geolocation.getCurrentPosition(p => r([p.coords.latitude, p.coords.longitude]), e => r(null), {timeout:4000}); }); }
 
-        window.focarNoClienteDoMapa = (lat, lng, codigo) => {
-            map.setView([lat, lng], 16); 
-            let alvo = marcadoresAtivosMap.find(m => m.codigo.toString().trim() === codigo.toString().trim()); 
-            if (alvo) alvo.marker.openPopup();
-        };
-
-        window.sugerirRotaInteligente = (prefixo) => {
-            const bairroInput = document.getElementById(prefixo + 'Bairro').value.trim().toLowerCase();
-            const cidadeInput = document.getElementById(prefixo + 'Cidade').value;
-            if(!bairroInput) return alert("Digite o Bairro primeiro para mapear a região.");
-            document.getElementById('status').innerText = "Analisando vizinhança...";
-            
-            let vizinhos = bancoDeDadosClientes.filter(c => c.cidade === cidadeInput && c.bairro.toLowerCase().includes(bairroInput));
-            if(vizinhos.length === 0) return document.getElementById('status').innerText = "Região nova mapeada.";
-            
-            let contagem = {};
-            vizinhos.forEach(v => { let k = `${v.semana}|${v.diaSemana}`; contagem[k] = (contagem[k] || 0) + 1; });
-            
-            let max = 0, melhor = "";
-            for(let r in contagem) { if(contagem[r] > max) { max = contagem[r]; melhor = r; } }
-            
-            if(melhor) {
-                const [s, d] = melhor.split('|');
-                document.getElementById(prefixo + 'Semana').value = s; 
-                document.getElementById(prefixo + 'Dia').value = d;
-                document.getElementById('status').innerText = `Sugestão: ${max} vizinhos neste trajeto.`;
-            }
-        };
+        window.fautaVisita = (lat, lng, codigo) => window.focarNoClienteDoMapa(lat, lng, codigo);
 
         async function filtrarERenderizar(ehAtualizacaoRapida = false) {
             const clientesDoDia = bancoDeDadosClientes.filter(c => c.semana === document.getElementById('filtroSemana').value && c.diaSemana === document.getElementById('filtroDia').value);
 
-            grupoMarcadores.clearLayers(); 
-            grupoRota.clearLayers(); 
-            marcadoresAtivosMap = []; 
-            relatorioAtual = [];
-            
-            const container = document.getElementById('listaAgenda'); 
-            container.innerHTML = ''; 
+            grupoMarcadores.clearLayers(); grupoRota.clearLayers(); marcadoresAtivosMap = []; relatorioAtual = [];
+            document.getElementById('badgeOtimizado').style.display = 'none';
+            const container = document.getElementById('listaAgenda'); container.innerHTML = ''; 
 
             if (clientesDoDia.length === 0) {
-                container.innerHTML = '<p style="text-align:center; padding-top:30px; color:var(--texto-secundario); font-size:13px;">Nenhuma rota para hoje. 🎉</p>';
-                return;
+                container.innerHTML = '<p style="text-align:center; padding-top:30px; color:var(--texto-secundario); font-size:13px;">Nenhuma rota para hoje. 🎉</p>'; return;
             }
 
             if (!ehAtualizacaoRapida) {
@@ -754,18 +705,12 @@
                 document.getElementById('loading-text').innerText = "Carregando Rota...";
             }
             
-            let coordsOriginais = []; 
-            let usandoGPSLocal = false;
-            
-            if (minhaPosicaoGPS) { 
-                coordsOriginais.push(minhaPosicaoGPS); 
-                usandoGPSLocal = true; 
-            }
+            let coordsOriginais = []; let usandoGPSLocal = false;
+            if (minhaPosicaoGPS) { coordsOriginais.push(minhaPosicaoGPS); usandoGPSLocal = true; }
 
             for (let c of clientesDoDia) {
                 let coord = await descobrirCoordenadaReal(c.endereco, c.cidade);
-                coordsOriginais.push(coord);
-                c.coordSalvaCache = coord;
+                coordsOriginais.push(coord); c.coordSalvaCache = coord;
             }
 
             let rotaIndices = coordsOriginais.map((_, i) => i);
@@ -787,19 +732,16 @@
                 }
             }
 
-            let coordsCaminho = [];
-            let clientesOrganizadosNaTrilha = [];
+            let coordsCaminho = []; let clientesOrganizadosNaTrilha = [];
 
             rotaIndices.forEach((idxOrigem, ordemAtual) => {
-                let coord = coordsOriginais[idxOrigem];
-                coordsCaminho.push(coord);
+                let coord = coordsOriginais[idxOrigem]; coordsCaminho.push(coord);
 
                 if (usandoGPSLocal && idxOrigem === 0) {
                     L.circleMarker(coord, { color: '#38bdf8', fillColor: '#0f172a', fillOpacity: 1, radius: 8, weight: 3 }).bindPopup('<b style="color:#38bdf8;">📍 Sua Posição</b>').addTo(grupoMarcadores);
                 } else {
                     let c = clientesDoDia[usandoGPSLocal ? idxOrigem - 1 : idxOrigem];
-                    clientesOrganizadosNaTrilha.push(c);
-                    relatorioAtual.push(c);
+                    clientesOrganizadosNaTrilha.push(c); relatorioAtual.push(c);
                     
                     let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
                     let isVisitado = clientesVisitadosHoje.has(String(c.codigo));
@@ -808,11 +750,9 @@
                     let txtPino = isVisitado ? '✓' : (iReal + 1); 
 
                     let marker = L.marker(coord, { icon: criarIconeNumerado(corCard, txtPino) }).bindPopup(`<div><b style="color:${corCard};">Visita ${iReal + 1}: ${c.nome}</b><p style="margin:4px 0;font-size:11px;">📍 ${c.endereco}</p></div>`);
-                    grupoMarcadores.addLayer(marker); 
-                    marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
+                    grupoMarcadores.addLayer(marker); marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
                     
                     const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
-                    
                     let actBtn = isVisitado 
                         ? `<button class="btn-acao btn-desfazer" onclick="alternarVisita('${c.codigo}', event)">↩ Desfazer</button>`
                         : `<button class="btn-acao btn-visitado" onclick="alternarVisita('${c.codigo}', event)">✅ Visitado</button>`;
@@ -823,24 +763,16 @@
                             <p><b>Bairro:</b> ${c.bairro} | <b>Cidade:</b> ${c.cidade}</p>
                             <p><b>Endereço:</b> ${c.endereco}</p>
                             ${c.complemento ? `<p style="color:${corCard}; font-size:11px; font-weight:500; margin: 4px 0;">${c.complemento}</p>` : ''}
-                            
-                            <div class="botoes-acao-card">
-                                <a href="${urlMaps}" target="_blank" class="btn-acao btn-gps" onclick="event.stopPropagation();">🧭 Abrir GPS</a>
-                                ${actBtn}
-                            </div>
-                        </div>
-                    `;
+                            <div class="botoes-acao-card"><a href="${urlMaps}" target="_blank" class="btn-acao btn-gps" onclick="event.stopPropagation();">🧭 Abrir GPS</a>${actBtn}</div>
+                        </div>`;
                 }
             });
 
             if (coordsCaminho.length > 1) {
                 let limites = L.latLngBounds();
-                
                 for (let i = 0; i < coordsCaminho.length - 1; i++) {
-                    let pOrg = coordsCaminho[i]; 
-                    let pDest = coordsCaminho[i+1];
+                    let pOrg = coordsCaminho[i]; let pDest = coordsCaminho[i+1];
                     let clienteFinalDoTrecho = clientesOrganizadosNaTrilha[i];
-                    
                     let isDestinoVisitado = clientesVisitadosHoje.has(String(clienteFinalDoTrecho.codigo));
                     let corLinha = isDestinoVisitado ? '#475569' : paletaCores[i % paletaCores.length];
 
@@ -849,172 +781,86 @@
 
                     if(cacheKey[strCache]) {
                         let linhaColor = L.polyline(cacheKey[strCache], {color: corLinha, weight: 6, opacity: 0.85});
-                        grupoRota.addLayer(linhaColor); 
-                        limites.extend(linhaColor.getBounds());
+                        grupoRota.addLayer(linhaColor); limites.extend(linhaColor.getBounds());
                     } else {
                         try {
                             const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${pOrg[1]},${pOrg[0]};${pDest[1]},${pDest[0]}?overview=full&geometries=geojson`);
                             const dados = await res.json();
                             if (dados.code === 'Ok' && dados.routes.length > 0) {
                                 let pontos = dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]);
-                                cacheKey[strCache] = pontos;
-                                localStorage.setItem('rotaLinhasCache', JSON.stringify(cacheKey));
-                                
+                                cacheKey[strCache] = pontos; localStorage.setItem('rotaLinhasCache', JSON.stringify(cacheKey));
                                 let linhaColor = L.polyline(pontos, {color: corLinha, weight: 6, opacity: 0.85});
-                                grupoRota.addLayer(linhaColor); 
-                                limites.extend(linhaColor.getBounds());
+                                grupoRota.addLayer(linhaColor); limites.extend(linhaColor.getBounds());
                             } else throw new Error();
                         } catch(e) {
                             let linhaReta = L.polyline([pOrg, pDest], {color: corLinha, weight: 4, dashArray: '6, 6', opacity: 0.7});
-                            grupoRota.addLayer(linhaReta); 
-                            limites.extend(linhaReta.getBounds());
+                            grupoRota.addLayer(linhaReta); limites.extend(linhaReta.getBounds());
                         }
                         await new Promise(r => setTimeout(r, 400));
                     }
                 }
-                
-                if (limites.isValid() && !ehAtualizacaoRapida) {
-                    map.fitBounds(limites, {padding:[40,40]});
-                }
+                if (limites.isValid() && !ehAtualizacaoRapida) map.fitBounds(limites, {padding:[40,40]});
             }
-
             document.getElementById('loading-overlay').style.display = 'none';
-            document.getElementById('status').innerText = "Base carregada e pronta.";
         }
 
         window.toggleBuscaBase = () => {
-            const b = document.getElementById('barraBuscaAvancada');
-            const f = document.getElementById('painelFiltrosBase');
-            const btnB = document.getElementById('btnAbreBusca');
-            const btnF = document.getElementById('btnAbreFiltro');
-            
-            b.style.display = b.style.display === 'flex' ? 'none' : 'flex';
-            f.style.display = 'none'; 
-            
-            if(b.style.display === 'flex') {
-                btnB.classList.add('ativo');
-                btnF.classList.remove('ativo');
-                document.getElementById('campoBuscaAvancada').focus();
-            } else {
-                btnB.classList.remove('ativo');
-            }
+            const b = document.getElementById('barraBuscaAvancada'); const f = document.getElementById('painelFiltrosBase');
+            b.style.display = b.style.display === 'flex' ? 'none' : 'flex'; f.style.display = 'none'; 
+            if(b.style.display === 'flex') { document.getElementById('btnAbreBusca').classList.add('ativo'); document.getElementById('btnAbreFiltro').classList.remove('ativo'); document.getElementById('campoBuscaAvancada').focus(); } else { document.getElementById('btnAbreBusca').classList.remove('ativo'); }
         };
 
         window.toggleFiltroBase = () => {
-            const b = document.getElementById('barraBuscaAvancada');
-            const f = document.getElementById('painelFiltrosBase');
-            const btnB = document.getElementById('btnAbreBusca');
-            const btnF = document.getElementById('btnAbreFiltro');
-            
-            f.style.display = f.style.display === 'flex' ? 'none' : 'flex';
-            b.style.display = 'none'; 
-            
-            if(f.style.display === 'flex') {
-                btnF.classList.add('ativo');
-                btnB.classList.remove('ativo');
-                atualizarFiltrosDinamicos(); 
-            } else {
-                btnF.classList.remove('ativo');
-            }
+            const b = document.getElementById('barraBuscaAvancada'); const f = document.getElementById('painelFiltrosBase');
+            f.style.display = f.style.display === 'flex' ? 'none' : 'flex'; b.style.display = 'none'; 
+            if(f.style.display === 'flex') { document.getElementById('btnAbreFiltro').classList.add('ativo'); document.getElementById('btnAbreBusca').classList.remove('ativo'); atualizarFiltrosDinamicos(); } else { document.getElementById('btnAbreFiltro').classList.remove('ativo'); }
         };
 
         function atualizarFiltrosDinamicos() {
             let contagens = { cidades: {}, bairros: {}, semanas: {}, dias: {} };
-            
             bancoDeDadosClientes.forEach(c => {
-                let cidForm = c.cidade || "Sem Cidade";
-                let baiForm = c.bairro || "Sem Bairro";
-                let semForm = c.semana || "Sem Semana";
-                let diaForm = c.diaSemana || "Sem Dia";
-
-                contagens.cidades[cidForm] = (contagens.cidades[cidForm] || 0) + 1;
-                contagens.bairros[baiForm] = (contagens.bairros[baiForm] || 0) + 1;
-                contagens.semanas[semForm] = (contagens.semanas[semForm] || 0) + 1;
-                contagens.dias[diaForm] = (contagens.dias[diaForm] || 0) + 1;
+                contagens.cidades[c.cidade || "Sem Cidade"] = (contagens.cidades[c.cidade || "Sem Cidade"] || 0) + 1;
+                if(c.bairro) contagens.bairros[c.bairro] = (contagens.bairros[c.bairro] || 0) + 1;
+                contagens.semanas[c.semana || "Sem Semana"] = (contagens.semanas[c.semana || "Sem Semana"] || 0) + 1;
+                contagens.dias[c.diaSemana || "Sem Dia"] = (contagens.dias[c.diaSemana || "Sem Dia"] || 0) + 1;
             });
-
             const preencherSelect = (id, obj, padrao) => {
-                const sel = document.getElementById(id);
-                const valorAnterior = sel.value; 
-                
-                sel.innerHTML = `<option value="">${padrao}</option>`;
-                Object.keys(obj).sort().forEach(k => {
-                    sel.innerHTML += `<option value="${k}">${k} (${obj[k]})</option>`;
-                });
-                
-                if(obj[valorAnterior]) sel.value = valorAnterior;
+                const sel = document.getElementById(id); const ant = sel.value; sel.innerHTML = `<option value="">${padrao}</option>`;
+                Object.keys(obj).sort().forEach(k => { sel.innerHTML += `<option value="${k}">${k} (${obj[k]})</option>`; });
+                if(obj[ant]) sel.value = ant;
             };
-
-            preencherSelect('filtroBaseCidade', contagens.cidades, 'Todas as Cidades');
-            preencherSelect('filtroBaseBairro', contagens.bairros, 'Todos os Bairros');
-            preencherSelect('filtroBaseSemana', contagens.semanas, 'Todas as Semanas');
-            preencherSelect('filtroBaseDia', contagens.dias, 'Todos os Dias');
+            preencherSelect('filtroBaseCidade', contagens.cidades, 'Todas as Cidades'); preencherSelect('filtroBaseBairro', contagens.bairros, 'Todos os Bairros'); preencherSelect('filtroBaseSemana', contagens.semanas, 'Todas as Semanas'); preencherSelect('filtroBaseDia', contagens.dias, 'Todos os Dias');
         }
 
         window.aplicarFiltrosNaBase = () => {
-            const textoBusca = document.getElementById('campoBuscaAvancada').value.toLowerCase();
-            const cid = document.getElementById('filtroBaseCidade').value;
-            const bai = document.getElementById('filtroBaseBairro').value;
-            const sem = document.getElementById('filtroBaseSemana').value;
-            const dia = document.getElementById('filtroBaseDia').value;
+            const txt = document.getElementById('campoBuscaAvancada').value.toLowerCase();
+            const cid = document.getElementById('filtroBaseCidade').value; const bai = document.getElementById('filtroBaseBairro').value;
+            const sem = document.getElementById('filtroBaseSemana').value; const dia = document.getElementById('filtroBaseDia').value;
 
-            let clientesFiltrados = bancoDeDadosClientes.filter(c => {
-                let matchTexto = true;
-                if(textoBusca) {
-                    const textoGeral = `${c.nome} ${c.codigo} ${c.endereco} ${c.bairro} ${c.cidade} ${c.complemento}`.toLowerCase();
-                    matchTexto = textoGeral.includes(textoBusca);
-                }
-                
-                let matchCid = cid ? c.cidade === cid : true;
-                let matchBai = bai ? c.bairro === bai : true;
-                let matchSem = sem ? c.semana === sem : true;
-                let matchDia = dia ? c.diaSemana === dia : true;
-
-                return matchTexto && matchCid && matchBai && matchSem && matchDia;
+            let filtrados = bancoDeDadosClientes.filter(c => {
+                let mTxt = txt ? `${c.nome} ${c.codigo} ${c.endereco} ${c.bairro} ${c.cidade}`.toLowerCase().includes(txt) : true;
+                return mTxt && (cid ? c.cidade === cid : true) && (bai ? c.bairro === bai : true) && (sem ? c.semana === sem : true) && (dia ? c.diaSemana === dia : true);
             });
 
-            clientesFiltrados.sort((a, b) => {
+            filtrados.sort((a, b) => {
                 if (a.semana !== b.semana) return (a.semana || "").localeCompare(b.semana || "");
-                const pesosDias = { "Segunda-Feira": 1, "Terça-Feira": 2, "Quarta-Feira": 3, "Quinta-Feira": 4, "Sexta-Feira": 5, "Sábado": 6, "Domingo": 7 };
-                let diffDia = (pesosDias[a.diaSemana] || 99) - (pesosDias[b.diaSemana] || 99);
-                if (diffDia !== 0) return diffDia;
-                return (a.nome || "").localeCompare(b.nome || "");
+                return ({"Segunda-Feira":1, "Terça-Feira":2, "Quarta-Feira":3, "Quinta-Feira":4}[a.diaSemana] || 99) - ({"Segunda-Feira":1, "Terça-Feira":2, "Quarta-Feira":3, "Quinta-Feira":4}[b.diaSemana] || 99);
             });
 
-            const container = document.getElementById('listaClientesGeral');
-            container.innerHTML = '';
-            
-            if(clientesFiltrados.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:var(--texto-secundario); margin-top:20px;">Nenhum cliente encontrado nesses filtros.</p>';
-                return;
-            }
+            const container = document.getElementById('listaClientesGeral'); container.innerHTML = '';
+            if(filtrados.length === 0) return container.innerHTML = '<p style="text-align:center; color:var(--texto-secundario); margin-top:20px;">Nenhum cliente.</p>';
 
-            clientesFiltrados.forEach(c => {
-                container.innerHTML += `
-                <div class="card-item" style="border-left-color: var(--borda);" onclick="window.abrirPainelEdicao('${c.codigo}')">
-                    <h4>${c.nome}</h4>
-                    <p style="color:var(--cor-primaria); font-weight:600; margin-bottom: 4px;">${c.semana} - ${c.diaSemana}</p>
-                    <p><b>Cód:</b> ${c.codigo} | <b>Bairro:</b> ${c.bairro}</p>
-                    <p><b>Cidade:</b> ${c.cidade}</p>
-                </div>`;
+            filtrados.forEach(c => {
+                container.innerHTML += `<div class="card-item" style="border-left-color: var(--borda);" onclick="window.abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p style="color:var(--cor-primaria); font-weight:600; margin-bottom: 4px;">${c.semana} - ${c.diaSemana}</p><p><b>Cód:</b> ${c.codigo} | <b>Bairro:</b> ${c.bairro}</p></div>`;
             });
         };
 
         window.abrirPainelEdicao = (codigo) => { 
-            const c = bancoDeDadosClientes.find(item => item.codigo.toString() === codigo.toString()); 
-            if (!c) return; 
-            clienteSelecionadoAtualmente = c; 
-            ['Codigo', 'Nome', 'Endereco', 'Complemento', 'Bairro', 'Cidade', 'Semana', 'Dia'].forEach(k => {
-                document.getElementById(`edit${k}`).value = c[k.toLowerCase()] || c[k === 'Dia' ? 'diaSemana' : ''];
-            }); 
+            const c = bancoDeDadosClientes.find(item => item.codigo.toString() === codigo.toString()); if (!c) return; clienteSelecionadoAtualmente = c; 
+            ['Codigo', 'Nome', 'Endereco', 'Complemento', 'Bairro', 'Cidade', 'Semana', 'Dia'].forEach(k => document.getElementById(`edit${k}`).value = c[k.toLowerCase()] || c[k === 'Dia' ? 'diaSemana' : '']);
             document.getElementById('painelEdicao').classList.remove('aba-escondida'); 
         };
-
-        window.fecharPainelEdicao = () => { 
-            document.getElementById('painelEdicao').classList.add('aba-escondida'); 
-            clienteSelecionadoAtualmente = null; 
-        };
-        
+        window.fecharPainelEdicao = () => { document.getElementById('painelEdicao').classList.add('aba-escondida'); clienteSelecionadoAtualmente = null; };
     </script>
 </body>
 </html>
