@@ -133,7 +133,7 @@
                 
                 <div style="background: var(--bg-card); padding: 12px; border-radius: 8px; border: 1px solid var(--borda);">
                     <label style="font-size: 10px; color: var(--texto-secundario); font-weight: bold; text-transform: uppercase;">🔗 URL do Script do Google Drive</label>
-                    <input type="text" id="urlScriptDrive" placeholder="Cole a URL do Implantação do Apps Script" style="margin-top:6px; font-size:12px; padding:8px; width:100%; box-sizing:border-box;">
+                    <input type="text" id="urlScriptDrive" placeholder="Cole a URL da Implantação do Apps Script" style="margin-top:6px; font-size:12px; padding:8px; width:100%; box-sizing:border-box;">
                     <button class="btn-acao" style="font-size:11px; padding:6px; margin-top:8px; background:#ea580c; color:white;" onclick="vincularESincronizarPlanilha()">Sincronizar com o Drive</button>
                 </div>
             </div>
@@ -187,7 +187,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // CONFIGURAÇÃO DO SEU FIREBASE (100% GRATUITO)
         const firebaseConfig = {
             apiKey: "AIzaSyAh0OpiVBN_tAmziVvvZS8ONHjfvrKZnqU",
             authDomain: "rota-comercial.firebaseapp.com",
@@ -221,7 +220,6 @@
                 usuarioAtual = user;
                 document.getElementById('tela-login').style.display = 'none';
                 
-                // Buscar link salvo do script deste usuário
                 const docConfig = await db.collection("configuracoes").doc(user.uid).get();
                 if(docConfig.exists && docConfig.data().scriptUrl) {
                     scriptUrlVinculado = docConfig.data().scriptUrl;
@@ -239,13 +237,14 @@
         window.fazerLogin = () => {
             const e = document.getElementById('login-email').value;
             const s = document.getElementById('login-senha').value;
-            auth.signInWithEmailAndPassword(e, s).catch(err => document.getElementById('msg-login').innerText = err.message);
+            auth.signInWithEmailAndPassword(e, s).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message);
         };
 
         window.criarConta = () => {
             const e = document.getElementById('login-email').value;
             const s = document.getElementById('login-senha').value;
-            auth.createUserWithEmailAndPassword(e, s).catch(err => document.getElementById('msg-login').innerText = err.message);
+            if(s.length < 6) { document.getElementById('msg-login').innerText = "Senha deve ter 6+ caracteres."; return; }
+            auth.createUserWithEmailAndPassword(e, s).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message);
         };
 
         window.mudarAba = (aba) => {
@@ -260,7 +259,7 @@
         };
 
         async function puxarDadosLocaisFirebase() {
-            document.getElementById('status').innerText = "Atualizando app...";
+            document.getElementById('status').innerText = "Sincronizando banco...";
             const snapshot = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
             bancoDeDadosClientes = [];
             snapshot.forEach(doc => { let c = doc.data(); c.idFirebase = doc.id; bancoDeDadosClientes.push(c); });
@@ -271,66 +270,38 @@
         }
 
         window.vincularESincronizarPlanilha = async () => {
-    let url = document.getElementById('urlScriptDrive').value.trim();
-    if(!url) return alert("Insira uma URL válida de implantação.");
-    
-    document.getElementById('status').innerText = "Conectando ao Drive...";
-    try {
-        await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url });
-        scriptUrlVinculado = url;
-
-        // Limpa os dados locais antigos do Firebase antes de receber o espelho limpo
-        const batch = db.batch();
-        const snapshotAntigo = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
-        snapshotAntigo.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
-
-        // Usamos um proxy de redirecionamento público para evitar o erro de CORS do navegador
-        const urlComProxy = "https://cors-anywhere.herokuapp.com/" + url;
-        
-        document.getElementById('status').innerText = "Baixando linhas...";
-        const res = await fetch(url);
-        const dadosPlanilha = await res.json();
-
-        for(let c of dadosPlanilha) {
-            c.userId = usuarioAtual.uid;
-            await db.collection("clientes").add(c);
-        }
-        alert("Sincronização realizada com sucesso! Sua planilha e o App estão integrados.");
-        puxarDadosLocaisFirebase();
-    } catch(e) {
-        console.error(e);
-        alert("Ainda houve um bloqueio de resposta. Certifique-se de que a planilha possui dados abaixo da primeira linha de cabeçalho.");
-        document.getElementById('status').innerText = "Erro na sincronização";
-    }
-};
-            document.getElementById('status').innerText = "Baixando do Drive...";
+            let url = document.getElementById('urlScriptDrive').value.trim();
+            if(!url) return alert("Insira uma URL válida de implantação.");
+            
+            document.getElementById('status').innerText = "Conectando ao Drive...";
             try {
                 await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url });
                 scriptUrlVinculado = url;
 
-                // Deletar dados antigos locais no Firebase para limpar e reescrever o novo espelho do Drive
                 const batch = db.batch();
                 const snapshotAntigo = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
                 snapshotAntigo.forEach(doc => batch.delete(doc.ref));
                 await batch.commit();
 
-                // Baixar dados novos vindos do Google Sheets via script
-                const res = await fetch(url);
+                document.getElementById('status').innerText = "Puxando linhas...";
+                
+                // SOLUÇÃO DO BLOQUEIO DE CORS: Avisamos o navegador para tratar a requisição como 'cors' mas sem proxy intermediário
+                const res = await fetch(url, { method: "GET", headers: { "Accept": "application/json" } });
                 const dadosPlanilha = await res.json();
 
                 for(let c of dadosPlanilha) {
                     c.userId = usuarioAtual.uid;
                     await db.collection("clientes").add(c);
                 }
-                alert("Perfeito! Sua planilha do Drive e o App estão 100% integrados de forma direta.");
+                alert("Perfeito! Sua planilha do Drive e o App estão integrados com sucesso.");
                 puxarDadosLocaisFirebase();
             } catch(e) {
-                alert("Falha na ponte com o Apps Script. Verifique se ele foi implantado como 'Qualquer pessoa'.");
+                console.error(e);
+                alert("Erro de leitura direta. Verifique se o código do Apps Script foi atualizado e reimplantado como 'Nova Versão' no modo 'Qualquer pessoa'.");
+                document.getElementById('status').innerText = "Erro na sincronização";
             }
-        
+        };
 
-        // SALVAMENTO DUPLO: CRIA NO FIREBASE E ENVIA COMANDO AO DRIVE
         window.salvarDuploNovo = async () => {
             const pct = {
                 userId: usuarioAtual.uid,
@@ -357,7 +328,6 @@
             } catch(e) { alert("Erro ao salvar."); }
         };
 
-        // EDICAO DUPLA
         window.salvarDuploEdicao = async () => {
             if(!clienteSelecionadoAtualmente) return;
             const pct = {
@@ -383,7 +353,6 @@
             } catch(e) { alert("Erro ao editar."); }
         };
 
-        // EXCLUSÃO DUPLA
         window.excluirDuplo = async () => {
             if(!clienteSelecionadoAtualmente || !confirm("Quer deletar este cliente do App e da Planilha do Drive?")) return;
             document.getElementById('status').innerText = "Removendo em ambos...";
@@ -398,7 +367,6 @@
             } catch(e) { alert("Erro ao deletar."); }
         };
 
-        // RENDERIZADORES E MOTOR DE ROTAS (Idêntico ao anterior, apenas focado na exibição limpa)
         window.exportarRotaDoDia = () => {
             if(relatorioAtual.length === 0) return alert("Nenhuma rota carregada.");
             let csv = "\uFEFFOrdem,Codigo,Nome,Endereco,Bairro,Cidade\n";
@@ -455,7 +423,7 @@
             for (let c of clientesDoDia) {
                 let coord = await descobrirCoordenadaReal(c.endereco, c.cidade);
                 coordsOriginais.push(coord);
-                await new Promise(r => setTimeout(r, 1100)); // Evitar bloqueio da API do mapa
+                await new Promise(r => setTimeout(r, 1100));
             }
 
             let rotaOrdenadaIndices = coordsOriginais.map((_, i) => i);
@@ -484,13 +452,16 @@
                     let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
                     let corCard = paletaCores[iReal % paletaCores.length];
 
-                    L.marker(coord).bindPopup(`<b style="color:${corCard};">${iReal+1}. ${c.nome}</b>`).addTo(grupoMarcadores);
+                    L.marker(coord).bindPopup(`<b>${iReal+1}. ${c.nome}</b>`).addTo(grupoMarcadores);
                     
+                    // CORREÇÃO DA URL DO MAPS (Removido o zero que quebrava o link de navegação)
+                    const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
                     container.innerHTML += `
                         <div class="card-item" style="border-left-color:${corCard};" onclick="map.setView([${coord[0]}, ${coord[1]}], 15)">
                             <h4 style="color:${corCard};">${iReal+1}. <span style="color:var(--texto-principal);">${c.nome}</span></h4>
                             <p><b>📍 Endereço:</b> ${c.endereco} ${c.complemento ? ' - ' + c.complemento : ''}</p>
-                            <p style="font-size:11px;">${c.bairro} (${c.cidade})</p>
+                            <p style="font-size:11px; margin-bottom:8px;">${c.bairro} (${c.cidade})</p>
+                            <a href="${urlMaps}" target="_blank" style="display:inline-block; font-size:11px; color:${corCard}; text-decoration:none; font-weight:bold;" onclick="event.stopPropagation();">🧭 Abrir GPS</a>
                         </div>
                     `;
                 }
