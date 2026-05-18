@@ -22,71 +22,18 @@
             --borda: #334155; --sombra-card: rgba(0, 0, 0, 0.2);
         }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: row; 
-            height: 100vh; 
-            background-color: var(--bg-principal); 
-            color: var(--texto-principal); 
-            overflow: hidden; 
-            position: relative; 
-        }
+        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: row; height: 100vh; background-color: var(--bg-principal); color: var(--texto-principal); overflow: hidden; position: relative; }
         
-        #sidebar { 
-            width: 420px; 
-            background: var(--bg-principal); 
-            border-right: 1px solid var(--borda); 
-            display: flex; 
-            flex-direction: column; 
-            z-index: 2000; 
-            box-shadow: 4px 0 20px rgba(0,0,0,0.4); 
-            order: 1; 
-        }
-
-        #map { 
-            flex: 1; 
-            height: 100%; 
-            background: #e5e3df; 
-            z-index: 1; 
-            order: 2; 
-        }
+        #sidebar { width: 420px; background: var(--bg-principal); border-right: 1px solid var(--borda); display: flex; flex-direction: column; z-index: 2000; box-shadow: 4px 0 20px rgba(0,0,0,0.4); order: 1; }
+        #map { flex: 1; height: 100%; background: #e5e3df; z-index: 1; order: 2; }
         
-        #drawer-handle-container { 
-            display: none; 
-            width: 100%; 
-            padding: 12px 0 4px 0; 
-            background: var(--bg-card); 
-            cursor: grab; 
-            text-align: center; 
-            border-radius: 24px 24px 0 0; 
-        }
-
-        .drawer-handle { 
-            width: 50px; 
-            height: 5px; 
-            background: #475569; 
-            border-radius: 10px; 
-            margin: 0 auto; 
-        }
+        #drawer-handle-container { display: none; width: 100%; padding: 12px 0 4px 0; background: var(--bg-card); cursor: grab; text-align: center; border-radius: 24px 24px 0 0; }
+        .drawer-handle { width: 50px; height: 5px; background: #475569; border-radius: 10px; margin: 0 auto; }
 
         @media (max-width: 768px) and (orientation: portrait) {
             body { flex-direction: column; }
             #map { width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; order: unset; }
-            #sidebar { 
-                width: 100% !important; 
-                height: 45vh; 
-                position: absolute; 
-                bottom: 0; 
-                left: 0; 
-                border-right: none; 
-                border-top: none; 
-                border-radius: 24px 24px 0 0; 
-                box-shadow: 0 -10px 40px rgba(0,0,0,0.5); 
-                transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
-                order: unset; 
-            }
+            #sidebar { width: 100% !important; height: 45vh; position: absolute; bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); order: unset; }
             #sidebar.dragging { transition: none; }
             #drawer-handle-container { display: block; }
             .header { padding-top: 5px; background: var(--bg-card); }
@@ -126,6 +73,14 @@
         .filtros select, .busca-container input { flex: 1; min-width: 120px; padding: 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; transition: 0.3s; }
         .filtros select:focus, .busca-container input:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
         
+        /* BLOCOS DE BUSCA E FILTRO DA ABA BASE */
+        .acoes-base { display: flex; gap: 10px; padding: 16px 20px 0 20px; background: var(--bg-principal); }
+        .btn-bloco { flex: 1; padding: 12px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--borda); color: var(--texto-principal); font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+        .btn-bloco:hover, .btn-bloco.ativo { background: var(--bg-input); border-color: var(--cor-primaria); color: var(--cor-primaria); }
+        .painel-avancado { padding: 16px 20px; background: var(--bg-principal); border-bottom: 1px solid var(--borda); display: none; flex-direction: column; gap: 10px; }
+        .painel-avancado input, .painel-avancado select { width: 100%; padding: 12px; box-sizing: border-box; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: 0.3s; }
+        .painel-avancado input:focus, .painel-avancado select:focus { border-color: var(--cor-primaria); }
+
         .lista-scroll { padding: 20px; overflow-y: auto; flex: 1; background: var(--bg-principal); padding-bottom: 30px; display: flex; flex-direction: column; }
         .lista-scroll::-webkit-scrollbar { width: 6px; }
         .lista-scroll::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 3px; }
@@ -133,7 +88,6 @@
         .card-item { background: var(--bg-card); border-left: 5px solid var(--cor-primaria); padding: 16px; margin-bottom: 14px; border-radius: 12px; box-shadow: 0 4px 12px var(--sombra-card); cursor: pointer; transition: all 0.2s ease; order: 1; }
         .card-item:hover { transform: translateY(-3px); background: #233147; }
         
-        /* ESTILO APAGADO (VISITADO) - Vai para o fim (order: 999) */
         .card-item.visitado { opacity: 0.4; filter: grayscale(100%); background: #1e293b; border-left-color: #475569 !important; order: 999; }
         .card-item.visitado:hover { transform: none; background: #1e293b; }
         .card-item.visitado h4 { text-decoration: line-through; color: #94a3b8 !important; }
@@ -251,10 +205,26 @@
         </div>
 
         <div id="conteudoClientes" class="conteudo-aba aba-escondida">
-            <div class="busca-container">
-                <input type="text" id="campoBusca" placeholder="🔍 Buscar cliente, código ou cidade..." oninput="filtrarListaGeral()">
+            
+            <div class="acoes-base">
+                <div class="btn-bloco" id="btnAbreBusca" onclick="toggleBuscaBase()">🔍 Buscar</div>
+                <div class="btn-bloco" id="btnAbreFiltro" onclick="toggleFiltroBase()">⚙️ Filtrar</div>
             </div>
-            <div class="lista-scroll" id="listaClientesGeral"></div>
+
+            <div id="barraBuscaAvancada" class="painel-avancado">
+                <input type="text" id="campoBuscaAvancada" placeholder="Busque por nome, código, bairro ou cidade..." oninput="aplicarFiltrosNaBase()">
+            </div>
+
+            <div id="painelFiltrosBase" class="painel-avancado">
+                <select id="filtroBaseCidade" onchange="aplicarFiltrosNaBase()"><option value="">Todas as Cidades</option></select>
+                <select id="filtroBaseBairro" onchange="aplicarFiltrosNaBase()"><option value="">Todos os Bairros</option></select>
+                <div style="display:flex; gap:10px;">
+                    <select id="filtroBaseSemana" onchange="aplicarFiltrosNaBase()"><option value="">Todas as Semanas</option></select>
+                    <select id="filtroBaseDia" onchange="aplicarFiltrosNaBase()"><option value="">Todos os Dias</option></select>
+                </div>
+            </div>
+
+            <div class="lista-scroll" id="listaClientesGeral" style="padding-top: 10px;"></div>
 
             <div id="painelEdicao" class="aba-escondida">
                 <div class="form-exclusivo">
@@ -336,6 +306,7 @@
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW', err)); 
         }
 
+        // MENU DO USUÁRIO
         window.toggleUserMenu = (e) => { 
             e.stopPropagation(); 
             document.getElementById('userDropdown').classList.toggle('active'); 
@@ -352,7 +323,6 @@
             document.getElementById('userDropdown').classList.remove('active'); 
             document.getElementById('modalSync').style.display = 'flex'; 
         };
-        
         window.fecharModalSync = () => { 
             document.getElementById('modalSync').style.display = 'none'; 
         };
@@ -417,7 +387,6 @@
         let usuarioAtual = null;
         let scriptUrlVinculado = "";
         
-        // CACHES PARA VELOCIDADE
         let clientesVisitadosHoje = new Set();
         let cacheCoordsGeral = {};
         let cacheRuasTracas = {};
@@ -450,25 +419,18 @@
             filtrarERenderizar();
         };
 
-        // AÇÃO DO BOTÃO "VISITADO" E "DESFAZER" (CORRIGIDA)
         window.alternarVisita = (codigo, event) => {
             event.stopPropagation();
-            
-            // O SEGREDO ESTÁ AQUI: Transformar sempre em Texto (String) 
-            // porque o firebase pode estar puxando como número da sua planilha!
             let codStr = String(codigo); 
-            
             if (clientesVisitadosHoje.has(codStr)) {
                 clientesVisitadosHoje.delete(codStr);
             } else {
                 clientesVisitadosHoje.add(codStr);
             }
-            
             document.getElementById('status').innerText = "Atualizando rota..."; 
-            filtrarERenderizar(); // Recalcula instantaneamente usando a memória
+            filtrarERenderizar();
         };
 
-        // LOGIN E SISTEMA
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 usuarioAtual = user;
@@ -512,6 +474,14 @@
             }); 
             document.getElementById(t[aba]).classList.remove('aba-escondida'); 
             document.getElementById('btnTab' + aba.charAt(0).toUpperCase() + aba.slice(1)).classList.add('ativo'); 
+            
+            // Se for pra aba clientes, garante que os filtros mostram os botões padrão
+            if(aba === 'clientes') {
+                document.getElementById('barraBuscaAvancada').style.display = 'none';
+                document.getElementById('painelFiltrosBase').style.display = 'none';
+                document.getElementById('btnAbreBusca').classList.remove('ativo');
+                document.getElementById('btnAbreFiltro').classList.remove('ativo');
+            }
         };
 
         async function puxarDadosLocaisFirebase() {
@@ -527,7 +497,8 @@
             
             document.getElementById('status').innerText = "Base carregada e pronta.";
             filtrarERenderizar();
-            renderizarListaGeralClientes();
+            atualizarFiltrosDinamicos(); // Puxa as contagens de cidade/bairro
+            aplicarFiltrosNaBase(); // Renderiza a lista de clientes
         }
 
         window.vincularESincronizarPlanilha = async () => { 
@@ -632,7 +603,6 @@
             a.click();
         };
 
-        // LÓGICA DE GEOLOCALIZAÇÃO E MAPA
         async function inicializarGPS() { 
             return new Promise((r) => { 
                 if(!navigator.geolocation) r(null); 
@@ -680,7 +650,6 @@
             }
         };
 
-        // ====== O CORAÇÃO DO MAPA INTELIGENTE (COM CORES E CACHE DE VISITADOS) ======
         async function filtrarERenderizar() {
             const clientesDoDia = bancoDeDadosClientes.filter(c => c.semana === document.getElementById('filtroSemana').value && c.diaSemana === document.getElementById('filtroDia').value);
 
@@ -738,7 +707,6 @@
             let coordsCaminho = [];
             let clientesOrganizadosNaTrilha = [];
 
-            // GERAÇÃO DOS PINOS E DA GAVETA
             rotaIndices.forEach((idxOrigem, ordemAtual) => {
                 let coord = coordsOriginais[idxOrigem];
                 coordsCaminho.push(coord);
@@ -751,8 +719,6 @@
                     relatorioAtual.push(c);
                     
                     let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
-                    
-                    // AQUI A MÁGICA: Convertemos pra String pra garantir a comparação!
                     let isVisitado = clientesVisitadosHoje.has(String(c.codigo));
                     
                     let corCard = isVisitado ? '#475569' : paletaCores[iReal % paletaCores.length]; 
@@ -784,7 +750,6 @@
                 }
             });
 
-            // DESENHA AS LINHAS ENTRE OS PINOS NO MAPA
             if (coordsCaminho.length > 1) {
                 let limites = L.latLngBounds();
                 
@@ -793,14 +758,12 @@
                     let pDest = coordsCaminho[i+1];
                     let clienteFinalDoTrecho = clientesOrganizadosNaTrilha[i];
                     
-                    // Mesma Mágica: Converte o código pra String!
                     let isDestinoVisitado = clientesVisitadosHoje.has(String(clienteFinalDoTrecho.codigo));
                     let corLinha = isDestinoVisitado ? '#475569' : paletaCores[i % paletaCores.length];
 
                     let strCache = `${pOrg[0]},${pOrg[1]}x${pDest[0]},${pDest[1]}`;
 
                     if(cacheRuasTracas[strCache]) {
-                        // Se tem na memória, puxa instantâneo e só pinta da cor certa!
                         let linhaColor = L.polyline(cacheRuasTracas[strCache], {color: corLinha, weight: 6, opacity: 0.85});
                         grupoRota.addLayer(linhaColor); 
                         limites.extend(linhaColor.getBounds());
@@ -810,7 +773,7 @@
                             const dados = await res.json();
                             if (dados.code === 'Ok' && dados.routes.length > 0) {
                                 let pontos = dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]);
-                                cacheRuasTracas[strCache] = pontos; // Guarda na memória
+                                cacheRuasTracas[strCache] = pontos;
                                 let linhaColor = L.polyline(pontos, {color: corLinha, weight: 6, opacity: 0.85});
                                 grupoRota.addLayer(linhaColor); 
                                 limites.extend(linhaColor.getBounds());
@@ -824,7 +787,6 @@
                     }
                 }
                 
-                // Centraliza a câmera só se não estiver em atualização de clique
                 if (limites.isValid() && document.getElementById('status').innerText !== "Atualizando rota...") {
                     map.fitBounds(limites, {padding:[40,40]});
                 }
@@ -834,27 +796,126 @@
             document.getElementById('status').innerText = "Base carregada e pronta.";
         }
 
-        // FUNÇÕES DA ABA BASE VIVA
-        window.renderizarListaGeralClientes = () => {
-            const container = document.getElementById('listaClientesGeral'); 
-            container.innerHTML = '';
-            
-            let clientesOrdenados = [...bancoDeDadosClientes].sort((a, b) => {
-                if (a.semana !== b.semana) return (a.semana || "").localeCompare(b.semana || "");
-                const pesosDias = { "Segunda-Feira": 1, "Terça-Feira": 2, "Quarta-Feira": 3, "Quinta-Feira": 4, "Sexta-Feira": 5, "Sábado": 6, "Domingo": 7 };
-                return (pesosDias[a.diaSemana] || 99) - (pesosDias[b.diaSemana] || 99);
-            });
+        // ----------------------------------------------------
+        // NOVO SISTEMA DA ABA "BASE" COM BUSCA E FILTROS DINÂMICOS
+        // ----------------------------------------------------
 
-            clientesOrdenados.forEach(c => { 
-                container.innerHTML += `<div class="card-item" style="border-left-color: var(--borda);" onclick="window.abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p>Código: ${c.codigo} | <b>${c.semana} - ${c.diaSemana}</b></p></div>`; 
-            });
+        window.toggleBuscaBase = () => {
+            const b = document.getElementById('barraBuscaAvancada');
+            const f = document.getElementById('painelFiltrosBase');
+            const btnB = document.getElementById('btnAbreBusca');
+            const btnF = document.getElementById('btnAbreFiltro');
+            
+            b.style.display = b.style.display === 'flex' ? 'none' : 'flex';
+            f.style.display = 'none'; 
+            
+            if(b.style.display === 'flex') {
+                btnB.classList.add('ativo');
+                btnF.classList.remove('ativo');
+                document.getElementById('campoBuscaAvancada').focus();
+            } else {
+                btnB.classList.remove('ativo');
+            }
         };
 
-        window.filtrarListaGeral = () => { 
-            const b = document.getElementById('campoBusca').value.toLowerCase(); 
-            Array.from(document.getElementById('listaClientesGeral').getElementsByClassName('card-item')).forEach(c => {
-                c.style.display = c.innerText.toLowerCase().includes(b) ? 'block' : 'none';
-            }); 
+        window.toggleFiltroBase = () => {
+            const b = document.getElementById('barraBuscaAvancada');
+            const f = document.getElementById('painelFiltrosBase');
+            const btnB = document.getElementById('btnAbreBusca');
+            const btnF = document.getElementById('btnAbreFiltro');
+            
+            f.style.display = f.style.display === 'flex' ? 'none' : 'flex';
+            b.style.display = 'none'; 
+            
+            if(f.style.display === 'flex') {
+                btnF.classList.add('ativo');
+                btnB.classList.remove('ativo');
+                atualizarFiltrosDinamicos(); 
+            } else {
+                btnF.classList.remove('ativo');
+            }
+        };
+
+        // Conta quantos clientes tem em cada cidade, bairro, etc.
+        function atualizarFiltrosDinamicos() {
+            let contagens = { cidades: {}, bairros: {}, semanas: {}, dias: {} };
+            
+            bancoDeDadosClientes.forEach(c => {
+                contagens.cidades[c.cidade] = (contagens.cidades[c.cidade] || 0) + 1;
+                if(c.bairro) contagens.bairros[c.bairro] = (contagens.bairros[c.bairro] || 0) + 1;
+                contagens.semanas[c.semana] = (contagens.semanas[c.semana] || 0) + 1;
+                contagens.dias[c.diaSemana] = (contagens.dias[c.diaSemana] || 0) + 1;
+            });
+
+            const preencherSelect = (id, obj, padrao) => {
+                const sel = document.getElementById(id);
+                // Guarda o valor que o usuário já tinha selecionado pra não resetar
+                const valorAnterior = sel.value; 
+                
+                sel.innerHTML = `<option value="">${padrao}</option>`;
+                Object.keys(obj).sort().forEach(k => {
+                    sel.innerHTML += `<option value="${k}">${k} (${obj[k]})</option>`;
+                });
+                
+                if(obj[valorAnterior]) sel.value = valorAnterior;
+            };
+
+            preencherSelect('filtroBaseCidade', contagens.cidades, 'Todas as Cidades');
+            preencherSelect('filtroBaseBairro', contagens.bairros, 'Todos os Bairros');
+            preencherSelect('filtroBaseSemana', contagens.semanas, 'Todas as Semanas');
+            preencherSelect('filtroBaseDia', contagens.dias, 'Todos os Dias');
+        }
+
+        // Mistura a busca digitada com os selects escolhidos
+        window.aplicarFiltrosNaBase = () => {
+            const textoBusca = document.getElementById('campoBuscaAvancada').value.toLowerCase();
+            const cid = document.getElementById('filtroBaseCidade').value;
+            const bai = document.getElementById('filtroBaseBairro').value;
+            const sem = document.getElementById('filtroBaseSemana').value;
+            const dia = document.getElementById('filtroBaseDia').value;
+
+            let clientesFiltrados = bancoDeDadosClientes.filter(c => {
+                let matchTexto = true;
+                if(textoBusca) {
+                    // Procura em todos os cantos do cliente ao mesmo tempo
+                    const textoGeral = `${c.nome} ${c.codigo} ${c.endereco} ${c.bairro} ${c.cidade} ${c.complemento}`.toLowerCase();
+                    matchTexto = textoGeral.includes(textoBusca);
+                }
+                
+                let matchCid = cid ? c.cidade === cid : true;
+                let matchBai = bai ? c.bairro === bai : true;
+                let matchSem = sem ? c.semana === sem : true;
+                let matchDia = dia ? c.diaSemana === dia : true;
+
+                return matchTexto && matchCid && matchBai && matchSem && matchDia;
+            });
+
+            // Ordenação Dupla
+            clientesFiltrados.sort((a, b) => {
+                if (a.semana !== b.semana) return (a.semana || "").localeCompare(b.semana || "");
+                const pesosDias = { "Segunda-Feira": 1, "Terça-Feira": 2, "Quarta-Feira": 3, "Quinta-Feira": 4, "Sexta-Feira": 5, "Sábado": 6, "Domingo": 7 };
+                let diffDia = (pesosDias[a.diaSemana] || 99) - (pesosDias[b.diaSemana] || 99);
+                if (diffDia !== 0) return diffDia;
+                return (a.nome || "").localeCompare(b.nome || "");
+            });
+
+            const container = document.getElementById('listaClientesGeral');
+            container.innerHTML = '';
+            
+            if(clientesFiltrados.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--texto-secundario); margin-top:20px;">Nenhum cliente encontrado nesses filtros.</p>';
+                return;
+            }
+
+            clientesFiltrados.forEach(c => {
+                container.innerHTML += `
+                <div class="card-item" style="border-left-color: var(--borda);" onclick="window.abrirPainelEdicao('${c.codigo}')">
+                    <h4>${c.nome}</h4>
+                    <p style="color:var(--cor-primaria); font-weight:600; margin-bottom: 4px;">${c.semana} - ${c.diaSemana}</p>
+                    <p><b>Cód:</b> ${c.codigo} | <b>Bairro:</b> ${c.bairro}</p>
+                    <p><b>Cidade:</b> ${c.cidade}</p>
+                </div>`;
+            });
         };
 
         window.abrirPainelEdicao = (codigo) => { 
