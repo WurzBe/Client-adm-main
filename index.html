@@ -22,18 +22,71 @@
             --borda: #334155; --sombra-card: rgba(0, 0, 0, 0.2);
         }
 
-        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: row; height: 100vh; background-color: var(--bg-principal); color: var(--texto-principal); overflow: hidden; position: relative; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: row; 
+            height: 100vh; 
+            background-color: var(--bg-principal); 
+            color: var(--texto-principal); 
+            overflow: hidden; 
+            position: relative; 
+        }
         
-        #sidebar { width: 420px; background: var(--bg-principal); border-right: 1px solid var(--borda); display: flex; flex-direction: column; z-index: 2000; box-shadow: 4px 0 20px rgba(0,0,0,0.4); order: 1; }
-        #map { flex: 1; height: 100%; background: #e5e3df; z-index: 1; order: 2; }
+        #sidebar { 
+            width: 420px; 
+            background: var(--bg-principal); 
+            border-right: 1px solid var(--borda); 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 2000; 
+            box-shadow: 4px 0 20px rgba(0,0,0,0.4); 
+            order: 1; 
+        }
+
+        #map { 
+            flex: 1; 
+            height: 100%; 
+            background: #e5e3df; 
+            z-index: 1; 
+            order: 2; 
+        }
         
-        #drawer-handle-container { display: none; width: 100%; padding: 12px 0 4px 0; background: var(--bg-card); cursor: grab; text-align: center; border-radius: 24px 24px 0 0; }
-        .drawer-handle { width: 50px; height: 5px; background: #475569; border-radius: 10px; margin: 0 auto; }
+        #drawer-handle-container { 
+            display: none; 
+            width: 100%; 
+            padding: 12px 0 4px 0; 
+            background: var(--bg-card); 
+            cursor: grab; 
+            text-align: center; 
+            border-radius: 24px 24px 0 0; 
+        }
+
+        .drawer-handle { 
+            width: 50px; 
+            height: 5px; 
+            background: #475569; 
+            border-radius: 10px; 
+            margin: 0 auto; 
+        }
 
         @media (max-width: 768px) and (orientation: portrait) {
             body { flex-direction: column; }
             #map { width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; order: unset; }
-            #sidebar { width: 100% !important; height: 45vh; position: absolute; bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); order: unset; }
+            #sidebar { 
+                width: 100% !important; 
+                height: 45vh; 
+                position: absolute; 
+                bottom: 0; 
+                left: 0; 
+                border-right: none; 
+                border-top: none; 
+                border-radius: 24px 24px 0 0; 
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.5); 
+                transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
+                order: unset; 
+            }
             #sidebar.dragging { transition: none; }
             #drawer-handle-container { display: block; }
             .header { padding-top: 5px; background: var(--bg-card); }
@@ -48,7 +101,6 @@
         .header h3 { margin: 0 0 4px 0; font-size: 19px; font-weight: 700; letter-spacing: -0.5px; }
         .header p { margin: 0; font-size: 11px; color: var(--texto-secundario); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
         
-        /* SISTEMA DE AVATAR E MENU SUSPENSO */
         .user-menu-container { position: relative; }
         .avatar-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--cor-primaria); color: #0f172a; display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 16px; cursor: pointer; border: 2px solid #0f172a; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s; }
         .avatar-btn:active { transform: scale(0.9); }
@@ -62,13 +114,10 @@
         .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:hover { background: var(--bg-input); padding-left: 20px; }
 
-        /* MODAL DE SINCRONIZAÇÃO */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(4px); }
         .modal-content { background: var(--bg-card); padding: 24px; border-radius: 16px; width: 100%; max-width: 380px; border: 1px solid var(--borda); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
 
         .badge-otimizado { background: rgba(56, 189, 248, 0.15); color: var(--cor-primaria); font-size: 10px; padding: 4px 8px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.3); vertical-align: middle; margin-left: 8px;}
-        #aviso-pos-login { background: rgba(16, 185, 129, 0.12); border-bottom: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 20px; font-size: 12px; color: #10b981; font-weight: 500; line-height: 1.4; display: flex; align-items: center; gap: 10px; }
-        #aviso-pos-login button { background: transparent; border: none; color: var(--texto-secundario); cursor: pointer; font-weight: bold; margin-left: auto; }
 
         .conteudo-aba { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .aba-escondida { display: none !important; }
@@ -77,19 +126,32 @@
         .filtros select, .busca-container input { flex: 1; min-width: 120px; padding: 12px; border-radius: 8px; background: var(--bg-input); border: 1px solid transparent; color: var(--texto-principal); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; transition: 0.3s; }
         .filtros select:focus, .busca-container input:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
         
-        .lista-scroll { padding: 20px; overflow-y: auto; flex: 1; background: var(--bg-principal); padding-bottom: 30px; }
+        .lista-scroll { padding: 20px; overflow-y: auto; flex: 1; background: var(--bg-principal); padding-bottom: 30px; display: flex; flex-direction: column; }
         .lista-scroll::-webkit-scrollbar { width: 6px; }
         .lista-scroll::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 3px; }
         
-        .card-item { background: var(--bg-card); border-left: 5px solid var(--cor-primaria); padding: 16px; margin-bottom: 14px; border-radius: 12px; box-shadow: 0 4px 12px var(--sombra-card); cursor: pointer; transition: all 0.2s ease; }
+        .card-item { background: var(--bg-card); border-left: 5px solid var(--cor-primaria); padding: 16px; margin-bottom: 14px; border-radius: 12px; box-shadow: 0 4px 12px var(--sombra-card); cursor: pointer; transition: all 0.2s ease; order: 1; }
         .card-item:hover { transform: translateY(-3px); background: #233147; }
+        
+        /* ESTILO APAGADO (VISITADO) - Vai para o fim (order: 999) */
+        .card-item.visitado { opacity: 0.4; filter: grayscale(100%); background: #1e293b; border-left-color: #475569 !important; order: 999; }
+        .card-item.visitado:hover { transform: none; background: #1e293b; }
+        .card-item.visitado h4 { text-decoration: line-through; color: #94a3b8 !important; }
+
         .card-item h4 { margin: 0 0 8px 0; color: var(--texto-principal); font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
         .card-item p { margin: 4px 0; font-size: 12px; color: var(--texto-secundario); line-height: 1.5; }
         
+        .botoes-acao-card { display: flex; gap: 8px; margin-top: 12px; }
         .btn-acao { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; background: var(--cor-primaria); color: #0f172a; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.2s ease; width: 100%; box-sizing: border-box; text-align: center; }
         .btn-acao:hover { background: var(--cor-primaria-hover); opacity: 0.9; }
+        
+        .btn-gps { background: transparent; border: 1px solid var(--cor-primaria); color: var(--cor-primaria); padding: 6px 12px; }
+        .btn-gps:hover { background: var(--cor-primaria); color: #0f172a; }
+        .btn-visitado { background: transparent; border: 1px solid #10b981; color: #10b981; padding: 6px 12px; }
+        .btn-visitado:hover { background: #10b981; color: white; }
+        .btn-desfazer { background: transparent; border: 1px solid #94a3b8; color: #94a3b8; padding: 6px 12px; }
+
         .btn-secundario { background: rgba(56, 189, 248, 0.1); color: var(--cor-primaria); border: 1px solid var(--cor-primaria); margin-top: 10px;}
-        .btn-secundario:hover { background: var(--cor-primaria); color: #0f172a; }
         
         .form-exclusivo { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; background: var(--bg-principal); }
         #painelEdicao { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-principal); z-index: 2000; display: flex; flex-direction: column; }
@@ -133,12 +195,9 @@
     <div id="modalSync" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin: 0 0 8px 0; color: var(--cor-primaria); font-size: 18px;">Conectar Google Drive</h3>
-            <p style="font-size: 12px; color: var(--texto-secundario); line-height: 1.5; margin-bottom: 20px;">
-                Cole abaixo a URL de implantação do Apps Script. Isso irá baixar a sua planilha atual e integrá-la ao mapa.
-            </p>
-            <label style="font-size: 11px; color: var(--texto-secundario); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; display: block;">🔗 URL do Script</label>
+            <p style="font-size: 12px; color: var(--texto-secundario); line-height: 1.5; margin-bottom: 20px;">Cole abaixo a URL de implantação do Apps Script.</p>
+            <label style="font-size: 11px; color: var(--texto-secundario); font-weight: 700; margin-bottom: 6px; display: block;">🔗 URL do Script</label>
             <input type="text" id="urlScriptDrive" placeholder="https://script.google.com/macros/..." style="width: 100%; padding: 14px; box-sizing: border-box; background: var(--bg-input); color: white; border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 20px; font-size: 13px; outline: none;">
-            
             <button class="btn-acao" style="background: #10b981; color: white; margin-bottom: 10px;" onclick="vincularESincronizarPlanilha()">Baixar e Sincronizar</button>
             <button class="btn-acao" style="background: transparent; border: 1px solid var(--borda); color: var(--texto-secundario);" onclick="fecharModalSync()">Cancelar</button>
         </div>
@@ -154,7 +213,6 @@
                 <h3>Visão Operacional <span class="badge-otimizado" id="badgeOtimizado" style="display:none;">IA</span></h3>
                 <p id="status">Verificando dados...</p>
             </div>
-            
             <div class="user-menu-container">
                 <div class="avatar-btn" id="avatarBtn" onclick="toggleUserMenu(event)">?</div>
                 <div class="dropdown-menu" id="userDropdown">
@@ -172,11 +230,6 @@
             </div>
         </div>
 
-        <div id="aviso-pos-login" style="display: none;">
-            <span>🔄 <b>Planilha Conectada:</b> O App atualizará seu Drive automaticamente!</span>
-            <button onclick="document.getElementById('aviso-pos-login').style.display='none'">✕</button>
-        </div>
-
         <div id="loading-overlay">
             <div class="spinner"></div>
             <span id="loading-text" style="font-size: 13px; color: var(--cor-primaria); font-weight: 600;">Processando...</span>
@@ -184,15 +237,15 @@
 
         <div id="conteudoAgenda" class="conteudo-aba">
             <div class="filtros">
-                <select id="filtroSemana">
+                <select id="filtroSemana" onchange="limparCacheMudancaFiltro()">
                     <option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option>
                     <option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option>
                 </select>
-                <select id="filtroDia">
+                <select id="filtroDia" onchange="limparCacheMudancaFiltro()">
                     <option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option>
                     <option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option>
                 </select>
-                <button class="btn-acao" style="background-color: #10b981; color: white;" onclick="exportarRotaDoDia()">📥 Baixar Rota Diária</button>
+                <button class="btn-acao" style="background-color: #10b981; color: white;" onclick="exportarRotaDoDia()">📥 Baixar Rota</button>
             </div>
             <div class="lista-scroll" id="listaAgenda"></div>
         </div>
@@ -211,12 +264,23 @@
                     <label>Endereço</label><input type="text" id="editEndereco">
                     <label>Complemento</label><input type="text" id="editComplemento">
                     <label>Bairro</label><input type="text" id="editBairro">
-                    <label>Cidade</label><select id="editCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
-                    
+                    <label>Cidade</label>
+                    <select id="editCidade">
+                        <option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option>
+                        <option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option>
+                        <option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option>
+                    </select>
                     <button type="button" class="btn-acao" style="background-color: #8b5cf6; color: white; margin: 4px 0;" onclick="sugerirRotaInteligente('edit')">🪄 Auto-Completar Rota Ideal</button>
-
-                    <label>Semana</label><select id="editSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
-                    <label>Dia da Rota</label><select id="editDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
+                    <label>Semana</label>
+                    <select id="editSemana">
+                        <option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option>
+                        <option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option>
+                    </select>
+                    <label>Dia da Rota</label>
+                    <select id="editDia">
+                        <option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option>
+                        <option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option>
+                    </select>
                     <button class="btn-acao" onclick="salvarDuploEdicao()">Salvar em Ambos</button>
                     <button class="btn-acao btn-secundario" style="border-color:#f43f5e; color:#f43f5e;" onclick="excluirDuplo()">🗑️ Remover Cliente</button>
                     <button class="btn-acao btn-secundario" onclick="fecharPainelEdicao()">Voltar</button>
@@ -229,15 +293,26 @@
                 <b style="color: var(--cor-primaria); font-size: 17px;">Novo Registro</b>
                 <label>Código Identificador</label><input type="text" id="addCodigo" placeholder="Ex: 1045">
                 <label>Razão Social</label><input type="text" id="addNome">
-                <label>Endereço Completo</label><input type="text" id="addComplemento">
+                <label>Endereço Completo</label><input type="text" id="addEndereco">
                 <label>Complemento</label><input type="text" id="addComplemento">
                 <label>Bairro</label><input type="text" id="addBairro">
-                <label>Cidade</label><select id="addCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
-                
+                <label>Cidade</label>
+                <select id="addCidade">
+                    <option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option>
+                    <option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option>
+                    <option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option>
+                </select>
                 <button type="button" class="btn-acao" style="background-color: #8b5cf6; color: white; margin: 4px 0;" onclick="sugerirRotaInteligente('add')">🪄 Auto-Completar Rota Ideal</button>
-
-                <label>Semana</label><select id="addSemana"><option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option><option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option></select>
-                <label>Dia da Rota</label><select id="addDia"><option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option><option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option></select>
+                <label>Semana</label>
+                <select id="addSemana">
+                    <option value="Semana 1">Semana 1</option><option value="Semana 2">Semana 2</option>
+                    <option value="Semana 3">Semana 3</option><option value="Semana 4">Semana 4</option>
+                </select>
+                <label>Dia da Rota</label>
+                <select id="addDia">
+                    <option value="Segunda-Feira">Segunda-Feira</option><option value="Terça-Feira">Terça-Feira</option>
+                    <option value="Quarta-Feira">Quarta-Feira</option><option value="Quinta-Feira">Quinta-Feira</option>
+                </select>
                 <button class="btn-acao" onclick="salvarDuploNovo()">Cadastrar e Sincronizar</button>
             </div>
         </div>
@@ -257,85 +332,74 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 
     <script>
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(err => console.log('SW', err)); }
+        if ('serviceWorker' in navigator) { 
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW', err)); 
+        }
 
-        // --- SISTEMA DO MENU SUSPENSO E MODAL ---
-        window.toggleUserMenu = (e) => {
-            e.stopPropagation();
-            document.getElementById('userDropdown').classList.toggle('active');
+        window.toggleUserMenu = (e) => { 
+            e.stopPropagation(); 
+            document.getElementById('userDropdown').classList.toggle('active'); 
         };
 
-        document.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('userDropdown');
-            if (dropdown.classList.contains('active') && !e.target.closest('.user-menu-container')) {
-                dropdown.classList.remove('active');
+        document.addEventListener('click', (e) => { 
+            const drop = document.getElementById('userDropdown'); 
+            if (drop.classList.contains('active') && !e.target.closest('.user-menu-container')) {
+                drop.classList.remove('active'); 
             }
         });
 
-        window.abrirModalSync = () => {
-            document.getElementById('userDropdown').classList.remove('active');
-            document.getElementById('modalSync').style.display = 'flex';
+        window.abrirModalSync = () => { 
+            document.getElementById('userDropdown').classList.remove('active'); 
+            document.getElementById('modalSync').style.display = 'flex'; 
+        };
+        
+        window.fecharModalSync = () => { 
+            document.getElementById('modalSync').style.display = 'none'; 
         };
 
-        window.fecharModalSync = () => {
-            document.getElementById('modalSync').style.display = 'none';
-        };
-        // ----------------------------------------
-
-        // --- SISTEMA DE ARRASTE DA GAVETA MOBILE ---
+        // GAVETA MOBILE ARRASTÁVEL
         const sidebar = document.getElementById('sidebar');
         const handle = document.getElementById('drawer-handle-container');
         let startY = 0, startHeight = 0, isDragging = false;
-
-        handle.addEventListener('touchstart', (e) => {
+        
+        handle.addEventListener('touchstart', (e) => { 
             if(window.innerWidth > 768 || window.innerWidth > window.innerHeight) return; 
-            isDragging = true;
-            startY = e.touches[0].clientY;
-            startHeight = sidebar.getBoundingClientRect().height;
-            sidebar.classList.add('dragging');
+            isDragging = true; 
+            startY = e.touches[0].clientY; 
+            startHeight = sidebar.getBoundingClientRect().height; 
+            sidebar.classList.add('dragging'); 
         }, {passive: true});
 
-        document.addEventListener('touchmove', (e) => {
-            if(!isDragging) return;
-            const delta = startY - e.touches[0].clientY;
-            let newHeight = startHeight + delta;
-            
-            const minH = window.innerHeight * 0.15;
-            const maxH = window.innerHeight * 0.90;
-            
-            if(newHeight < minH) newHeight = minH;
-            if(newHeight > maxH) newHeight = maxH;
-            
-            sidebar.style.height = newHeight + 'px';
+        document.addEventListener('touchmove', (e) => { 
+            if(!isDragging) return; 
+            let newH = startHeight + (startY - e.touches[0].clientY); 
+            const minH = window.innerHeight * 0.15, maxH = window.innerHeight * 0.90; 
+            if(newH < minH) newH = minH; 
+            if(newH > maxH) newH = maxH; 
+            sidebar.style.height = newH + 'px'; 
         }, {passive: true});
 
-        document.addEventListener('touchend', () => {
-            if(!isDragging) return;
-            isDragging = false;
-            sidebar.classList.remove('dragging');
-            
-            const currentHeight = sidebar.getBoundingClientRect().height;
-            const h = window.innerHeight;
-            
-            if (currentHeight > h * 0.65) sidebar.style.height = '85vh'; 
-            else if (currentHeight < h * 0.35) sidebar.style.height = '15vh'; 
-            else sidebar.style.height = '45vh'; 
-            
-            setTimeout(() => map.invalidateSize(), 300);
+        document.addEventListener('touchend', () => { 
+            if(!isDragging) return; 
+            isDragging = false; 
+            sidebar.classList.remove('dragging'); 
+            const h = window.innerHeight, curr = sidebar.getBoundingClientRect().height; 
+            sidebar.style.height = curr > h * 0.65 ? '85vh' : (curr < h * 0.35 ? '15vh' : '45vh'); 
+            setTimeout(() => map.invalidateSize(), 300); 
         });
-        // ------------------------------------------
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAh0OpiVBN_tAmziVvvZS8ONHjfvrKZnqU",
-            authDomain: "rota-comercial.firebaseapp.com",
-            projectId: "rota-comercial",
-            storageBucket: "rota-comercial.firebasestorage.app",
-            messagingSenderId: "828175392312",
-            appId: "1:828175392312:web:f3bc6f4fe373b995ad90cd"
+        // BANCO DE DADOS
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAh0OpiVBN_tAmziVvvZS8ONHjfvrKZnqU", 
+            authDomain: "rota-comercial.firebaseapp.com", 
+            projectId: "rota-comercial", 
+            storageBucket: "rota-comercial.firebasestorage.app", 
+            messagingSenderId: "828175392312", 
+            appId: "1:828175392312:web:f3bc6f4fe373b995ad90cd" 
         };
 
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        const auth = firebase.auth(); 
         const db = firebase.firestore();
 
         const map = L.map('map', { zoomControl: false }).setView([-26.9166, -49.0661], 12);
@@ -344,6 +408,7 @@
 
         let grupoMarcadores = L.layerGroup().addTo(map);
         let grupoRota = L.layerGroup().addTo(map);
+        
         let bancoDeDadosClientes = [];
         let clienteSelecionadoAtualmente = null;
         let minhaPosicaoGPS = null;
@@ -351,15 +416,21 @@
         let relatorioAtual = [];
         let usuarioAtual = null;
         let scriptUrlVinculado = "";
+        
+        // CACHES PARA VELOCIDADE
+        let clientesVisitadosHoje = new Set();
+        let cacheCoordsGeral = {};
+        let cacheRuasTracas = {};
+        let ordemMagicaOSRM = null;
 
         const paletaCores = ['#38bdf8', '#8b5cf6', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#ec4899'];
 
-        const criarIconeNumerado = (cor, numero) => {
-            return L.divIcon({
-                className: 'custom-pin',
-                html: `<div style="background-color:${cor}; width:26px; height:26px; border-radius:50%; border:3px solid #0f172a; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">${numero}</div>`,
-                iconSize: [26, 26],
-                iconAnchor: [13, 13]
+        const criarIconeNumerado = (cor, txt) => {
+            return L.divIcon({ 
+                className: 'custom-pin', 
+                html: `<div style="background-color:${cor}; width:26px; height:26px; border-radius:50%; border:3px solid #0f172a; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">${txt}</div>`, 
+                iconSize: [26, 26], 
+                iconAnchor: [13, 13] 
             });
         };
 
@@ -368,267 +439,402 @@
             const diaIndex = dataHoje.getDay();
             const mapaDias = { 1: "Segunda-Feira", 2: "Terça-Feira", 3: "Quarta-Feira", 4: "Quinta-Feira" };
             document.getElementById('filtroDia').value = mapaDias[diaIndex] || "Segunda-Feira";
-
+            
             const diaDoMes = dataHoje.getDate();
-            let sem = "Semana 1";
-            if (diaDoMes > 7 && diaDoMes <= 14) sem = "Semana 2";
-            else if (diaDoMes > 14 && diaDoMes <= 21) sem = "Semana 3";
-            else if (diaDoMes > 21) sem = "Semana 4";
-            document.getElementById('filtroSemana').value = sem;
+            document.getElementById('filtroSemana').value = diaDoMes <= 7 ? "Semana 1" : (diaDoMes <= 14 ? "Semana 2" : (diaDoMes <= 21 ? "Semana 3" : "Semana 4"));
         }
 
-        window.sugerirRotaInteligente = (prefixo) => {
-            const bairroInput = document.getElementById(prefixo + 'Bairro').value.trim().toLowerCase();
-            const cidadeInput = document.getElementById(prefixo + 'Cidade').value;
-            if(!bairroInput) return alert("Digite o Bairro primeiro para mapear a região.");
-            document.getElementById('status').innerText = "Analisando vizinhança...";
-            let vizinhos = bancoDeDadosClientes.filter(c => c.cidade === cidadeInput && c.bairro.toLowerCase().includes(bairroInput));
-            if(vizinhos.length === 0) {
-                alert("Nenhum cliente cadastrado neste bairro. Escolha manualmente.");
-                document.getElementById('status').innerText = "Região nova mapeada.";
-                return;
-            }
-            let contagem = {};
-            vizinhos.forEach(v => { let k = `${v.semana}|${v.diaSemana}`; contagem[k] = (contagem[k] || 0) + 1; });
-            let max = 0, melhor = "";
-            for(let r in contagem) { if(contagem[r] > max) { max = contagem[r]; melhor = r; } }
-            if(melhor) {
-                const [s, d] = melhor.split('|');
-                document.getElementById(prefixo + 'Semana').value = s;
-                document.getElementById(prefixo + 'Dia').value = d;
-                document.getElementById('status').innerText = `Sugestão: ${max} vizinhos neste trajeto.`;
-            }
+        window.limparCacheMudancaFiltro = () => {
+            clientesVisitadosHoje.clear();
+            ordemMagicaOSRM = null; 
+            filtrarERenderizar();
         };
 
+        // AÇÃO DO BOTÃO "VISITADO" E "DESFAZER" (CORRIGIDA)
+        window.alternarVisita = (codigo, event) => {
+            event.stopPropagation();
+            
+            // O SEGREDO ESTÁ AQUI: Transformar sempre em Texto (String) 
+            // porque o firebase pode estar puxando como número da sua planilha!
+            let codStr = String(codigo); 
+            
+            if (clientesVisitadosHoje.has(codStr)) {
+                clientesVisitadosHoje.delete(codStr);
+            } else {
+                clientesVisitadosHoje.add(codStr);
+            }
+            
+            document.getElementById('status').innerText = "Atualizando rota..."; 
+            filtrarERenderizar(); // Recalcula instantaneamente usando a memória
+        };
+
+        // LOGIN E SISTEMA
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 usuarioAtual = user;
                 document.getElementById('tela-login').style.display = 'none';
-                
                 document.getElementById('userEmailDisplay').innerText = user.email;
                 document.getElementById('avatarBtn').innerText = user.email.charAt(0).toUpperCase();
-
+                
                 const docConfig = await db.collection("configuracoes").doc(user.uid).get();
                 if(docConfig.exists && docConfig.data().scriptUrl) {
                     scriptUrlVinculado = docConfig.data().scriptUrl;
                     document.getElementById('urlScriptDrive').value = scriptUrlVinculado;
-                    document.getElementById('aviso-pos-login').style.display = 'flex';
                 }
+                
                 definirDataAtualAutomatica();
                 puxarDadosLocaisFirebase();
             } else {
-                usuarioAtual = null;
+                usuarioAtual = null; 
                 document.getElementById('tela-login').style.display = 'flex';
-                document.getElementById('status').innerText = "Desconectado";
             }
         });
 
-        window.fazerLogin = () => auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-senha').value).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message);
-        window.criarConta = () => {
+        window.fazerLogin = () => {
+            const e = document.getElementById('login-email').value;
             const s = document.getElementById('login-senha').value;
-            if(s.length < 6) return document.getElementById('msg-login').innerText = "Senha deve ter 6+ caracteres.";
-            auth.createUserWithEmailAndPassword(document.getElementById('login-email').value, s).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message);
+            auth.signInWithEmailAndPassword(e, s).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message);
         };
 
-        window.mudarAba = (aba) => {
-            window.fecharPainelEdicao();
-            const t = { agenda: 'conteudoAgenda', clientes: 'conteudoClientes', adicionar: 'conteudoAdicionar' };
-            Object.keys(t).forEach(k => {
-                document.getElementById(t[k]).classList.add('aba-escondida');
-                document.getElementById('btnTab' + k.charAt(0).toUpperCase() + k.slice(1)).classList.remove('ativo');
-            });
-            document.getElementById(t[aba]).classList.remove('aba-escondida');
-            document.getElementById('btnTab' + aba.charAt(0).toUpperCase() + aba.slice(1)).classList.add('ativo');
+        window.criarConta = () => { 
+            const e = document.getElementById('login-email').value;
+            const s = document.getElementById('login-senha').value; 
+            if(s.length < 6) return document.getElementById('msg-login').innerText = "Senha deve ter 6+ caracteres."; 
+            auth.createUserWithEmailAndPassword(e, s).catch(err => document.getElementById('msg-login').innerText = "Erro: " + err.message); 
+        };
+
+        window.mudarAba = (aba) => { 
+            window.fecharPainelEdicao(); 
+            const t = { agenda: 'conteudoAgenda', clientes: 'conteudoClientes', adicionar: 'conteudoAdicionar' }; 
+            Object.keys(t).forEach(k => { 
+                document.getElementById(t[k]).classList.add('aba-escondida'); 
+                document.getElementById('btnTab' + k.charAt(0).toUpperCase() + k.slice(1)).classList.remove('ativo'); 
+            }); 
+            document.getElementById(t[aba]).classList.remove('aba-escondida'); 
+            document.getElementById('btnTab' + aba.charAt(0).toUpperCase() + aba.slice(1)).classList.add('ativo'); 
         };
 
         async function puxarDadosLocaisFirebase() {
             document.getElementById('status').innerText = "Sincronizando banco...";
             const snapshot = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
             bancoDeDadosClientes = [];
-            snapshot.forEach(doc => { let c = doc.data(); c.idFirebase = doc.id; bancoDeDadosClientes.push(c); });
-            if(!minhaPosicaoGPS) { minhaPosicaoGPS = await inicializarGPS(); }
+            snapshot.forEach(doc => { 
+                let c = doc.data(); 
+                c.idFirebase = doc.id; 
+                bancoDeDadosClientes.push(c); 
+            });
+            if(!minhaPosicaoGPS) minhaPosicaoGPS = await inicializarGPS();
+            
             document.getElementById('status').innerText = "Base carregada e pronta.";
             filtrarERenderizar();
             renderizarListaGeralClientes();
         }
 
-        window.vincularESincronizarPlanilha = async () => {
-            let url = document.getElementById('urlScriptDrive').value.trim();
-            if(!url) return alert("Insira uma URL válida de implantação.");
-            document.getElementById('status').innerText = "Limpando duplicados antigos...";
-            try {
-                await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url });
+        window.vincularESincronizarPlanilha = async () => { 
+            let url = document.getElementById('urlScriptDrive').value.trim(); 
+            if(!url) return;
+            
+            document.getElementById('status').innerText = "Limpando e clonando...";
+            try { 
+                await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url }); 
                 scriptUrlVinculado = url;
-                const snapshotAntigo = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
-                if (!snapshotAntigo.empty) { const batch = db.batch(); snapshotAntigo.forEach(doc => batch.delete(doc.ref)); await batch.commit(); }
-                document.getElementById('status').innerText = "Puxando novas linhas...";
-                const res = await fetch(url, { method: "GET", redirect: "follow", headers: { "Accept": "application/json" } });
-                const dadosPlanilha = await res.json();
-                for(let c of dadosPlanilha) { c.userId = usuarioAtual.uid; await db.collection("clientes").add(c); }
                 
-                fecharModalSync();
-                alert("Perfeito! Sua planilha do Drive foi clonada.");
+                const snaps = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
+                if (!snaps.empty) { 
+                    const batch = db.batch(); 
+                    snaps.forEach(doc => batch.delete(doc.ref)); 
+                    await batch.commit(); 
+                }
+                
+                const res = await fetch(url, { method: "GET", redirect: "follow", headers: { "Accept": "application/json" } });
+                const dados = await res.json(); 
+                for(let c of dados) { 
+                    c.userId = usuarioAtual.uid; 
+                    await db.collection("clientes").add(c); 
+                }
+                
+                fecharModalSync(); 
                 puxarDadosLocaisFirebase();
-            } catch(e) { alert("Erro de sincronização."); document.getElementById('status').innerText = "Erro na sincronização"; }
+            } catch(e) { 
+                document.getElementById('status').innerText = "Erro na sincronização"; 
+            }
         };
 
-        window.salvarDuploNovo = async () => {
-            const pct = { userId: usuarioAtual.uid, codigo: document.getElementById('addCodigo').value.trim(), nome: document.getElementById('addNome').value.trim(), endereco: document.getElementById('addEndereco').value.trim(), complemento: document.getElementById('addComplemento').value.trim(), bairro: document.getElementById('addBairro').value.trim(), cidade: document.getElementById('addCidade').value, semana: document.getElementById('addSemana').value, diaSemana: document.getElementById('addDia').value };
+        window.salvarDuploNovo = async () => { 
+            const pct = { 
+                userId: usuarioAtual.uid, 
+                codigo: document.getElementById('addCodigo').value.trim(), 
+                nome: document.getElementById('addNome').value.trim(), 
+                endereco: document.getElementById('addEndereco').value.trim(), 
+                complemento: document.getElementById('addComplemento').value.trim(), 
+                bairro: document.getElementById('addBairro').value.trim(), 
+                cidade: document.getElementById('addCidade').value, 
+                semana: document.getElementById('addSemana').value, 
+                diaSemana: document.getElementById('addDia').value 
+            };
             if(!pct.codigo || !pct.nome) return alert("Preencha o Código e a Razão Social.");
+            
             document.getElementById('status').innerText = "Salvando...";
             try {
                 await db.collection("clientes").add(pct);
-                if(scriptUrlVinculado) { pct.acao = "salvar"; fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); }
-                window.mudarAba('agenda'); puxarDadosLocaisFirebase();
+                if(scriptUrlVinculado) { 
+                    pct.acao = "salvar"; 
+                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); 
+                }
+                window.mudarAba('agenda'); 
+                puxarDadosLocaisFirebase();
             } catch(e) { alert("Erro ao salvar."); }
         };
 
-        window.salvarDuploEdicao = async () => {
+        window.salvarDuploEdicao = async () => { 
             if(!clienteSelecionadoAtualmente) return;
-            const pct = { codigo: document.getElementById('editCodigo').value, nome: document.getElementById('editNome').value.trim(), endereco: document.getElementById('editEndereco').value.trim(), complemento: document.getElementById('editComplemento').value.trim(), bairro: document.getElementById('editBairro').value.trim(), cidade: document.getElementById('editCidade').value, semana: document.getElementById('editSemana').value, diaSemana: document.getElementById('editDia').value };
+            const pct = { 
+                codigo: document.getElementById('editCodigo').value, 
+                nome: document.getElementById('editNome').value.trim(), 
+                endereco: document.getElementById('editEndereco').value.trim(), 
+                complemento: document.getElementById('editComplemento').value.trim(), 
+                bairro: document.getElementById('editBairro').value.trim(), 
+                cidade: document.getElementById('editCidade').value, 
+                semana: document.getElementById('editSemana').value, 
+                diaSemana: document.getElementById('editDia').value 
+            };
             document.getElementById('status').innerText = "Espelhando edições...";
             try {
                 await db.collection("clientes").doc(clienteSelecionadoAtualmente.idFirebase).update(pct);
-                if(scriptUrlVinculado) { pct.acao = "editar"; fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); }
-                window.fecharPainelEdicao(); puxarDadosLocaisFirebase();
+                if(scriptUrlVinculado) { 
+                    pct.acao = "editar"; 
+                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify(pct) }); 
+                }
+                window.fecharPainelEdicao(); 
+                puxarDadosLocaisFirebase();
             } catch(e) { alert("Erro ao editar."); }
         };
 
-        window.excluirDuplo = async () => {
-            if(!clienteSelecionadoAtualmente || !confirm("Deletar?")) return;
+        window.excluirDuplo = async () => { 
+            if(!clienteSelecionadoAtualmente || !confirm("Deletar permanentemente?")) return;
             try {
                 await db.collection("clientes").doc(clienteSelecionadoAtualmente.idFirebase).delete();
-                if(scriptUrlVinculado) { fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ codigo: clienteSelecionadoAtualmente.codigo, acao: "excluir" }) }); }
-                window.fecharPainelEdicao(); puxarDadosLocaisFirebase();
+                if(scriptUrlVinculado) { 
+                    fetch(scriptUrlVinculado, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ codigo: clienteSelecionadoAtualmente.codigo, acao: "excluir" }) }); 
+                }
+                window.fecharPainelEdicao(); 
+                puxarDadosLocaisFirebase();
             } catch(e) { alert("Erro ao deletar."); }
         };
 
-        window.exportarRotaDoDia = () => {
+        window.exportarRotaDoDia = () => { 
             if(relatorioAtual.length === 0) return alert("Nenhuma rota carregada.");
             let csv = "\uFEFFOrdem,Codigo,Nome,Endereco,Bairro,Cidade\n";
             relatorioAtual.forEach((c, i) => csv += `${i+1},${c.codigo},"${c.nome}","${c.endereco}","${c.bairro}","${c.cidade}"\n`);
-            const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); a.setAttribute("download", `Rota_${document.getElementById('filtroDia').value}.csv`); a.click();
+            const a = document.createElement("a"); 
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); 
+            a.setAttribute("download", `Rota_${document.getElementById('filtroDia').value}.csv`); 
+            a.click();
         };
 
-        async function inicializarGPS() {
-            return new Promise((r) => {
-                if(!navigator.geolocation) r(null);
-                else navigator.geolocation.getCurrentPosition(p => r([p.coords.latitude, p.coords.longitude]), e => r(null), {timeout:4000});
-            });
+        // LÓGICA DE GEOLOCALIZAÇÃO E MAPA
+        async function inicializarGPS() { 
+            return new Promise((r) => { 
+                if(!navigator.geolocation) r(null); 
+                else navigator.geolocation.getCurrentPosition(p => r([p.coords.latitude, p.coords.longitude]), e => r(null), {timeout:4000}); 
+            }); 
         }
 
         async function descobrirCoordenadaReal(endereco, city) {
             let b = encodeURIComponent(`${endereco.replace(/"/g, '')}, ${city}, SC, Brasil`);
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${b}&limit=1`);
-                const dados = await res.json();
-                if (dados && dados.length > 0) return [parseFloat(dados[0].lat), parseFloat(dados[0].lon)];
+            try { 
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${b}&limit=1`); 
+                const dados = await res.json(); 
+                if (dados && dados.length > 0) return [parseFloat(dados[0].lat), parseFloat(dados[0].lon)]; 
             } catch(e){}
-            const d = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112], "Indaial": [-26.8978, -49.2400], "Pomerode": [-26.7410, -49.1762], "Gaspar": [-26.9325, -48.9560], "Botuverá": [-27.1997, -49.0750] };
+            const d = { "Blumenau": [-26.9194, -49.0661], "Brusque": [-27.0978, -48.9112] }; 
             return d[city] || [-26.9166, -49.0661];
         }
 
         window.focarNoClienteDoMapa = (lat, lng, codigo) => {
-            map.setView([lat, lng], 16);
-            let alvo = marcadoresAtivosMap.find(m => m.codigo.toString().trim() === codigo.toString().trim());
-            if (alvo) { alvo.marker.openPopup(); }
+            map.setView([lat, lng], 16); 
+            let alvo = marcadoresAtivosMap.find(m => m.codigo.toString().trim() === codigo.toString().trim()); 
+            if (alvo) alvo.marker.openPopup();
         };
 
-        async function filtrarERenderizar() {
-            const semSel = document.getElementById('filtroSemana').value;
-            const diaSel = document.getElementById('filtroDia').value;
-            const clientesDoDia = bancoDeDadosClientes.filter(c => c.semana === semSel && c.diaSemana === diaSel);
+        window.sugerirRotaInteligente = (prefixo) => {
+            const bairroInput = document.getElementById(prefixo + 'Bairro').value.trim().toLowerCase();
+            const cidadeInput = document.getElementById(prefixo + 'Cidade').value;
+            if(!bairroInput) return alert("Digite o Bairro primeiro para mapear a região.");
+            document.getElementById('status').innerText = "Analisando vizinhança...";
+            
+            let vizinhos = bancoDeDadosClientes.filter(c => c.cidade === cidadeInput && c.bairro.toLowerCase().includes(bairroInput));
+            if(vizinhos.length === 0) return document.getElementById('status').innerText = "Região nova mapeada.";
+            
+            let contagem = {};
+            vizinhos.forEach(v => { let k = `${v.semana}|${v.diaSemana}`; contagem[k] = (contagem[k] || 0) + 1; });
+            
+            let max = 0, melhor = "";
+            for(let r in contagem) { if(contagem[r] > max) { max = contagem[r]; melhor = r; } }
+            
+            if(melhor) {
+                const [s, d] = melhor.split('|');
+                document.getElementById(prefixo + 'Semana').value = s; 
+                document.getElementById(prefixo + 'Dia').value = d;
+                document.getElementById('status').innerText = `Sugestão: ${max} vizinhos neste trajeto.`;
+            }
+        };
 
-            grupoMarcadores.clearLayers(); grupoRota.clearLayers(); marcadoresAtivosMap = []; relatorioAtual = [];
-            document.getElementById('badgeOtimizado').style.display = 'none';
-            const container = document.getElementById('listaAgenda'); container.innerHTML = ''; 
+        // ====== O CORAÇÃO DO MAPA INTELIGENTE (COM CORES E CACHE DE VISITADOS) ======
+        async function filtrarERenderizar() {
+            const clientesDoDia = bancoDeDadosClientes.filter(c => c.semana === document.getElementById('filtroSemana').value && c.diaSemana === document.getElementById('filtroDia').value);
+
+            grupoMarcadores.clearLayers(); 
+            grupoRota.clearLayers(); 
+            marcadoresAtivosMap = []; 
+            relatorioAtual = [];
+            
+            const container = document.getElementById('listaAgenda'); 
+            container.innerHTML = ''; 
 
             if (clientesDoDia.length === 0) {
-                container.innerHTML = '<p style="text-align:center; padding-top:30px; color:var(--texto-secundario); font-size:13px;">Nenhuma rota para hoje. 🎉</p>'; return;
+                container.innerHTML = '<p style="text-align:center; padding-top:30px; color:var(--texto-secundario); font-size:13px;">Nenhuma rota para hoje. 🎉</p>';
+                return;
             }
 
-            document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "Processando coordenadas...";
+            document.getElementById('loading-overlay').style.display = document.getElementById('status').innerText === "Atualizando rota..." ? 'none' : 'flex';
             
-            let coordsOriginais = []; let usandoGPSLocal = false;
-            if (minhaPosicaoGPS) { coordsOriginais.push(minhaPosicaoGPS); usandoGPSLocal = true; }
+            let coordsOriginais = []; 
+            let usandoGPSLocal = false;
+            
+            if (minhaPosicaoGPS) { 
+                coordsOriginais.push(minhaPosicaoGPS); 
+                usandoGPSLocal = true; 
+            }
 
             for (let c of clientesDoDia) {
-                let coord = await descobrirCoordenadaReal(c.endereco, c.cidade);
-                coordsOriginais.push(coord); await new Promise(r => setTimeout(r, 1300)); 
+                let chaveEnd = c.endereco + c.cidade;
+                if (!cacheCoordsGeral[chaveEnd]) {
+                    cacheCoordsGeral[chaveEnd] = await descobrirCoordenadaReal(c.endereco, c.cidade);
+                    await new Promise(r => setTimeout(r, 600)); 
+                }
+                coordsOriginais.push(cacheCoordsGeral[chaveEnd]);
             }
 
-            let rotaOrdenadaIndices = coordsOriginais.map((_, i) => i);
-
+            let rotaIndices = coordsOriginais.map((_, i) => i);
+            let stringRotas = coordsOriginais.map(c => `${c[1]},${c[0]}`).join(';');
+            
             if (coordsOriginais.length > 1) {
-                try {
-                    document.getElementById('loading-text').innerText = "Otimizando trajeto...";
-                    let str = coordsOriginais.map(c => `${c[1]},${c[0]}`).join(';');
-                    const res = await fetch(`https://router.project-osrm.org/trip/v1/driving/${str}?roundtrip=false&source=first&geometries=geojson`);
-                    const dadosTrip = await res.json();
-                    if (dadosTrip.waypoints) {
-                        document.getElementById('badgeOtimizado').style.display = 'inline-block';
-                        rotaOrdenadaIndices = dadosTrip.waypoints.map((wp, idx) => ({ o: idx, idxOpt: wp.waypoint_index })).sort((a,b) => a.idxOpt - b.idxOpt).map(wp => wp.o);
-                    }
-                } catch(e){}
+                if(ordemMagicaOSRM) {
+                    rotaIndices = ordemMagicaOSRM;
+                } else {
+                    try {
+                        const res = await fetch(`https://router.project-osrm.org/trip/v1/driving/${stringRotas}?roundtrip=false&source=first&geometries=geojson`);
+                        const dadosTrip = await res.json();
+                        if (dadosTrip.waypoints) {
+                            rotaIndices = dadosTrip.waypoints.map((wp, idx) => ({ o: idx, idxOpt: wp.waypoint_index })).sort((a,b) => a.idxOpt - b.idxOpt).map(wp => wp.o);
+                            ordemMagicaOSRM = rotaIndices; 
+                            document.getElementById('badgeOtimizado').style.display = 'inline-block';
+                        }
+                    } catch(e){}
+                }
             }
 
             let coordsCaminho = [];
-            rotaOrdenadaIndices.forEach((idxOrigem, ordemAtual) => {
+            let clientesOrganizadosNaTrilha = [];
+
+            // GERAÇÃO DOS PINOS E DA GAVETA
+            rotaIndices.forEach((idxOrigem, ordemAtual) => {
                 let coord = coordsOriginais[idxOrigem];
                 coordsCaminho.push(coord);
 
                 if (usandoGPSLocal && idxOrigem === 0) {
-                    L.circleMarker(coord, { color: '#38bdf8', fillColor: '#0f172a', fillOpacity: 1, radius: 8, weight: 3 }).bindPopup('<b style="color:#38bdf8;">📍 Início da Rota</b>').addTo(grupoMarcadores);
+                    L.circleMarker(coord, { color: '#38bdf8', fillColor: '#0f172a', fillOpacity: 1, radius: 8, weight: 3 }).bindPopup('<b style="color:#38bdf8;">📍 Sua Posição</b>').addTo(grupoMarcadores);
                 } else {
                     let c = clientesDoDia[usandoGPSLocal ? idxOrigem - 1 : idxOrigem];
+                    clientesOrganizadosNaTrilha.push(c);
                     relatorioAtual.push(c);
+                    
                     let iReal = usandoGPSLocal ? ordemAtual - 1 : ordemAtual;
-                    let corCard = paletaCores[iReal % paletaCores.length];
+                    
+                    // AQUI A MÁGICA: Convertemos pra String pra garantir a comparação!
+                    let isVisitado = clientesVisitadosHoje.has(String(c.codigo));
+                    
+                    let corCard = isVisitado ? '#475569' : paletaCores[iReal % paletaCores.length]; 
+                    let txtPino = isVisitado ? '✓' : (iReal + 1); 
 
-                    let marker = L.marker(coord, { icon: criarIconeNumerado(corCard, iReal + 1) }).bindPopup(`<div><b style="color:${corCard};">Visita ${iReal + 1}: ${c.nome}</b><p style="margin:4px 0;font-size:11px;">📍 ${c.endereco}</p></div>`);
-                    grupoMarcadores.addLayer(marker); marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
+                    let marker = L.marker(coord, { icon: criarIconeNumerado(corCard, txtPino) }).bindPopup(`<div><b style="color:${corCard};">Visita ${iReal + 1}: ${c.nome}</b><p style="margin:4px 0;font-size:11px;">📍 ${c.endereco}</p></div>`);
+                    grupoMarcadores.addLayer(marker); 
+                    marcadoresAtivosMap.push({ codigo: c.codigo, marker: marker });
                     
                     const urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.endereco + ', ' + c.cidade)}`;
+                    
+                    let actBtn = isVisitado 
+                        ? `<button class="btn-acao btn-desfazer" onclick="alternarVisita('${c.codigo}', event)">↩ Desfazer</button>`
+                        : `<button class="btn-acao btn-visitado" onclick="alternarVisita('${c.codigo}', event)">✅ Visitado</button>`;
+
                     container.innerHTML += `
-                        <div class="card-item" style="border-left-color:${corCard};" onclick="window.focarNoClienteDoMapa(${coord[0]}, ${coord[1]}, '${c.codigo}')">
-                            <h4 style="color:${corCard};">${iReal+1}. <span style="color:var(--texto-principal);">${c.nome}</span></h4>
+                        <div class="card-item ${isVisitado ? 'visitado' : ''}" style="border-left-color:${corCard};" onclick="window.focarNoClienteDoMapa(${coord[0]}, ${coord[1]}, '${c.codigo}')">
+                            <h4 style="color:${corCard};">${txtPino}. <span style="color:var(--texto-principal);">${c.nome}</span></h4>
                             <p><b>Bairro:</b> ${c.bairro} | <b>Cidade:</b> ${c.cidade}</p>
                             <p><b>Endereço:</b> ${c.endereco}</p>
                             ${c.complemento ? `<p style="color:${corCard}; font-size:11px; font-weight:500; margin: 4px 0;">${c.complemento}</p>` : ''}
-                            <a href="${urlMaps}" target="_blank" style="display:inline-block; margin-top:8px; font-size:11px; color:${corCard}; text-decoration:none; font-weight:bold; border: 1px solid ${corCard}; padding: 4px 8px; border-radius: 6px;" onclick="event.stopPropagation();">🧭 Abrir GPS</a>
+                            
+                            <div class="botoes-acao-card">
+                                <a href="${urlMaps}" target="_blank" class="btn-acao btn-gps" onclick="event.stopPropagation();">🧭 Abrir GPS</a>
+                                ${actBtn}
+                            </div>
                         </div>
                     `;
                 }
             });
 
+            // DESENHA AS LINHAS ENTRE OS PINOS NO MAPA
             if (coordsCaminho.length > 1) {
                 let limites = L.latLngBounds();
+                
                 for (let i = 0; i < coordsCaminho.length - 1; i++) {
-                    let pOrg = coordsCaminho[i]; let pDest = coordsCaminho[i+1];
-                    let corLinha = paletaCores[i % paletaCores.length];
+                    let pOrg = coordsCaminho[i]; 
+                    let pDest = coordsCaminho[i+1];
+                    let clienteFinalDoTrecho = clientesOrganizadosNaTrilha[i];
+                    
+                    // Mesma Mágica: Converte o código pra String!
+                    let isDestinoVisitado = clientesVisitadosHoje.has(String(clienteFinalDoTrecho.codigo));
+                    let corLinha = isDestinoVisitado ? '#475569' : paletaCores[i % paletaCores.length];
 
-                    try {
-                        document.getElementById('loading-text').innerText = `Colorindo trecho ${i+1}...`;
-                        const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${pOrg[1]},${pOrg[0]};${pDest[1]},${pDest[0]}?overview=full&geometries=geojson`);
-                        const dados = await res.json();
-                        if (dados.code === 'Ok' && dados.routes.length > 0) {
-                            let linhaColor = L.polyline(dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]), {color: corLinha, weight: 6, opacity: 0.85});
-                            grupoRota.addLayer(linhaColor); limites.extend(linhaColor.getBounds());
-                        } else throw new Error();
-                    } catch(e) {
-                        let linhaReta = L.polyline([pOrg, pDest], {color: corLinha, weight: 4, dashArray: '6, 6', opacity: 0.7});
-                        grupoRota.addLayer(linhaReta); limites.extend(linhaReta.getBounds());
+                    let strCache = `${pOrg[0]},${pOrg[1]}x${pDest[0]},${pDest[1]}`;
+
+                    if(cacheRuasTracas[strCache]) {
+                        // Se tem na memória, puxa instantâneo e só pinta da cor certa!
+                        let linhaColor = L.polyline(cacheRuasTracas[strCache], {color: corLinha, weight: 6, opacity: 0.85});
+                        grupoRota.addLayer(linhaColor); 
+                        limites.extend(linhaColor.getBounds());
+                    } else {
+                        try {
+                            const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${pOrg[1]},${pOrg[0]};${pDest[1]},${pDest[0]}?overview=full&geometries=geojson`);
+                            const dados = await res.json();
+                            if (dados.code === 'Ok' && dados.routes.length > 0) {
+                                let pontos = dados.routes[0].geometry.coordinates.map(p => [p[1], p[0]]);
+                                cacheRuasTracas[strCache] = pontos; // Guarda na memória
+                                let linhaColor = L.polyline(pontos, {color: corLinha, weight: 6, opacity: 0.85});
+                                grupoRota.addLayer(linhaColor); 
+                                limites.extend(linhaColor.getBounds());
+                            } else throw new Error();
+                        } catch(e) {
+                            let linhaReta = L.polyline([pOrg, pDest], {color: corLinha, weight: 4, dashArray: '6, 6', opacity: 0.7});
+                            grupoRota.addLayer(linhaReta); 
+                            limites.extend(linhaReta.getBounds());
+                        }
+                        await new Promise(r => setTimeout(r, 400));
                     }
-                    await new Promise(r => setTimeout(r, 600)); 
                 }
-                if (limites.isValid()) map.fitBounds(limites, {padding:[40,40]});
-            } else if (coordsCaminho.length === 1) map.setView(coordsCaminho[0], 15);
+                
+                // Centraliza a câmera só se não estiver em atualização de clique
+                if (limites.isValid() && document.getElementById('status').innerText !== "Atualizando rota...") {
+                    map.fitBounds(limites, {padding:[40,40]});
+                }
+            }
 
             document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('status').innerText = "Base carregada e pronta.";
         }
 
-        // NOVO: ORDENAÇÃO DUPLA (SEMANA -> DIA)
+        // FUNÇÕES DA ABA BASE VIVA
         window.renderizarListaGeralClientes = () => {
             const container = document.getElementById('listaClientesGeral'); 
             container.innerHTML = '';
@@ -644,10 +850,28 @@
             });
         };
 
-        window.filtrarListaGeral = () => { const b = document.getElementById('campoBusca').value.toLowerCase(); Array.from(document.getElementById('listaClientesGeral').getElementsByClassName('card-item')).forEach(c => c.style.display = c.innerText.toLowerCase().includes(b) ? 'block' : 'none'); };
-        window.abrirPainelEdicao = (codigo) => { const c = bancoDeDadosClientes.find(item => item.codigo.toString() === codigo.toString()); if (!c) return; clienteSelecionadoAtualmente = c; ['Codigo', 'Nome', 'Endereco', 'Complemento', 'Bairro', 'Cidade', 'Semana', 'Dia'].forEach(k => document.getElementById(`edit${k}`).value = c[k.toLowerCase()] || c[k === 'Dia' ? 'diaSemana' : '']); document.getElementById('painelEdicao').classList.remove('aba-escondida'); };
-        window.fecharPainelEdicao = () => { document.getElementById('painelEdicao').classList.add('aba-escondida'); clienteSelecionadoAtualmente = null; };
-        document.getElementById('filtroSemana').addEventListener('change', filtrarERenderizar); document.getElementById('filtroDia').addEventListener('change', filtrarERenderizar);
+        window.filtrarListaGeral = () => { 
+            const b = document.getElementById('campoBusca').value.toLowerCase(); 
+            Array.from(document.getElementById('listaClientesGeral').getElementsByClassName('card-item')).forEach(c => {
+                c.style.display = c.innerText.toLowerCase().includes(b) ? 'block' : 'none';
+            }); 
+        };
+
+        window.abrirPainelEdicao = (codigo) => { 
+            const c = bancoDeDadosClientes.find(item => item.codigo.toString() === codigo.toString()); 
+            if (!c) return; 
+            clienteSelecionadoAtualmente = c; 
+            ['Codigo', 'Nome', 'Endereco', 'Complemento', 'Bairro', 'Cidade', 'Semana', 'Dia'].forEach(k => {
+                document.getElementById(`edit${k}`).value = c[k.toLowerCase()] || c[k === 'Dia' ? 'diaSemana' : ''];
+            }); 
+            document.getElementById('painelEdicao').classList.remove('aba-escondida'); 
+        };
+
+        window.fecharPainelEdicao = () => { 
+            document.getElementById('painelEdicao').classList.add('aba-escondida'); 
+            clienteSelecionadoAtualmente = null; 
+        };
+        
     </script>
 </body>
 </html>
