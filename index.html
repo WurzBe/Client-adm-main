@@ -269,38 +269,43 @@
             renderizarListaGeralClientes();
         }
 
-        window.vincularESincronizarPlanilha = async () => {
-            let url = document.getElementById('urlScriptDrive').value.trim();
-            if(!url) return alert("Insira uma URL válida de implantação.");
-            
-            document.getElementById('status').innerText = "Conectando ao Drive...";
-            try {
-                await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url });
-                scriptUrlVinculado = url;
+       window.vincularESincronizarPlanilha = async () => {
+    let url = document.getElementById('urlScriptDrive').value.trim();
+    if(!url) return alert("Insira uma URL válida de implantação.");
+    
+    document.getElementById('status').innerText = "Conectando ao Drive...";
+    try {
+        await db.collection("configuracoes").doc(usuarioAtual.uid).set({ scriptUrl: url });
+        scriptUrlVinculado = url;
 
-                const batch = db.batch();
-                const snapshotAntigo = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
-                snapshotAntigo.forEach(doc => batch.delete(doc.ref));
-                await batch.commit();
+        const batch = db.batch();
+        const snapshotAntigo = await db.collection("clientes").where("userId", "==", usuarioAtual.uid).get();
+        snapshotAntigo.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
 
-                document.getElementById('status').innerText = "Puxando linhas...";
-                
-                // SOLUÇÃO DO BLOQUEIO DE CORS: Avisamos o navegador para tratar a requisição como 'cors' mas sem proxy intermediário
-                const res = await fetch(url, { method: "GET", headers: { "Accept": "application/json" } });
-                const dadosPlanilha = await res.json();
+        document.getElementById('status').innerText = "Puxando linhas...";
+        
+        // CORREÇÃO DEFINITIVA DE CORS: Força o navegador a seguir o redirecionamento seguro do Google
+        const res = await fetch(url, { 
+            method: "GET",
+            redirect: "follow",
+            headers: { "Accept": "application/json" }
+        });
+        
+        const dadosPlanilha = await res.json();
 
-                for(let c of dadosPlanilha) {
-                    c.userId = usuarioAtual.uid;
-                    await db.collection("clientes").add(c);
-                }
-                alert("Perfeito! Sua planilha do Drive e o App estão integrados com sucesso.");
-                puxarDadosLocaisFirebase();
-            } catch(e) {
-                console.error(e);
-                alert("Erro de leitura direta. Verifique se o código do Apps Script foi atualizado e reimplantado como 'Nova Versão' no modo 'Qualquer pessoa'.");
-                document.getElementById('status').innerText = "Erro na sincronização";
-            }
-        };
+        for(let c of dadosPlanilha) {
+            c.userId = usuarioAtual.uid;
+            await db.collection("clientes").add(c);
+        }
+        alert("Sensacional! Sua planilha do Drive e o App estão integrados com sucesso.");
+        puxarDadosLocaisFirebase();
+    } catch(e) {
+        console.error(e);
+        alert("Erro de leitura direta. Verifique se o código do Apps Script foi atualizado e implantado com 'Quem pode acessar: Qualquer pessoa'.");
+        document.getElementById('status').innerText = "Erro na sincronização";
+    }
+};
 
         window.salvarDuploNovo = async () => {
             const pct = {
