@@ -139,7 +139,7 @@
             <label style="font-size: 11px; color: var(--texto-secundario); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; display: block;">🔗 URL do Script</label>
             <input type="text" id="urlScriptDrive" placeholder="https://script.google.com/macros/..." style="width: 100%; padding: 14px; box-sizing: border-box; background: var(--bg-input); color: white; border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 20px; font-size: 13px; outline: none;">
             
-            <button class="btn-acao" style="background: #10b981; color: white; margin-bottom: 10px;" onclick="vincularESincronizarPlanilha()">Sincronizar</button>
+            <button class="btn-acao" style="background: #10b981; color: white; margin-bottom: 10px;" onclick="vincularESincronizarPlanilha()">Baixar e Sincronizar</button>
             <button class="btn-acao" style="background: transparent; border: 1px solid var(--borda); color: var(--texto-secundario);" onclick="fecharModalSync()">Cancelar</button>
         </div>
     </div>
@@ -229,7 +229,7 @@
                 <b style="color: var(--cor-primaria); font-size: 17px;">Novo Registro</b>
                 <label>Código Identificador</label><input type="text" id="addCodigo" placeholder="Ex: 1045">
                 <label>Razão Social</label><input type="text" id="addNome">
-                <label>Endereço Completo</label><input type="text" id="addEndereco">
+                <label>Endereço Completo</label><input type="text" id="addComplemento">
                 <label>Complemento</label><input type="text" id="addComplemento">
                 <label>Bairro</label><input type="text" id="addBairro">
                 <label>Cidade</label><select id="addCidade"><option value="Blumenau">Blumenau</option><option value="Brusque">Brusque</option><option value="Indaial">Indaial</option><option value="Pomerode">Pomerode</option><option value="Gaspar">Gaspar</option><option value="Botuverá">Botuverá</option></select>
@@ -265,7 +265,6 @@
             document.getElementById('userDropdown').classList.toggle('active');
         };
 
-        // Fecha o menu se clicar fora dele
         document.addEventListener('click', (e) => {
             const dropdown = document.getElementById('userDropdown');
             if (dropdown.classList.contains('active') && !e.target.closest('.user-menu-container')) {
@@ -406,7 +405,6 @@
                 usuarioAtual = user;
                 document.getElementById('tela-login').style.display = 'none';
                 
-                // Configura o Avatar com a primeira letra e o E-mail
                 document.getElementById('userEmailDisplay').innerText = user.email;
                 document.getElementById('avatarBtn').innerText = user.email.charAt(0).toUpperCase();
 
@@ -468,7 +466,7 @@
                 const dadosPlanilha = await res.json();
                 for(let c of dadosPlanilha) { c.userId = usuarioAtual.uid; await db.collection("clientes").add(c); }
                 
-                fecharModalSync(); // Fecha o modal após concluir
+                fecharModalSync();
                 alert("Perfeito! Sua planilha do Drive foi clonada.");
                 puxarDadosLocaisFirebase();
             } catch(e) { alert("Erro de sincronização."); document.getElementById('status').innerText = "Erro na sincronização"; }
@@ -630,10 +628,22 @@
             document.getElementById('loading-overlay').style.display = 'none';
         }
 
+        // NOVO: ORDENAÇÃO DUPLA (SEMANA -> DIA)
         window.renderizarListaGeralClientes = () => {
-            const container = document.getElementById('listaClientesGeral'); container.innerHTML = '';
-            bancoDeDadosClientes.forEach(c => { container.innerHTML += `<div class="card-item" style="border-left-color: var(--borda);" onclick="window.abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p>Código: ${c.codigo} | <b>${c.semana} (${c.diaSemana})</b></p></div>`; });
+            const container = document.getElementById('listaClientesGeral'); 
+            container.innerHTML = '';
+            
+            let clientesOrdenados = [...bancoDeDadosClientes].sort((a, b) => {
+                if (a.semana !== b.semana) return (a.semana || "").localeCompare(b.semana || "");
+                const pesosDias = { "Segunda-Feira": 1, "Terça-Feira": 2, "Quarta-Feira": 3, "Quinta-Feira": 4, "Sexta-Feira": 5, "Sábado": 6, "Domingo": 7 };
+                return (pesosDias[a.diaSemana] || 99) - (pesosDias[b.diaSemana] || 99);
+            });
+
+            clientesOrdenados.forEach(c => { 
+                container.innerHTML += `<div class="card-item" style="border-left-color: var(--borda);" onclick="window.abrirPainelEdicao('${c.codigo}')"><h4>${c.nome}</h4><p>Código: ${c.codigo} | <b>${c.semana} - ${c.diaSemana}</b></p></div>`; 
+            });
         };
+
         window.filtrarListaGeral = () => { const b = document.getElementById('campoBusca').value.toLowerCase(); Array.from(document.getElementById('listaClientesGeral').getElementsByClassName('card-item')).forEach(c => c.style.display = c.innerText.toLowerCase().includes(b) ? 'block' : 'none'); };
         window.abrirPainelEdicao = (codigo) => { const c = bancoDeDadosClientes.find(item => item.codigo.toString() === codigo.toString()); if (!c) return; clienteSelecionadoAtualmente = c; ['Codigo', 'Nome', 'Endereco', 'Complemento', 'Bairro', 'Cidade', 'Semana', 'Dia'].forEach(k => document.getElementById(`edit${k}`).value = c[k.toLowerCase()] || c[k === 'Dia' ? 'diaSemana' : '']); document.getElementById('painelEdicao').classList.remove('aba-escondida'); };
         window.fecharPainelEdicao = () => { document.getElementById('painelEdicao').classList.add('aba-escondida'); clienteSelecionadoAtualmente = null; };
